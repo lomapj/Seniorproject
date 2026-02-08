@@ -35,6 +35,36 @@ Users can search for listings.
 
 User Stories:
 
+As a student, I want to create an account using my school email so only verified students can access the marketplace.
+
+As a student, I want to log in securely so my account and listings are protected.
+
+As a student, I want to log out so others cannot access my account on shared devices.
+
+As a seller, I want to post items for sale so other students can see them.
+
+As a seller, I want to upload images to my listings so buyers can see the items.
+
+As a seller, I want to edit my listings so I can update item details.
+
+As a seller, I want to delete my listings so I can remove items that are no longer available.
+
+As a buyer, I want to browse all available listings so I can find items easily.
+
+As a buyer, I want to search listings by keyword so I can quickly locate specific items.
+
+As a buyer, I want to filter listings by category so results are more relevant.
+
+As a buyer, I want to filter listings by price range so I can stay within my budget.
+
+As a buyer, I want to message sellers so I can ask questions before purchasing.
+
+As a seller, I want to respond to buyer messages so we can coordinate the exchange.
+
+As a user, I want to report unsafe or inappropriate listings so the platform remains safe.
+
+As an admin, I want to review reported listings so I can remove content that violates rules.
+
 Acceptance Criteria:
 
 Non-functional requirements:
