@@ -1,7 +1,7 @@
 Product Backlog
 
 Goals:
-Our goal is to create a secure, student-only marketplace that reduces the financial burden of attending college. In the long term, we aim to make books and electronic devices more accessible and affordable for students.
+Our goal is to create a secure, student-only marketplace that reduces the financial burden of attending college. In the long term, we aim to make books, electronic devices, and other essential resources more accessible and affordable for students.
 
 Functions/ Features:
 1. User Account Registration
@@ -31,7 +31,35 @@ Users can browse all available listings.
 9. Search Function
 Users can search for listings.
 
-10. 
+10. Category Filtering
+Users can filter listings by category.
+
+11. Price Filtering
+Users can filter listings by price range.
+
+12. Listings Detailed View
+Users can view full details of a listing.
+
+13. In-Platform Messaging
+Buyers and sellers can message each other securely.
+
+14. Saved Listings
+Users can save listings for later viewing.
+
+15. Reporting
+Users can report false or inappropriate listings.
+
+16. Admin Moderation Panel
+Admins can review reports, remove listings, and suspend users.
+
+17. Listing Status
+Listings can be marked as available, pending, or sold.
+
+18. Activity Notifications
+Users can receive notifications for messages and listing updates.
+
+19.
+
 
 User Stories:
 
