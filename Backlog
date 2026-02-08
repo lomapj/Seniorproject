@@ -1,8 +1,37 @@
 Product Backlog
 
 Goals:
+Our goal is to create a secure, student-only marketplace that reduces the financial burden of attending college. In the long term, we aim to make books and electronic devices more accessible and affordable for students.
 
 Functions/ Features:
+1. User Account Registration
+Students can create accounts using their school email and ID.
+
+2. User Authentication and Login
+Secure login and logout functions.
+
+3. Student Verification
+Verified college emails only can access the platform
+
+4. User Profile Management
+Users can view and edit profile information.
+
+5. Item Listing Creation
+Students can create and manage listings with a title, description, price, and category.
+
+6. Image Upload for Listings
+Users can upload images of their listings.
+
+7. Item Listing Management
+Users can modify or remove their own listings.
+
+8. Marketplace Browsing
+Users can browse all available listings.
+
+9. Search Function
+Users can search for listings.
+
+10. 
 
 User Stories:
 
