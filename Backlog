@@ -66,11 +66,29 @@ Buyers and sellers can leave ratings and reviews for each other.
 
 User Stories:
 
+Student / General User
+
 As a student, I want to create an account using my school email so only verified students can access the marketplace.
 
 As a student, I want to log in securely so my account and listings are protected.
 
 As a student, I want to log out so others cannot access my account on shared devices.
+
+As a student, I want to update my profile information so my contact details stay accurate.
+
+As a student, I want to change my password so I can keep my account secure.
+
+As a student, I want to reset my password if I forget it so I can regain access to my account.
+
+As a user, I want to receive notifications when I get a new message so I don’t miss conversations.
+
+As a user, I want to receive notifications when my listing status changes so I stay informed.
+
+As a user, I want to delete old conversations so my inbox stays organized.
+
+As a user, I want to report unsafe or inappropriate listings so the platform remains safe.
+
+Seller
 
 As a seller, I want to post items for sale so other students can see them.
 
@@ -79,6 +97,16 @@ As a seller, I want to upload images to my listings so buyers can see the items.
 As a seller, I want to edit my listings so I can update item details.
 
 As a seller, I want to delete my listings so I can remove items that are no longer available.
+
+As a seller, I want to mark my listing as sold so other users know it is no longer available.
+
+As a seller, I want to mark my listing as pending so buyers know it is currently being negotiated.
+
+As a seller, I want to respond to buyer messages so we can coordinate the exchange.
+
+As a seller, I want to rate buyers after a transaction so reliable users are recognized.
+
+Buyer
 
 As a buyer, I want to browse all available listings so I can find items easily.
 
@@ -90,11 +118,21 @@ As a buyer, I want to filter listings by price range so I can stay within my bud
 
 As a buyer, I want to message sellers so I can ask questions before purchasing.
 
-As a seller, I want to respond to buyer messages so we can coordinate the exchange.
+As a buyer, I want to view only available listings so I don’t waste time on sold items.
 
-As a user, I want to report unsafe or inappropriate listings so the platform remains safe.
+As a buyer, I want to sort listings by price so I can compare items within my budget.
+
+As a buyer, I want to view recently posted listings so I can find the newest deals.
+
+As a buyer, I want to see listings from my own college first so exchanges are more convenient.
+
+As a buyer, I want to view seller ratings and reviews so I can decide who to trust.
+
+Admin
 
 As an admin, I want to review reported listings so I can remove content that violates rules.
+
+As an admin, I want to suspend users who repeatedly violate platform rules so the marketplace remains safe.
 
 Acceptance Criteria:
 Given a Farmingdale student with a valid school email, when they register, then the system verifies the email.
