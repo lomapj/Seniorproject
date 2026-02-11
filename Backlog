@@ -97,6 +97,33 @@ As a user, I want to report unsafe or inappropriate listings so the platform rem
 As an admin, I want to review reported listings so I can remove content that violates rules.
 
 Acceptance Criteria:
+Given a Farmingdale student with a valid school email, when they register, then the system verifies the email.
+
 
 Non-functional requirements:
+Security:
+Only Farmindale State College students with a valid school email address have access.
+Admins have some access to enforce punishments and suspensions.
+
+Hardware Requirements:
+The website should run on most, if not all, hardware. 
+Users must have access to the internet.
+
+Platforms:
+A website that is accessed through web browsers such as Chrome, Safari, etc.
+
+OS:
+Compatible with Windows, macOS, iOS, and Android.
+
+Capacity:
+Supports hundreds of registered users.  
+The platform can handle many concurrent users efficiently.
+
+Performance and Speed:
+Pages on the platform load quickly. 
+Search, filtering, and messaging are almost instant.
+
+Scalability:
+The platform is designed to expand to other colleges in the future. 
+Allows easy addition of new categories and features.
 
