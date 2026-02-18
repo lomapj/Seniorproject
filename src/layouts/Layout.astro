@@ -6,7 +6,7 @@ interface Props {
   authLayout?: boolean;
 }
 const {
-  title = 'FSC Marketplace',
+  title = "FSC Marketplace",
   showNav = true,
   showFooter = true,
   authLayout = false,
@@ -27,320 +27,434 @@ const {
       rel="stylesheet"
     />
     <style>
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-      :root {
-        --green:       #006153;
-        --green-dark:  #004d42;
-        --green-hover: #005045;
-        --green-light: #e6f2f0;
-        --green-mid:   #4d9e95;
-        --gold:        #F4B400;
-        --gold-light:  #fff8e1;
-        --white:       #ffffff;
-        --gray-50:     #f9fafb;
-        --gray-100:    #f3f4f6;
-        --gray-200:    #e5e7eb;
-        --gray-300:    #d1d5db;
-        --gray-400:    #9ca3af;
-        --gray-500:    #6b7280;
-        --gray-600:    #4b5563;
-        --gray-700:    #374151;
-        --gray-800:    #1f2937;
-        --red:         #dc2626;
-        --red-light:   #fef2f2;
-        --font:        'Plus Jakarta Sans', sans-serif;
-        --radius-sm:   6px;
-        --radius-md:   10px;
-        --radius-lg:   16px;
-        --shadow-sm:   0 1px 3px rgba(0,0,0,0.08);
-        --shadow-md:   0 4px 16px rgba(0,0,0,0.09);
-        --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
-      html, body {
+      :root {
+        --primary: #006153;
+        --primary-dark: #004d42;
+        --primary-hover: #007a68;
+        --primary-soft: #e6f2f0;
+
+        --accent: #f4b400;
+        --accent-soft: #fff8e1;
+
+        --white: #ffffff;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-300: #cbd5e1;
+        --gray-400: #94a3b8;
+        --gray-500: #64748b;
+        --gray-600: #475569;
+        --gray-700: #334155;
+        --gray-800: #1e293b;
+        --gray-900: #0f172a;
+
+        --success: #10b981;
+        --error: #ef4444;
+
+        --font: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 20px;
+        --radius-full: 9999px;
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg:
+          0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-xl:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+        --glass: rgba(255, 255, 255, 0.8);
+        --glass-border: rgba(255, 255, 255, 0.4);
+      }
+
+      html,
+      body {
         font-family: var(--font);
         background: var(--gray-50);
         color: var(--gray-800);
-        line-height: 1.5;
+        line-height: 1.6;
         min-height: 100%;
+        -webkit-font-smoothing: antialiased;
       }
 
       /* ── NAV ─────────────────────────────────── */
       .nav {
-        background: var(--green);
-        height: 62px;
-        display: flex;
-        align-items: center;
-        padding: 0 1.5rem;
-        gap: 1rem;
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        height: 72px;
         position: sticky;
         top: 0;
         z-index: 200;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        height: 100%;
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
       }
 
       .nav-brand {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
+        gap: 0.75rem;
         text-decoration: none;
-        color: white;
+        color: var(--gray-900);
+        transition: transform 0.2s;
         flex-shrink: 0;
       }
 
+      .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--gray-600);
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .mobile-menu-toggle {
+          display: block;
+        }
+        .nav-search {
+          display: none;
+        }
+        .nav-actions {
+          position: fixed;
+          top: 72px;
+          left: 0;
+          right: 0;
+          background: var(--white);
+          flex-direction: column;
+          padding: 2rem;
+          border-bottom: 1px solid var(--gray-200);
+          transform: translateY(-100%);
+          opacity: 0;
+          pointer-events: none;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 199;
+        }
+        .nav-actions.active {
+          transform: translateY(0);
+          opacity: 1;
+          pointer-events: auto;
+        }
+        .nav-actions .btn-post-item {
+          width: 100%;
+          text-align: center;
+          padding: 1rem;
+        }
+      }
+
+      .nav-brand:hover {
+        transform: scale(1.02);
+      }
+
       .nav-brand-badge {
-        width: 38px;
-        height: 38px;
-        background: rgba(255,255,255,0.18);
-        border-radius: 10px;
+        width: 42px;
+        height: 42px;
+        background: var(--primary);
+        border-radius: var(--radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 800;
-        font-size: 0.85rem;
-        letter-spacing: -0.02em;
-        border: 1.5px solid rgba(255,255,255,0.28);
+        color: white;
+        font-size: 0.9rem;
+        box-shadow: var(--shadow-md);
       }
 
-      .nav-brand-text { line-height: 1.15; }
+      .nav-brand-text {
+        line-height: 1.2;
+      }
 
       .nav-brand-name {
-        font-size: 0.88rem;
+        font-size: 0.95rem;
         font-weight: 700;
         display: block;
+        letter-spacing: -0.01em;
       }
 
       .nav-brand-sub {
-        font-size: 0.62rem;
-        font-weight: 500;
-        opacity: 0.75;
-        letter-spacing: 0.06em;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--gray-500);
+        letter-spacing: 0.05em;
         text-transform: uppercase;
         display: block;
       }
 
       .nav-search {
         flex: 1;
-        max-width: 360px;
+        max-width: 400px;
         position: relative;
-        margin: 0 auto;
       }
 
       .nav-search input {
         width: 100%;
-        padding: 0.5rem 0.85rem 0.5rem 2.4rem;
-        border-radius: var(--radius-md);
-        border: none;
-        background: rgba(255,255,255,0.14);
-        color: white;
-        font-size: 0.85rem;
+        padding: 0.65rem 1rem 0.65rem 2.75rem;
+        border-radius: var(--radius-full);
+        border: 1.5px solid var(--gray-200);
+        background: var(--white);
+        color: var(--gray-800);
+        font-size: 0.9rem;
         font-family: var(--font);
         outline: none;
-        transition: background 0.2s;
+        transition: all 0.2s;
       }
 
-      .nav-search input::placeholder { color: rgba(255,255,255,0.55); }
-      .nav-search input:focus { background: rgba(255,255,255,0.22); }
+      .nav-search input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(0, 97, 83, 0.08);
+      }
 
       .nav-search-icon {
         position: absolute;
-        left: 0.7rem;
+        left: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        color: rgba(255,255,255,0.6);
-        pointer-events: none;
+        color: var(--gray-400);
       }
 
       .nav-actions {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
         margin-left: auto;
       }
 
       .btn-post-item {
-        background: white;
-        color: var(--green);
+        background: var(--primary);
+        color: white;
         font-weight: 700;
-        font-size: 0.82rem;
-        padding: 0.45rem 1rem;
-        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        padding: 0.6rem 1.25rem;
+        border-radius: var(--radius-full);
         border: none;
         cursor: pointer;
         text-decoration: none;
-        font-family: var(--font);
-        transition: background 0.2s, color 0.2s;
-        white-space: nowrap;
+        transition: all 0.2s;
+        box-shadow: var(--shadow-sm);
       }
 
-      .btn-post-item:hover { background: var(--green-light); }
+      .btn-post-item:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
 
       .nav-icon-btn {
-        background: rgba(255,255,255,0.12);
-        border: 1.5px solid rgba(255,255,255,0.2);
-        color: white;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        cursor: pointer;
+        background: var(--white);
+        border: 1.5px solid var(--gray-200);
+        color: var(--gray-600);
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
         display: flex;
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        font-size: 1rem;
+        transition: all 0.2s;
         position: relative;
-        transition: background 0.2s;
       }
 
-      .nav-icon-btn:hover { background: rgba(255,255,255,0.22); }
+      .nav-icon-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-soft);
+      }
 
       .nav-badge {
         position: absolute;
-        top: -3px;
-        right: -3px;
-        background: var(--gold);
-        color: #333;
-        font-size: 0.55rem;
+        top: -2px;
+        right: -2px;
+        background: var(--accent);
+        color: var(--gray-900);
+        font-size: 0.65rem;
         font-weight: 800;
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 4px;
+        border-radius: 9px;
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 2px solid var(--white);
       }
 
       /* ── AUTH NAV ─────────────────────────────── */
       .auth-nav {
-        background: var(--green);
-        height: 62px;
+        background: var(--white);
+        height: 80px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        border-bottom: 1px solid var(--gray-100);
       }
 
       /* ── FOOTER ───────────────────────────────── */
       .footer {
-        background: var(--green);
-        color: white;
-        padding: 2.5rem 1.5rem 1.5rem;
-        margin-top: 4rem;
+        background: var(--white);
+        color: var(--gray-800);
+        padding: 4rem 1.5rem 2rem;
+        margin-top: 6rem;
+        border-top: 1px solid var(--gray-200);
       }
 
       .footer-grid {
-        max-width: 1100px;
+        max-width: 1200px;
         margin: 0 auto;
         display: grid;
-        grid-template-columns: 1.5fr 1fr 1fr;
-        gap: 2.5rem;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 3rem;
+      }
+
+      @media (max-width: 768px) {
+        .footer-grid {
+          grid-template-columns: 1fr;
+          gap: 2.5rem;
+          text-align: center;
+        }
+        .footer-brand {
+          justify-content: center;
+        }
+        .footer-logo-badge {
+          margin: 0 auto 1rem;
+        }
       }
 
       .footer-brand {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.75rem;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
       }
 
       .footer-logo-badge {
-        width: 44px;
-        height: 44px;
-        background: rgba(255,255,255,0.18);
-        border-radius: 10px;
+        width: 48px;
+        height: 48px;
+        background: var(--primary);
+        border-radius: var(--radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 800;
-        font-size: 0.9rem;
-        border: 1.5px solid rgba(255,255,255,0.28);
+        color: white;
+        font-size: 1rem;
       }
 
       .footer-col-title {
-        font-size: 0.72rem;
+        font-size: 0.85rem;
         font-weight: 700;
-        letter-spacing: 0.09em;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
         text-transform: uppercase;
-        opacity: 0.6;
-        margin-bottom: 0.85rem;
+        letter-spacing: 0.05em;
       }
 
-      .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; }
+      .footer-links {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
 
       .footer-links a {
-        color: rgba(255,255,255,0.78);
+        color: var(--gray-500);
         text-decoration: none;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         transition: color 0.15s;
       }
 
-      .footer-links a:hover { color: white; }
+      .footer-links a:hover {
+        color: var(--primary);
+      }
 
       .footer-divider {
-        max-width: 1100px;
-        margin: 1.75rem auto 0;
+        max-width: 1200px;
+        margin: 3rem auto 2rem;
         border: none;
-        border-top: 1px solid rgba(255,255,255,0.15);
-        padding-top: 1rem;
+        border-top: 1px solid var(--gray-100);
       }
 
       .footer-bottom {
-        max-width: 1100px;
-        margin: 1rem auto 0;
-        font-size: 0.75rem;
-        opacity: 0.5;
+        max-width: 1200px;
+        margin: 0 auto;
+        font-size: 0.85rem;
+        color: var(--gray-400);
         text-align: center;
       }
 
       /* ── SHARED UTILITIES ─────────────────────── */
       .container {
-        max-width: 1100px;
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 0 1.5rem;
+        padding: 0 2rem;
       }
 
       .btn-primary {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.4rem;
-        background: var(--green);
+        gap: 0.5rem;
+        background: var(--primary);
         color: white;
         font-weight: 700;
-        font-size: 0.9rem;
-        padding: 0.65rem 1.5rem;
-        border-radius: var(--radius-sm);
+        font-size: 0.95rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-md);
         border: none;
         cursor: pointer;
-        font-family: var(--font);
+        transition: all 0.2s;
         text-decoration: none;
-        transition: background 0.2s;
         width: 100%;
       }
 
-      .btn-primary:hover { background: var(--green-hover); }
+      .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
 
       .btn-secondary {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.4rem;
-        background: transparent;
-        color: var(--green);
+        gap: 0.5rem;
+        background: var(--white);
+        color: var(--primary);
         font-weight: 600;
-        font-size: 0.85rem;
-        padding: 0.6rem 1.25rem;
-        border-radius: var(--radius-sm);
-        border: 1.5px solid var(--green);
+        font-size: 0.9rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-md);
+        border: 1.5px solid var(--primary);
         cursor: pointer;
-        font-family: var(--font);
+        transition: all 0.2s;
         text-decoration: none;
-        transition: background 0.2s, color 0.2s;
       }
 
-      .btn-secondary:hover { background: var(--green-light); }
+      .btn-secondary:hover {
+        background: var(--primary-soft);
+      }
 
       .btn-danger {
         display: inline-flex;
@@ -360,45 +474,57 @@ const {
         transition: background 0.2s;
       }
 
-      .btn-danger:hover { background: var(--red-light); }
+      .btn-danger:hover {
+        background: var(--red-light);
+      }
 
-      .stars { color: var(--gold); letter-spacing: 0.05em; }
-      .stars-text { font-size: 0.75rem; color: var(--gray-500); margin-left: 0.25rem; }
+      .stars {
+        color: var(--gold);
+        letter-spacing: 0.05em;
+      }
+      .stars-text {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        margin-left: 0.25rem;
+      }
 
       .tag {
         display: inline-block;
-        background: var(--green-light);
-        color: var(--green);
-        font-size: 0.72rem;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-size: 0.75rem;
         font-weight: 600;
-        padding: 0.2rem 0.55rem;
-        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
       }
 
-      .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+      }
 
       .form-label {
-        font-size: 0.82rem;
+        font-size: 0.85rem;
         font-weight: 600;
         color: var(--gray-700);
       }
 
       .form-input {
-        padding: 0.65rem 0.9rem;
-        border-radius: var(--radius-sm);
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-md);
         border: 1.5px solid var(--gray-200);
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-family: var(--font);
-        color: var(--gray-800);
-        background: white;
-        outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        transition: all 0.2s;
         width: 100%;
       }
 
       .form-input:focus {
-        border-color: var(--green);
-        box-shadow: 0 0 0 3px rgba(0,97,83,0.1);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(0, 97, 83, 0.08);
+        outline: none;
       }
 
       .form-select {
@@ -420,95 +546,317 @@ const {
         padding-right: 2.25rem;
       }
 
-      .form-select:focus { border-color: var(--green); }
+      .form-select:focus {
+        border-color: var(--green);
+      }
 
-      main { min-height: calc(100vh - 62px); }
+      main {
+        min-height: calc(100vh - 72px);
+      }
     </style>
   </head>
   <body>
-    {authLayout ? (
-      <nav class="auth-nav">
-        <a href="/marketplace" class="nav-brand">
-          <div class="nav-brand-badge">FSC</div>
-          <div class="nav-brand-text">
-            <span class="nav-brand-name">Farmingdale State College</span>
-            <span class="nav-brand-sub">Student Marketplace</span>
-          </div>
-        </a>
-      </nav>
-    ) : showNav ? (
-      <nav class="nav">
-        <a href="/marketplace" class="nav-brand">
-          <div class="nav-brand-badge">FSC</div>
-          <div class="nav-brand-text">
-            <span class="nav-brand-name">Farmingdale State College</span>
-            <span class="nav-brand-sub">Student Marketplace</span>
-          </div>
-        </a>
-        <div class="nav-search">
-          <svg class="nav-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input type="text" placeholder="Search for items..." />
-        </div>
-        <div class="nav-actions">
-          <a href="/post" class="btn-post-item">+ Post Item</a>
-          <a href="/messages" class="nav-icon-btn" title="Messages">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span class="nav-badge">3</span>
+    {
+      authLayout ? (
+        <nav class="auth-nav">
+          <a href="/marketplace" class="nav-brand">
+            <div class="nav-brand-badge">FSC</div>
+            <div class="nav-brand-text">
+              <span class="nav-brand-name">Farmingdale State College</span>
+              <span class="nav-brand-sub">Student Marketplace</span>
+            </div>
           </a>
-          <a href="/profile" class="nav-icon-btn" title="Profile">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-          </a>
-        </div>
-      </nav>
-    ) : null}
+        </nav>
+      ) : showNav ? (
+        <nav class="nav">
+          <div class="nav-container">
+            <button class="mobile-menu-toggle" id="menuToggle">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <>
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              </svg>
+            </button>
+            <a href="/marketplace" class="nav-brand">
+              <div class="nav-brand-badge">FSC</div>
+              <div class="nav-brand-text">
+                <span class="nav-brand-name">Farmingdale State College</span>
+                <span class="nav-brand-sub">Student Marketplace</span>
+              </div>
+            </a>
+            <div class="nav-search">
+              <svg
+                class="nav-search-icon"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <>
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search textbooks, electronics..."
+              />
+            </div>
+            <div class="nav-actions" id="navActions">
+              <a href="/post" class="btn-post-item">
+                List an Item
+              </a>
+              <a
+                href="/marketplace?saved=true"
+                class="nav-icon-btn"
+                title="Saved Items"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <span class="nav-icon-badge">0</span>
+              </a>
+              <a href="/messages" class="nav-icon-btn" title="Messages">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                <span class="nav-badge">3</span>
+              </a>
+              <a href="/profile" class="nav-icon-btn" title="Profile">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </nav>
+      ) : null
+    }
 
     <main>
       <slot />
     </main>
 
-    {showFooter && (
-      <footer class="footer">
-        <div class="footer-grid">
-          <div>
-            <div class="footer-brand">
-              <div class="footer-logo-badge">FSC</div>
-              <div>
-                <div style="font-weight:700;font-size:0.92rem;">Farmingdale State College</div>
-                <div style="font-size:0.75rem;opacity:0.65;">Student Marketplace</div>
+    {
+      showFooter && (
+        <footer class="footer">
+          <div class="footer-grid">
+            <div>
+              <div class="footer-brand">
+                <div class="footer-logo-badge">FSC</div>
+                <div>
+                  <div style="font-weight:700;font-size:0.92rem;">
+                    Farmingdale State College
+                  </div>
+                  <div style="font-size:0.75rem;opacity:0.65;">
+                    Student Marketplace
+                  </div>
+                </div>
               </div>
+              <p style="font-size:0.82rem;opacity:0.65;line-height:1.55;max-width:260px;">
+                A secure, campus-exclusive platform for FSC students to buy,
+                sell, and exchange items.
+              </p>
             </div>
-            <p style="font-size:0.82rem;opacity:0.65;line-height:1.55;max-width:260px;">
-              A secure, campus-exclusive platform for FSC students to buy, sell, and exchange items.
-            </p>
+            <div>
+              <p class="footer-col-title">Community</p>
+              <ul class="footer-links">
+                <li>
+                  <a href="#">FAQ</a>
+                </li>
+                <li>
+                  <a href="#">Contact Forms</a>
+                </li>
+                <li>
+                  <a href="#">Safety Tips</a>
+                </li>
+                <li>
+                  <a href="#">About Us</a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p class="footer-col-title">Sitemap</p>
+              <ul class="footer-links">
+                <li>
+                  <a href="/marketplace">Marketplace</a>
+                </li>
+                <li>
+                  <a href="/profile">My Profile</a>
+                </li>
+                <li>
+                  <a href="#">Privacy Policy</a>
+                </li>
+                <li>
+                  <a href="#">Terms of Service</a>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div>
-            <p class="footer-col-title">Community</p>
-            <ul class="footer-links">
-              <li><a href="#">FAQ</a></li>
-              <li><a href="#">Contact Forms</a></li>
-              <li><a href="#">Safety Tips</a></li>
-              <li><a href="#">About Us</a></li>
-            </ul>
-          </div>
-          <div>
-            <p class="footer-col-title">Sitemap</p>
-            <ul class="footer-links">
-              <li><a href="/marketplace">Marketplace</a></li>
-              <li><a href="/profile">My Profile</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-              <li><a href="#">Terms of Service</a></li>
-            </ul>
-          </div>
-        </div>
-        <hr class="footer-divider" />
-        <p class="footer-bottom">© 2025 Farmingdale State College Student Marketplace. All rights reserved.</p>
-      </footer>
-    )}
+          <hr class="footer-divider" />
+          <p class="footer-bottom">
+            © 2025 Farmingdale State College Student Marketplace. All rights
+            reserved.
+          </p>
+        </footer>
+      )
+    }
+
+    <script>
+      const menuToggle = document.getElementById("menuToggle");
+      const navActions = document.getElementById("navActions");
+
+      (function () {
+        const STORAGE_KEY = "fsc_marketplace_saved";
+
+        function getSavedIds(): string[] {
+          try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").map(
+              (id: any) => id.toString(),
+            );
+          } catch (e) {
+            return [];
+          }
+        }
+
+        function updateUI() {
+          const ids = getSavedIds();
+          const idSet = new Set(ids);
+
+          // Update all hearts
+          document.querySelectorAll(".save-btn").forEach((btn) => {
+            const id = btn.getAttribute("data-id");
+            const heartPath = btn.querySelector("path");
+            if (id && idSet.has(id.toString())) {
+              btn.classList.add("active");
+              if (heartPath) heartPath.setAttribute("fill", "currentColor");
+            } else {
+              btn.classList.remove("active");
+              if (heartPath) heartPath.setAttribute("fill", "none");
+            }
+          });
+
+          // Update all badges
+          document.querySelectorAll(".nav-icon-badge").forEach((badge) => {
+            badge.textContent = ids.length.toString();
+          });
+        }
+
+        // Global Click Handler for Saves
+        document.addEventListener("click", (e) => {
+          const btn = (e.target as HTMLElement).closest(".save-btn");
+          if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const id = btn.getAttribute("data-id");
+            if (!id) return;
+
+            let ids = getSavedIds();
+            const idStr = id.toString();
+            const index = ids.indexOf(idStr);
+
+            if (index > -1) {
+              ids.splice(index, 1);
+            } else {
+              ids.push(idStr);
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+            updateUI();
+
+            // Notify marketplace page
+            window.dispatchEvent(
+              new CustomEvent("saved-changed", { detail: { ids } }),
+            );
+          }
+        });
+
+        // Global Search
+        function executeSearch(query: string) {
+          if (!query.trim()) return;
+          window.location.href = `/marketplace?q=${encodeURIComponent(query.trim())}`;
+        }
+
+        document.addEventListener("keyup", (e) => {
+          const input = e.target as HTMLElement;
+          if (
+            input.classList.contains("nav-search-input") &&
+            e.key === "Enter"
+          ) {
+            executeSearch((input as HTMLInputElement).value);
+          }
+        });
+
+        // Handle Search Icon Click
+        document.addEventListener("click", (e) => {
+          if ((e.target as HTMLElement).closest(".nav-search-icon")) {
+            const input = document.querySelector(
+              ".nav-search-input",
+            ) as HTMLInputElement;
+            if (input) executeSearch(input.value);
+          }
+        });
+
+        // Initial sync
+        updateUI();
+
+        // Polling sync (fallback for cross-tab or complex race conditions)
+        setInterval(updateUI, 2000);
+      })();
+
+      // Close menu when clicking outside
+      document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        const menuToggle = document.getElementById("menuToggle");
+        const navActions = document.getElementById("navActions");
+        if (!menuToggle?.contains(target) && !navActions?.contains(target)) {
+          navActions?.classList.remove("active");
+        }
+      });
+    </script>
   </body>
 </html>

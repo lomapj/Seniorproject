@@ -1,587 +1,862 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 
 const listings = [
-  { id: 1,  title: 'Biology Textbook',     price: 45,  category: 'Books',       gradient: 'linear-gradient(135deg,#2d6a4f,#52b788)', icon: '📗', status: 'available' },
-  { id: 2,  title: 'MacBook Pro 2019',     price: 800, category: 'Electronics', gradient: 'linear-gradient(135deg,#1d3557,#457b9d)', icon: '💻', status: 'available' },
-  { id: 3,  title: 'Desk Lamp',            price: 15,  category: 'Furniture',   gradient: 'linear-gradient(135deg,#e9c46a,#f4a261)', icon: '🔆', status: 'available' },
-  { id: 4,  title: 'School Backpack',      price: 30,  category: 'Misc',        gradient: 'linear-gradient(135deg,#ef476f,#f78c6b)', icon: '🎒', status: 'sold'      },
+  {
+    id: 1,
+    title: "Biology Textbook",
+    price: 45,
+    category: "Books",
+    gradient: "linear-gradient(135deg,#2d6a4f,#52b788)",
+    icon: "📗",
+    status: "available",
+  },
+  {
+    id: 2,
+    title: "MacBook Pro 2019",
+    price: 800,
+    category: "Electronics",
+    gradient: "linear-gradient(135deg,#1d3557,#457b9d)",
+    icon: "💻",
+    status: "available",
+  },
+  {
+    id: 3,
+    title: "Desk Lamp",
+    price: 15,
+    category: "Furniture",
+    gradient: "linear-gradient(135deg,#e9c46a,#f4a261)",
+    icon: "🔆",
+    status: "available",
+  },
+  {
+    id: 4,
+    title: "School Backpack",
+    price: 30,
+    category: "Misc",
+    gradient: "linear-gradient(135deg,#ef476f,#f78c6b)",
+    icon: "🎒",
+    status: "sold",
+  },
 ];
 ---
 
 <Layout title="My Profile">
   <div class="profile-page">
-
-    <!-- Cover + Avatar -->
-    <div class="cover-area">
-      <div class="cover-photo">
+    <!-- Cover & Profile Header -->
+    <div class="profile-cover-section">
+      <div class="profile-cover">
+        <div class="cover-pattern"></div>
         <div class="cover-overlay"></div>
       </div>
-      <div class="container profile-header-content">
-        <div class="avatar-wrap">
-          <div class="profile-avatar">SJ</div>
-        </div>
-        <div class="profile-info">
-          <div class="name-row">
-            <h1 class="profile-name">Sarah Johnson</h1>
-            <a href="#" class="btn-edit-profile">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-              Edit Profile
-            </a>
+      <div class="container">
+        <div class="profile-header-card">
+          <div class="profile-avatar-area">
+            <div class="profile-avatar-main">SJ</div>
+            <button class="avatar-edit-btn" aria-label="Edit avatar">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path
+                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                ></path><circle cx="12" cy="13" r="4"></circle></svg
+              >
+            </button>
           </div>
-          <div class="profile-rating">
-            <span class="stars" style="font-size:0.9rem">★★★★½</span>
-            <span class="stars-text">4.5 (12 reviews)</span>
-          </div>
-          <p class="profile-bio">Junior at Farmingdale State College. Selling textbooks and dorm essentials. Quick to respond and meet on campus!</p>
-          <div class="profile-stats">
-            <div class="stat">
-              <span class="stat-num">4</span>
-              <span class="stat-label">Listings</span>
+
+          <div class="profile-main-info">
+            <div class="profile-name-row">
+              <h1 class="profile-name">Sarah Johnson</h1>
+              <div class="profile-actions">
+                <a href="#" class="btn-secondary-sm">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M12 20h9"></path><path
+                      d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                    ></path></svg
+                  >
+                  Edit Profile
+                </a>
+              </div>
             </div>
-            <div class="stat-divider"></div>
-            <div class="stat">
-              <span class="stat-num">18</span>
-              <span class="stat-label">Sales</span>
+
+            <div class="profile-rating-row">
+              <div class="stars-solid">★★★★★</div>
+              <span class="rating-text">4.5 (12 Reviews)</span>
+              <span class="profile-role-tag">Junior @ FSC</span>
             </div>
-            <div class="stat-divider"></div>
-            <div class="stat">
-              <span class="stat-num">12</span>
-              <span class="stat-label">Reviews</span>
+
+            <p class="profile-bio">
+              Selling my old textbooks and some dorm furniture I don't need
+              anymore. Usually free for meetups near the library or campus
+              center during the week!
+            </p>
+
+            <div class="profile-stats-grid">
+              <div class="stat-item">
+                <span class="stat-value">4</span>
+                <span class="stat-label">Listings</span>
+              </div>
+              <div class="stat-sep"></div>
+              <div class="stat-item">
+                <span class="stat-value">18</span>
+                <span class="stat-label">Sales</span>
+              </div>
+              <div class="stat-sep"></div>
+              <div class="stat-item">
+                <span class="stat-value">12</span>
+                <span class="stat-label">Reviews</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Main content -->
-    <div class="container profile-body">
-
-      <!-- Tabs -->
-      <div class="tabs" id="tabs">
-        <button type="button" class="tab active" data-tab="listings">My Listings</button>
-        <button type="button" class="tab" data-tab="reviews">Reviews</button>
-        <button type="button" class="tab" data-tab="history">Transaction History</button>
+    <!-- Profile Content Area -->
+    <div class="container profile-content">
+      <div class="profile-tabs" id="profileTabs">
+        <button class="tab-btn active" data-tab="listings">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><rect x="3" y="3" width="7" height="7"></rect><rect
+              x="14"
+              y="3"
+              width="7"
+              height="7"></rect><rect x="14" y="14" width="7" height="7"
+            ></rect><rect x="3" y="14" width="7" height="7"></rect></svg
+          >
+          My Listings
+        </button>
+        <button class="tab-btn" data-tab="reviews">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            ></path></svg
+          >
+          Feedback
+        </button>
+        <button class="tab-btn" data-tab="history">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><circle cx="12" cy="12" r="10"></circle><polyline
+              points="12 6 12 12 16 14"></polyline></svg
+          >
+          History
+        </button>
       </div>
 
-      <!-- Listings Tab -->
-      <div class="tab-content" id="tab-listings">
-        <div class="listings-toolbar">
-          <div class="search-wrap">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="search-icon">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input type="text" class="listings-search" placeholder="Search listings..." />
-          </div>
-          <div class="toolbar-right">
-            <select class="form-select toolbar-select">
-              <option>Filter by Status</option>
-              <option>Available</option>
-              <option>Pending</option>
-              <option>Sold</option>
-            </select>
-            <select class="form-select toolbar-select">
-              <option>Sort by</option>
-              <option>Newest</option>
-              <option>Price: Low</option>
-              <option>Price: High</option>
-            </select>
-            <a href="/post" class="btn-new-listing">+ New Listing</a>
-          </div>
-        </div>
-
-        <div class="my-listings-grid">
-          {listings.map(item => (
-            <div class="my-listing-card">
-              <div class="my-card-img" style={`background:${item.gradient}`}>
-                <span style="font-size:2.8rem;user-select:none">{item.icon}</span>
-                {item.status === 'sold' && (
-                  <div class="sold-overlay">
-                    <span class="sold-label">SOLD</span>
-                  </div>
-                )}
+      <div class="tab-panels">
+        <!-- Listings Panel -->
+        <div class="tab-panel active" id="listingsPanel">
+          <div class="panel-header">
+            <h2 class="panel-title">Active Listings</h2>
+            <div class="panel-controls">
+              <div class="search-box">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  ><circle cx="11" cy="11" r="8"></circle><path
+                    d="m21 21-4.35-4.35"></path></svg
+                >
+                <input type="text" placeholder="Search my items..." />
               </div>
-              <div class="my-card-body">
-                <span class="tag" style="font-size:0.65rem">{item.category}</span>
-                <p class="my-card-title">{item.title}</p>
-                <p class="my-card-price">${item.price}</p>
-              </div>
-              <div class="my-card-actions">
-                <button type="button" class="my-action-btn edit">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                  Edit
-                </button>
-                <button type="button" class="my-action-btn delete">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                  </svg>
-                  Delete
-                </button>
-              </div>
+              <a href="/post" class="btn-primary-sm">+ New Listing</a>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <!-- Reviews Tab (hidden) -->
-      <div class="tab-content" id="tab-reviews" style="display:none">
-        <div class="reviews-list">
-          {[
-            { reviewer: 'Michael T.', initials: 'MT', color: '#1d3557', rating: 5, text: 'Great seller! Item was exactly as described and she was very responsive. Would definitely buy from again.', date: 'Jan 12, 2025', item: 'Chemistry Lab Manual' },
-            { reviewer: 'Jake P.',    initials: 'JP', color: '#606c38', rating: 4, text: 'Fast response and smooth transaction. Met at the library as agreed. Textbook was in good condition.', date: 'Dec 5, 2024',  item: 'Biology Textbook' },
-            { reviewer: 'Lily C.',    initials: 'LC', color: '#c77dff', rating: 5, text: 'Super easy to work with. The desk lamp works perfectly. Will buy again if she lists more stuff!', date: 'Nov 18, 2024', item: 'Desk Lamp' },
-          ].map(review => (
-            <div class="review-card">
-              <div class="review-header">
-                <div class="review-user">
-                  <div class="review-avatar" style={`background:${review.color}`}>{review.initials}</div>
-                  <div>
-                    <p class="review-name">{review.reviewer}</p>
-                    <p class="review-item-ref">re: {review.item}</p>
+          <div class="manage-grid">
+            {
+              listings.map((item) => (
+                <div class="manage-card">
+                  <div
+                    class="manage-img-wrap"
+                    style={`background: ${item.gradient}`}
+                  >
+                    <span class="manage-emoji">{item.icon}</span>
+                    {item.status === "sold" && (
+                      <div class="sold-badge">SOLD</div>
+                    )}
+                  </div>
+                  <div class="manage-details">
+                    <div class="manage-info">
+                      <span class="manage-cat">{item.category}</span>
+                      <h3 class="manage-title">{item.title}</h3>
+                      <p class="manage-price">${item.price}</p>
+                    </div>
+                    <div class="manage-actions">
+                      <button class="btn-icon-secondary" title="Edit Listing">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <>
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </>
+                        </svg>
+                      </button>
+                      <button class="btn-icon-danger" title="Delete Listing">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <>
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                          </>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div class="review-right">
-                  <div class="review-stars">
-                    {'★'.repeat(review.rating).split('').map(() => <span class="stars" style="font-size:0.9rem">★</span>)}
-                  </div>
-                  <p class="review-date">{review.date}</p>
-                </div>
-              </div>
-              <p class="review-text">{review.text}</p>
-            </div>
-          ))}
+              ))
+            }
+          </div>
         </div>
-      </div>
 
-      <!-- History Tab (hidden) -->
-      <div class="tab-content" id="tab-history" style="display:none">
-        <div class="history-table-wrap">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Role</th>
-                <th>Price</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { item: 'Biology Textbook',    role: 'Seller', price: '$45',  date: 'Jan 12, 2025', status: 'Completed' },
-                { item: 'MacBook Pro 2020',    role: 'Buyer',  price: '$800', date: 'Dec 20, 2024', status: 'Completed' },
-                { item: 'Chemistry Lab Manual',role: 'Seller', price: '$18',  date: 'Dec 5, 2024',  status: 'Completed' },
-                { item: 'Desk Lamp',           role: 'Seller', price: '$15',  date: 'Nov 18, 2024', status: 'Completed' },
-                { item: 'Wireless Headphones', role: 'Buyer',  price: '$60',  date: 'Oct 30, 2024', status: 'Completed' },
-              ].map(row => (
+        <!-- Feedback Panel -->
+        <div class="tab-panel" id="reviewsPanel">
+          <div class="panel-header">
+            <h2 class="panel-title">Recent Feedback</h2>
+          </div>
+          <div class="reviews-stack">
+            {
+              [
+                {
+                  author: "Michael T.",
+                  initials: "MT",
+                  rating: 5,
+                  text: "Great seller! The textbook was exactly as described and she responded very quickly.",
+                  date: "2 days ago",
+                },
+                {
+                  author: "Emily R.",
+                  initials: "ER",
+                  rating: 5,
+                  text: "Met on campus, smooth transaction. Item looks brand new!",
+                  date: "1 week ago",
+                },
+                {
+                  author: "David K.",
+                  initials: "DK",
+                  rating: 4,
+                  text: "Responsive and easy to coordinate with. Thanks!",
+                  date: "2 weeks ago",
+                },
+              ].map((review) => (
+                <div class="review-card-premium">
+                  <div class="review-user-info">
+                    <div class="review-avatar-sm">{review.initials}</div>
+                    <div class="review-meta">
+                      <span class="review-author">{review.author}</span>
+                      <span class="review-date">{review.date}</span>
+                    </div>
+                    <div class="review-stars-solid">
+                      {"★".repeat(review.rating)}
+                    </div>
+                  </div>
+                  <p class="review-body">{review.text}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="tab-panel" id="historyPanel">
+          <div class="panel-header">
+            <h2 class="panel-title">Transaction History</h2>
+          </div>
+          <div class="table-card">
+            <table class="premium-table">
+              <thead>
                 <tr>
-                  <td class="h-item">{row.item}</td>
-                  <td><span class={`role-badge ${row.role.toLowerCase()}`}>{row.role}</span></td>
-                  <td class="h-price">{row.price}</td>
-                  <td class="h-date">{row.date}</td>
-                  <td><span class="status-chip available">{row.status}</span></td>
+                  <th>Item</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-item">Biology Textbook</td>
+                  <td>Oct 12, 2025</td>
+                  <td class="td-price">$45.00</td>
+                  <td><span class="h-badge-success">Completed</span></td>
+                </tr>
+                <tr>
+                  <td class="td-item">Desk Lamp</td>
+                  <td>Sep 28, 2025</td>
+                  <td class="td-price">$15.00</td>
+                  <td><span class="h-badge-success">Completed</span></td>
+                </tr>
+                <tr>
+                  <td class="td-item">MacBook Case</td>
+                  <td>Sep 15, 2025</td>
+                  <td class="td-price">$12.00</td>
+                  <td><span class="h-badge-success">Completed</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
     </div>
   </div>
 </Layout>
 
 <style>
-  .profile-page { padding-bottom: 3rem; }
+  .profile-page {
+    background: var(--gray-50);
+    min-height: 100vh;
+    padding-bottom: 4rem;
+  }
 
-  /* Cover */
-  .cover-area { position: relative; }
-
-  .cover-photo {
-    height: 200px;
-    background: linear-gradient(135deg, #006153 0%, #004d42 40%, #1d3557 100%);
+  /* Cover Area */
+  .profile-cover-section {
+    position: relative;
+    padding-bottom: 2rem;
+  }
+  .profile-cover {
+    height: 240px;
+    background: linear-gradient(135deg, var(--primary) 0%, #004d42 100%);
     position: relative;
     overflow: hidden;
   }
-
-  .cover-photo::before {
-    content: '';
+  .cover-pattern {
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='12'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.1;
+    background-image: radial-gradient(
+      circle at 2px 2px,
+      white 1px,
+      transparent 0
+    );
+    background-size: 24px 24px;
   }
-
   .cover-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.15));
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.2));
   }
 
-  .profile-header-content {
-    padding-top: 0;
-    padding-bottom: 1.5rem;
-    display: flex;
-    gap: 1.5rem;
-    align-items: flex-end;
+  /* Header Card */
+  .profile-header-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    margin-top: -80px;
     position: relative;
-    margin-top: -60px;
+    z-index: 10;
+    display: flex;
+    gap: 2.5rem;
+    box-shadow: var(--shadow-xl);
   }
 
-  @media (max-width: 600px) {
-    .profile-header-content { flex-direction: column; align-items: center; text-align: center; }
+  @media (max-width: 768px) {
+    .profile-header-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1.5rem;
+      padding: 2rem 1.5rem;
+    }
   }
 
-  .avatar-wrap { flex-shrink: 0; }
-
-  .profile-avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: var(--green);
-    color: white;
-    font-size: 2rem;
+  .profile-avatar-area {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .profile-avatar-main {
+    width: 140px;
+    height: 140px;
+    background: var(--primary);
+    color: var(--white);
+    font-size: 3rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 4px solid white;
-    box-shadow: var(--shadow-md);
+    border-radius: 50%;
+    border: 6px solid var(--white);
+    box-shadow: var(--shadow-lg);
+  }
+  .avatar-edit-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 36px;
+    height: 36px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+  .avatar-edit-btn:hover {
+    background: var(--gray-50);
+    color: var(--primary);
   }
 
-  .profile-info {
+  .profile-main-info {
     flex: 1;
-    padding-bottom: 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.75rem;
   }
-
-  .name-row {
+  .profile-name-row {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+  }
+  .profile-name {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    letter-spacing: -0.02em;
   }
 
-  .profile-name { font-size: 1.5rem; font-weight: 800; color: var(--gray-800); }
-
-  .btn-edit-profile {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    background: white;
-    border: 1.5px solid var(--gray-200);
-    color: var(--gray-700);
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 0.4rem 0.9rem;
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    cursor: pointer;
-    font-family: var(--font);
-    transition: border-color 0.15s, color 0.15s;
-  }
-
-  .btn-edit-profile:hover { border-color: var(--green); color: var(--green); }
-
-  .profile-bio { font-size: 0.85rem; color: var(--gray-600); max-width: 520px; }
-
-  .profile-stats {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    margin-top: 0.25rem;
-  }
-
-  .stat { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
-  .stat-num   { font-size: 1.1rem; font-weight: 800; color: var(--gray-800); }
-  .stat-label { font-size: 0.72rem; color: var(--gray-500); font-weight: 500; }
-  .stat-divider { width: 1px; height: 28px; background: var(--gray-200); }
-
-  /* Tabs */
-  .profile-body { padding-top: 1.5rem; }
-
-  .tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 2px solid var(--gray-200);
-    margin-bottom: 1.5rem;
-  }
-
-  .tab {
-    background: none;
-    border: none;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--gray-500);
-    cursor: pointer;
-    font-family: var(--font);
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    transition: color 0.15s;
-  }
-
-  .tab.active { color: var(--green); border-bottom-color: var(--green); }
-  .tab:hover  { color: var(--green); }
-
-  /* Listings toolbar */
-  .listings-toolbar {
+  .profile-rating-row {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1.25rem;
     flex-wrap: wrap;
   }
-
-  .search-wrap { position: relative; flex: 1; min-width: 180px; }
-
-  .search-icon {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray-400);
-    pointer-events: none;
+  .stars-solid {
+    color: var(--accent);
+    font-size: 0.9rem;
   }
-
-  .listings-search {
-    width: 100%;
-    padding: 0.5rem 0.75rem 0.5rem 2.1rem;
-    border: 1.5px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    font-size: 0.82rem;
-    font-family: var(--font);
-    outline: none;
-    transition: border-color 0.15s;
+  .rating-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-500);
   }
-
-  .listings-search:focus { border-color: var(--green); }
-
-  .toolbar-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-left: auto; }
-
-  .toolbar-select { width: 150px; font-size: 0.82rem; padding: 0.5rem 2rem 0.5rem 0.75rem; }
-
-  .btn-new-listing {
-    background: var(--green);
-    color: white;
+  .profile-role-tag {
+    background: var(--primary-soft);
+    color: var(--primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
     font-weight: 700;
-    font-size: 0.82rem;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background 0.15s;
+    text-transform: uppercase;
   }
 
-  .btn-new-listing:hover { background: var(--green-hover); }
-
-  /* My listing cards */
-  .my-listings-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.25rem;
+  .profile-bio {
+    font-size: 1rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+    max-width: 600px;
   }
 
-  @media (max-width: 900px)  { .my-listings-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 600px)  { .my-listings-grid { grid-template-columns: repeat(2, 1fr); } }
-
-  .my-listing-card {
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    transition: box-shadow 0.18s;
-  }
-
-  .my-listing-card:hover { box-shadow: var(--shadow-md); }
-
-  .my-card-img {
-    height: 140px;
+  .profile-stats-grid {
     display: flex;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+    gap: 2rem;
+    margin-top: 1rem;
   }
-
-  .sold-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .sold-label {
-    background: var(--red);
-    color: white;
-    font-size: 0.78rem;
-    font-weight: 800;
-    padding: 0.35rem 0.85rem;
-    border-radius: 4px;
-    letter-spacing: 0.08em;
-  }
-
-  .my-card-body {
-    padding: 0.75rem;
+  .stat-item {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    border-bottom: 1px solid var(--gray-100);
   }
-
-  .my-card-title { font-size: 0.85rem; font-weight: 700; color: var(--gray-800); }
-  .my-card-price { font-size: 0.95rem; font-weight: 800; color: var(--green); }
-
-  .my-card-actions {
-    display: flex;
-    padding: 0.5rem 0.75rem;
-    gap: 0.5rem;
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gray-900);
   }
-
-  .my-action-btn {
-    flex: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    padding: 0.4rem 0;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid;
+  .stat-label {
     font-size: 0.75rem;
     font-weight: 600;
-    font-family: var(--font);
-    cursor: pointer;
-    transition: background 0.15s;
+    color: var(--gray-400);
+    text-transform: uppercase;
+  }
+  .stat-sep {
+    width: 1px;
+    height: 32px;
+    background: var(--gray-200);
   }
 
-  .my-action-btn.edit {
-    color: var(--green);
-    border-color: var(--green);
-    background: transparent;
+  /* Tabs */
+  .profile-content {
+    margin-top: 3rem;
   }
-
-  .my-action-btn.edit:hover { background: var(--green-light); }
-
-  .my-action-btn.delete {
-    color: var(--red);
-    border-color: var(--red);
-    background: transparent;
-  }
-
-  .my-action-btn.delete:hover { background: var(--red-light); }
-
-  /* Reviews */
-  .reviews-list { display: flex; flex-direction: column; gap: 1rem; }
-
-  .review-card {
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    padding: 1.25rem;
+  .profile-tabs {
     display: flex;
-    flex-direction: column;
+    gap: 2rem;
+    border-bottom: 2px solid var(--gray-200);
+    margin-bottom: 2.5rem;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 1rem 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gray-400);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
     gap: 0.75rem;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .tab-btn::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--primary);
+  }
+  .tab-btn.active::after {
+    width: 100%;
+  }
+  .tab-btn:hover {
+    color: var(--gray-600);
   }
 
-  .review-header {
+  /* Panels */
+  .tab-panel {
+    display: none;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .tab-panel.active {
+    display: flex;
+  }
+
+  .panel-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    margin-bottom: 0.5rem;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 1rem;
+  }
+  .panel-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--gray-900);
+  }
+  .panel-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .review-user { display: flex; align-items: center; gap: 0.75rem; }
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: 0 1rem;
+    width: 240px;
+  }
+  .search-box svg {
+    color: var(--gray-400);
+    margin-right: 0.75rem;
+  }
+  .search-box input {
+    border: none;
+    background: none;
+    padding: 0.75rem 0;
+    font-family: inherit;
+    font-size: 0.9rem;
+    width: 100%;
+    outline: none;
+  }
 
-  .review-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 700;
+  /* Management Cards */
+  .manage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .manage-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .manage-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .manage-img-wrap {
+    height: 160px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    position: relative;
+  }
+  .manage-emoji {
+    font-size: 4rem;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  }
+  .sold-badge {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
   }
 
-  .review-name     { font-size: 0.88rem; font-weight: 700; }
-  .review-item-ref { font-size: 0.75rem; color: var(--gray-400); }
-
-  .review-right { text-align: right; }
-  .review-stars { display: flex; justify-content: flex-end; }
-  .review-date  { font-size: 0.72rem; color: var(--gray-400); margin-top: 0.2rem; }
-
-  .review-text { font-size: 0.85rem; color: var(--gray-600); line-height: 1.6; }
-
-  /* History table */
-  .history-table-wrap { overflow-x: auto; }
-
-  .history-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
+  .manage-details {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
   }
-
-  .history-table th {
-    text-align: left;
-    padding: 0.75rem 1rem;
-    background: var(--gray-50);
-    border-bottom: 2px solid var(--gray-200);
+  .manage-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .manage-cat {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--gray-500);
+    color: var(--gray-400);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+  }
+  .manage-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--gray-900);
+  }
+  .manage-price {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary);
   }
 
-  .history-table td {
-    padding: 0.85rem 1rem;
-    border-bottom: 1px solid var(--gray-100);
-    vertical-align: middle;
+  .manage-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .btn-icon-secondary {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-icon-secondary:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: var(--primary-soft);
   }
 
-  .history-table tr:hover td { background: var(--gray-50); }
+  .btn-icon-danger {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-icon-danger:hover {
+    color: var(--error);
+    border-color: var(--error);
+    background: #fef2f2;
+  }
 
-  .h-item  { font-weight: 600; color: var(--gray-800); }
-  .h-price { font-weight: 700; color: var(--green); }
-  .h-date  { color: var(--gray-500); }
-
-  .role-badge {
-    font-size: 0.7rem;
+  /* Reviews */
+  .reviews-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .review-card-premium {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .review-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .review-avatar-sm {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 700;
-    padding: 0.2rem 0.55rem;
-    border-radius: 20px;
-    text-transform: capitalize;
+    color: var(--gray-600);
+  }
+  .review-meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .review-author {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--gray-900);
+  }
+  .review-date {
+    font-size: 0.8rem;
+    color: var(--gray-400);
+  }
+  .review-stars-solid {
+    color: var(--accent);
+    font-size: 0.8rem;
+  }
+  .review-body {
+    color: var(--gray-600);
+    line-height: 1.6;
+    font-size: 0.95rem;
   }
 
-  .role-badge.seller { background: var(--green-light); color: var(--green); }
-  .role-badge.buyer  { background: #dbeafe; color: #1d4ed8; }
+  /* History Table */
+  .table-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .premium-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .premium-table th {
+    padding: 1rem 1.5rem;
+    background: var(--gray-50);
+    color: var(--gray-400);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .premium-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .td-item {
+    font-weight: 700;
+    color: var(--gray-900);
+  }
+  .td-price {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .h-badge-success {
+    background: #dcfce7;
+    color: #166534;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
 </style>
 
 <script>
-  const tabs   = document.querySelectorAll<HTMLButtonElement>('.tab');
-  const panels = document.querySelectorAll<HTMLElement>('.tab-content');
+  const tabs = document.querySelectorAll(".tab-btn");
+  const panels = document.querySelectorAll(".tab-panel");
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      // Remove active from all
+      tabs.forEach((t) => t.classList.remove("active"));
+      panels.forEach((p) => p.classList.remove("active"));
 
-      const target = tab.dataset.tab;
-      panels.forEach(panel => {
-        panel.style.display = panel.id === `tab-${target}` ? 'block' : 'none';
-      });
+      // Add active to current
+      tab.classList.add("active");
+      const panelId = (tab as HTMLElement).dataset.tab + "Panel";
+      document.getElementById(panelId)?.classList.add("active");
     });
   });
 </script>

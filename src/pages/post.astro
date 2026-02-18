@@ -1,418 +1,794 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Post an Item">
-  <div class="container post-page">
+  <div class="post-page">
+    <div class="container mini-container">
+      <div class="post-header">
+        <h1 class="post-title">Create New Listing</h1>
+        <p class="post-subtitle">
+          Share your item with the Farmingdale community. Fill out the details
+          below to get started.
+        </p>
+      </div>
 
-    <div class="page-header">
-      <h1 class="page-title">Post an Item</h1>
-      <p class="page-sub">Fill out the details below to list your item on the FSC Marketplace.</p>
-    </div>
-
-    <div class="post-layout">
-      <form class="post-form" novalidate>
-
-        <!-- Image Upload -->
-        <div class="form-section">
-          <h2 class="section-label">Item Photos</h2>
-          <div class="upload-area" id="uploadArea" tabindex="0" role="button" aria-label="Upload images">
-            <div class="upload-inner">
-              <div class="upload-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
+      <div class="post-content-grid">
+        <!-- Form Side -->
+        <div class="post-form-area">
+          <form class="premium-form" id="listingForm">
+            <!-- Section: Photos -->
+            <div class="form-card">
+              <div class="form-card-header">
+                <h2 class="form-card-title">Item Photos</h2>
+                <span class="form-card-hint">Up to 5 high-quality photos</span>
               </div>
-              <p class="upload-title">Click to upload photos</p>
-              <p class="upload-sub">PNG or JPG · Up to 10 MB each · Max 5 images</p>
-            </div>
-            <input type="file" id="fileInput" accept="image/*" multiple style="display:none" aria-hidden="true" />
-          </div>
-          <div class="preview-row" id="previewRow" style="display:none"></div>
-        </div>
 
-        <!-- Basic Info -->
-        <div class="form-section">
-          <h2 class="section-label">Item Details</h2>
-          <div class="fields-grid">
-            <div class="form-group span-2">
-              <label class="form-label" for="itemTitle">Item Title <span class="req">*</span></label>
-              <input class="form-input" id="itemTitle" type="text" placeholder="e.g. Biology Textbook 12th Edition" maxlength="80" />
-              <span class="char-count" id="titleCount">0 / 80</span>
+              <div class="upload-zone" id="uploadZone">
+                <input
+                  type="file"
+                  id="fileInput"
+                  multiple
+                  accept="image/*"
+                  hidden
+                />
+                <div class="upload-content">
+                  <div class="upload-icon-circle">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                      ></path><polyline points="17 8 12 3 7 8"></polyline><line
+                        x1="12"
+                        y1="3"
+                        x2="12"
+                        y2="15"></line></svg
+                    >
+                  </div>
+                  <p class="upload-text">
+                    <strong>Click to upload</strong> or drag and drop
+                  </p>
+                  <p class="upload-subtext">
+                    PNG, JPG or WEBP (max. 10MB each)
+                  </p>
+                </div>
+              </div>
+              <div class="upload-previews" id="uploadPreviews"></div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="price">Price <span class="req">*</span></label>
-              <div class="price-input-wrap">
-                <span class="price-prefix">$</span>
-                <input class="form-input price-field" id="price" type="number" placeholder="0.00" min="0" step="0.01" />
+            <!-- Section: Details -->
+            <div class="form-card">
+              <div class="form-card-header">
+                <h2 class="form-card-title">Listing Details</h2>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label for="title"
+                    >Title <span class="required">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="title"
+                    placeholder="e.g. Biology Textbook 12th Edition"
+                    maxlength="80"
+                    required
+                  />
+                  <div class="input-info">
+                    <span>Be descriptive and include key details</span>
+                    <span id="titleCount">0/80</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="category"
+                    >Category <span class="required">*</span></label
+                  >
+                  <select id="category" required>
+                    <option value="" disabled selected>Select category</option>
+                    <option>Books</option>
+                    <option>Electronics</option>
+                    <option>Furniture</option>
+                    <option>Clothing</option>
+                    <option>Misc</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="condition"
+                    >Condition <span class="required">*</span></label
+                  >
+                  <select id="condition" required>
+                    <option value="" disabled selected>Select condition</option>
+                    <option>New</option>
+                    <option>Like New</option>
+                    <option>Good</option>
+                    <option>Fair</option>
+                    <option>Poor</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="price"
+                    >Price <span class="required">*</span></label
+                  >
+                  <div class="price-input-wrapper">
+                    <span class="currency-sign">$</span>
+                    <input
+                      type="number"
+                      id="price"
+                      placeholder="0.00"
+                      step="0.01"
+                      min="0"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="status">Initial Status</label>
+                  <select id="status">
+                    <option value="available">Available</option>
+                    <option value="pending">Pending</option>
+                  </select>
+                </div>
+
+                <div class="form-group full">
+                  <label for="description"
+                    >Description <span class="required">*</span></label
+                  >
+                  <textarea
+                    id="description"
+                    rows="5"
+                    placeholder="Tell buyers more about your item. Include details like brand, model, usage, or any flaws."
+                    maxlength="1000"
+                    required></textarea>
+                  <div class="input-info">
+                    <span>Provide as much detail as possible</span>
+                    <span id="descCount">0/1000</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="category">Category <span class="req">*</span></label>
-              <select class="form-select" id="category">
-                <option value="">Select a category</option>
-                <option>Books</option>
-                <option>Electronics</option>
-                <option>Furniture</option>
-                <option>Clothing</option>
-                <option>Misc</option>
-              </select>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn-ghost-lg"
+                onclick="window.history.back()">Cancel</button
+              >
+              <button type="submit" class="btn-primary-lg"
+                >Publish Listing</button
+              >
             </div>
-
-            <div class="form-group">
-              <label class="form-label" for="condition">Condition <span class="req">*</span></label>
-              <select class="form-select" id="condition">
-                <option value="">Select condition</option>
-                <option>New</option>
-                <option>Like New</option>
-                <option>Good</option>
-                <option>Fair</option>
-                <option>Poor</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="status">Listing Status</label>
-              <select class="form-select" id="status">
-                <option value="available">Available</option>
-                <option value="pending">Pending</option>
-              </select>
-            </div>
-          </div>
+          </form>
         </div>
 
-        <!-- Description -->
-        <div class="form-section">
-          <div class="form-group">
-            <label class="form-label" for="description">Description <span class="req">*</span></label>
-            <textarea
-              class="form-input"
-              id="description"
-              rows="5"
-              placeholder="Describe your item — include edition, brand, any wear or damage, reason for selling, etc."
-              maxlength="1000"
-              style="resize:vertical"
-            ></textarea>
-            <span class="char-count" id="descCount">0 / 1000</span>
-          </div>
-        </div>
+        <!-- Sidebar Side -->
+        <aside class="post-sidebar">
+          <div class="sidebar-sticky">
+            <!-- Preview Card -->
+            <div class="preview-container">
+              <div class="preview-header">
+                <p class="preview-label">Live Preview</p>
+                <div class="preview-status-indicator">
+                  <span class="status-dot"></span>
+                  Updating...
+                </div>
+              </div>
 
-        <!-- Submit -->
-        <div class="form-actions">
-          <a href="/marketplace" class="btn-secondary" style="width:auto">Cancel</a>
-          <button type="submit" class="btn-submit">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            Publish Listing
-          </button>
-        </div>
-
-      </form>
-
-      <!-- Sidebar preview -->
-      <aside class="post-sidebar">
-        <div class="preview-card">
-          <p class="preview-label">Preview</p>
-          <div class="preview-listing">
-            <div class="preview-img" id="previewImg" style="background: linear-gradient(135deg,#e5e7eb,#d1d5db)">
-              <span id="previewEmoji" style="font-size:2.5rem;opacity:0.4">📷</span>
-            </div>
-            <div class="preview-body">
-              <span class="tag" id="previewCat" style="font-size:0.65rem">Category</span>
-              <p class="preview-title" id="previewTitle">Item title will appear here</p>
-              <p class="preview-price" id="previewPrice">$—</p>
-              <div class="preview-meta">
-                <span class="preview-condition" id="previewCondition">Condition</span>
+              <div class="listing-preview-card">
+                <div class="preview-img-placeholder" id="previewImg">
+                  <div class="placeholder-content">
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      ><rect x="3" y="3" width="18" height="18" rx="2"
+                      ></rect><circle cx="8.5" cy="8.5" r="1.5"
+                      ></circle><polyline points="21 15 16 10 5 21"
+                      ></polyline></svg
+                    >
+                    <p>Image preview</p>
+                  </div>
+                </div>
+                <div class="preview-content">
+                  <div class="preview-top">
+                    <span class="preview-cat-tag" id="previewCat">Category</span
+                    >
+                    <span class="preview-price-tag" id="previewPrice">$0</span>
+                  </div>
+                  <h3 class="preview-item-title" id="previewTitle">
+                    Your listing title here
+                  </h3>
+                  <div class="preview-bottom">
+                    <div class="preview-condition-wrap">
+                      <span class="condition-dot"></span>
+                      <span id="previewCondition">Condition</span>
+                    </div>
+                    <span class="preview-location">Campus Center</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="tips-card">
-          <p class="tips-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            Listing Tips
-          </p>
-          <ul class="tips-list">
-            <li>Use clear, well-lit photos</li>
-            <li>Include the edition or model number</li>
-            <li>Describe any damage honestly</li>
-            <li>Set a fair, competitive price</li>
-            <li>Respond to messages quickly</li>
-          </ul>
-        </div>
-      </aside>
+            <!-- Tips Card -->
+            <div class="tips-card">
+              <div class="tips-header">
+                <div class="tips-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M12 2v4"></path><path d="m4.93 4.93 2.83 2.83"
+                    ></path><path d="M2 12h4"></path><path
+                      d="m4.93 19.07 2.83-2.83"></path><path d="M12 22v-4"
+                    ></path><path d="m19.07 19.07-2.83-2.83"></path><path
+                      d="M22 12h-4"></path><path d="m19.07 4.93-2.83 2.83"
+                    ></path><path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"
+                    ></path></svg
+                  >
+                </div>
+                <h3 class="tips-title">Quick Selling Tips</h3>
+              </div>
+              <ul class="tips-list">
+                <li>
+                  <span class="tip-num">1</span>
+                  <p>
+                    <strong>Use good lighting.</strong> Bright, clear photos sell
+                    items 3x faster.
+                  </p>
+                </li>
+                <li>
+                  <span class="tip-num">2</span>
+                  <p>
+                    <strong>Set a fair price.</strong> Check similar listings to see
+                    going rates.
+                  </p>
+                </li>
+                <li>
+                  <span class="tip-num">3</span>
+                  <p>
+                    <strong>Be responsive.</strong> Buyers appreciate quick answers
+                    to questions.
+                  </p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 </Layout>
 
 <style>
-  .post-page { padding-top: 2rem; padding-bottom: 3rem; }
+  .post-page {
+    background: var(--gray-50);
+    min-height: 100vh;
+    padding-top: 3rem;
+    padding-bottom: 5rem;
+  }
+  .mini-container {
+    max-width: 1000px !important;
+  }
 
-  .page-header { margin-bottom: 2rem; }
-  .page-title  { font-size: 1.6rem; font-weight: 800; color: var(--gray-800); }
-  .page-sub    { font-size: 0.88rem; color: var(--gray-500); margin-top: 0.3rem; }
+  .post-header {
+    margin-bottom: 2.5rem;
+  }
+  .post-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    letter-spacing: -0.02em;
+  }
+  .post-subtitle {
+    font-size: 1.1rem;
+    color: var(--gray-500);
+    margin-top: 0.5rem;
+  }
 
-  .post-layout {
+  .post-content-grid {
     display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 2rem;
+    grid-template-columns: 1fr 340px;
+    gap: 2.5rem;
     align-items: start;
   }
 
-  @media (max-width: 900px) { .post-layout { grid-template-columns: 1fr; } }
+  @media (max-width: 968px) {
+    }
+  }
 
-  .post-form { display: flex; flex-direction: column; gap: 1.75rem; }
-
-  .form-section {
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
+  .premium-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 2rem;
   }
 
-  .section-label {
-    font-size: 0.88rem;
+  .form-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .form-card-header {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .form-card-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gray-900);
+  }
+  .form-card-hint {
+    font-size: 0.85rem;
+    color: var(--gray-400);
+    font-weight: 500;
+  }
+
+  /* Upload Zone */
+  .upload-zone {
+    border: 2px dashed var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--gray-50);
+  }
+  .upload-zone:hover {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .upload-zone.dragover {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+
+  .upload-icon-circle {
+    width: 60px;
+    height: 60px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+  }
+  .upload-text {
+    font-size: 1rem;
+    color: var(--gray-600);
+    margin-bottom: 0.25rem;
+  }
+  .upload-text strong {
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .upload-subtext {
+    font-size: 0.85rem;
+    color: var(--gray-400);
+  }
+
+  .upload-previews {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  /* Form Grid */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .form-group.full {
+    grid-column: span 2;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .form-group label {
+    font-size: 0.85rem;
     font-weight: 700;
     color: var(--gray-700);
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--gray-100);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .required {
+    color: #ef4444;
   }
 
-  /* Upload */
-  .upload-area {
-    border: 2px dashed var(--gray-300);
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--gray-200);
     border-radius: var(--radius-md);
-    padding: 2.5rem 1.5rem;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    font-size: 1rem;
+    font-family: inherit;
     outline: none;
+    transition: all 0.2s;
+    background: var(--gray-50);
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    background: var(--white);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-soft);
   }
 
-  .upload-area:hover, .upload-area:focus {
-    border-color: var(--green);
-    background: var(--green-light);
-  }
-
-  .upload-area.drag-over {
-    border-color: var(--green);
-    background: var(--green-light);
-  }
-
-  .upload-inner { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; pointer-events: none; }
-
-  .upload-icon { color: var(--gray-400); }
-  .upload-title { font-size: 0.92rem; font-weight: 600; color: var(--gray-600); }
-  .upload-sub { font-size: 0.78rem; color: var(--gray-400); }
-
-  .preview-row {
+  .price-input-wrapper {
+    position: relative;
     display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
+    align-items: center;
+  }
+  .currency-sign {
+    position: absolute;
+    left: 1rem;
+    font-weight: 700;
+    color: var(--gray-400);
+  }
+  .price-input-wrapper input {
+    padding-left: 2rem;
+    width: 100%;
+  }
+
+  .input-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--gray-400);
+    font-weight: 500;
     margin-top: 0.25rem;
   }
 
-  /* Fields */
-  .fields-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .span-2 { grid-column: span 2; }
-
-  .req { color: var(--red); font-weight: 700; }
-
-  .char-count {
-    font-size: 0.72rem;
-    color: var(--gray-400);
-    text-align: right;
-    margin-top: 0.15rem;
-  }
-
-  .price-input-wrap { position: relative; }
-  .price-prefix {
-    position: absolute;
-    left: 0.85rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray-500);
-    font-weight: 600;
-    font-size: 0.9rem;
-    pointer-events: none;
-  }
-
-  .price-field { padding-left: 1.75rem; }
-
-  /* Actions */
   .form-actions {
     display: flex;
-    gap: 0.75rem;
     justify-content: flex-end;
-    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
   }
-
-  .btn-submit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    background: var(--green);
-    color: white;
+  .btn-ghost-lg {
+    padding: 1rem 2rem;
+    font-size: 1rem;
     font-weight: 700;
-    font-size: 0.9rem;
-    padding: 0.7rem 1.75rem;
-    border-radius: var(--radius-sm);
     border: none;
+    background: none;
+    color: var(--gray-400);
     cursor: pointer;
-    font-family: var(--font);
-    transition: background 0.2s;
+    transition: color 0.2s;
   }
-
-  .btn-submit:hover { background: var(--green-hover); }
+  .btn-ghost-lg:hover {
+    color: var(--gray-700);
+  }
+  .btn-primary-lg {
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: var(--white);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s;
+  }
+  .btn-primary-lg:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
 
   /* Sidebar */
-  .post-sidebar { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 80px; }
-
-  .preview-card {
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
+  .post-sidebar {
+    position: sticky;
+    top: 100px;
+  }
+  .sidebar-sticky {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
 
+  /* Preview Card */
+  .preview-container {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
   .preview-label {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .preview-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: block;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(1.5);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .listing-preview-card {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--white);
+  }
+  .preview-img-placeholder {
+    height: 180px;
+    background: var(--gray-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-300);
+  }
+  .placeholder-content {
+    text-align: center;
+  }
+  .placeholder-content p {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  .preview-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .preview-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .preview-cat-tag {
+    font-size: 0.7rem;
     font-weight: 700;
     color: var(--gray-500);
     text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-bottom: 1rem;
   }
-
-  .preview-listing {
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
+  .preview-price-tag {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .preview-item-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .preview-img {
-    height: 130px;
+  .preview-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .preview-condition-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gray-500);
+  }
+  .condition-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--primary-soft);
+    border-radius: 50%;
+  }
+  .preview-location {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gray-400);
+  }
+
+  /* Tips Card */
+  .tips-card {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+  .tips-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .tips-icon {
+    width: 32px;
+    height: 32px;
+    background: #fef3c7;
+    color: #d97706;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.3s;
   }
-
-  .preview-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; }
-  .preview-title { font-size: 0.85rem; font-weight: 700; color: var(--gray-800); min-height: 1.2em; }
-  .preview-price { font-size: 1rem; font-weight: 800; color: var(--green); }
-  .preview-condition { font-size: 0.72rem; color: var(--gray-500); }
-
-  .tips-card {
-    background: var(--gold-light);
-    border: 1px solid #f9e49a;
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-  }
-
   .tips-title {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #78350f;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #92400e;
   }
 
   .tips-list {
-    list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 1rem;
+    list-style: none;
   }
-
   .tips-list li {
-    font-size: 0.8rem;
-    color: #92400e;
-    padding-left: 1rem;
-    position: relative;
+    display: flex;
+    gap: 1rem;
   }
-
-  .tips-list li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--green);
-    font-weight: 700;
+  .tip-num {
+    width: 20px;
+    height: 20px;
+    background: var(--white);
+    border: 1px solid #d97706;
+    color: #d97706;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .tips-list p {
+    font-size: 0.85rem;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  .tips-list p strong {
+    color: #78350f;
+    font-weight: 800;
   }
 </style>
 
 <script>
-  const uploadArea  = document.getElementById('uploadArea');
-  const fileInput   = document.getElementById('fileInput') as HTMLInputElement | null;
-  const titleInput  = document.getElementById('itemTitle')   as HTMLInputElement | null;
-  const priceInput  = document.getElementById('price')       as HTMLInputElement | null;
-  const categorySel = document.getElementById('category')    as HTMLSelectElement | null;
-  const conditionSel= document.getElementById('condition')   as HTMLSelectElement | null;
-  const descInput   = document.getElementById('description') as HTMLTextAreaElement | null;
-  const titleCount  = document.getElementById('titleCount');
-  const descCount   = document.getElementById('descCount');
-  const previewTitle    = document.getElementById('previewTitle');
-  const previewPrice    = document.getElementById('previewPrice');
-  const previewCat      = document.getElementById('previewCat');
-  const previewCondition= document.getElementById('previewCondition');
+  const uploadZone = document.getElementById("uploadZone");
+  const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+  const titleInput = document.getElementById("title") as HTMLInputElement;
+  const categoryInput = document.getElementById(
+    "category",
+  ) as HTMLSelectElement;
+  const conditionInput = document.getElementById(
+    "condition",
+  ) as HTMLSelectElement;
+  const priceInput = document.getElementById("price") as HTMLInputElement;
+  const descriptionInput = document.getElementById(
+    "description",
+  ) as HTMLTextAreaElement;
 
-  uploadArea?.addEventListener('click',   () => fileInput?.click());
-  uploadArea?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput?.click(); });
+  const previewTitle = document.getElementById("previewTitle");
+  const previewPrice = document.getElementById("previewPrice");
+  const previewCat = document.getElementById("previewCat");
+  const previewCondition = document.getElementById("previewCondition");
 
-  uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
-  uploadArea?.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-  uploadArea?.addEventListener('drop', (e) => {
+  const titleCount = document.getElementById("titleCount");
+  const descCount = document.getElementById("descCount");
+
+  // Interactive Upload
+  uploadZone?.addEventListener("click", () => fileInput?.click());
+
+  uploadZone?.addEventListener("dragover", (e) => {
     e.preventDefault();
-    uploadArea.classList.remove('drag-over');
-    if (fileInput && e.dataTransfer?.files) {
-      const dt = new DataTransfer();
-      Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
-      fileInput.files = dt.files;
-      fileInput.dispatchEvent(new Event('change'));
+    uploadZone.classList.add("dragover");
+  });
+
+  uploadZone?.addEventListener("dragleave", () => {
+    uploadZone.classList.remove("dragover");
+  });
+
+  uploadZone?.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove("dragover");
+    if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+      fileInput.files = e.dataTransfer.files;
+      handleFileSelect();
     }
   });
 
-  titleInput?.addEventListener('input', () => {
-    const len = titleInput.value.length;
-    if (titleCount) titleCount.textContent = `${len} / 80`;
-    if (previewTitle) previewTitle.textContent = titleInput.value || 'Item title will appear here';
+  fileInput?.addEventListener("change", handleFileSelect);
+
+  function handleFileSelect() {
+    // Basic logic for previews could go here
+    console.log("Files selected:", fileInput.files);
+  }
+
+  // Live Preview Updates
+  titleInput?.addEventListener("input", () => {
+    if (previewTitle)
+      previewTitle.textContent = titleInput.value || "Your listing title here";
+    if (titleCount) titleCount.textContent = `${titleInput.value.length}/80`;
   });
 
-  priceInput?.addEventListener('input', () => {
-    if (previewPrice) {
-      const val = parseFloat(priceInput.value);
-      previewPrice.textContent = isNaN(val) ? '$—' : `$${val.toFixed(2)}`;
-    }
+  categoryInput?.addEventListener("change", () => {
+    if (previewCat) previewCat.textContent = categoryInput.value || "Category";
   });
 
-  categorySel?.addEventListener('change', () => {
-    if (previewCat) previewCat.textContent = categorySel.value || 'Category';
+  conditionInput?.addEventListener("change", () => {
+    if (previewCondition)
+      previewCondition.textContent = conditionInput.value || "Condition";
   });
 
-  conditionSel?.addEventListener('change', () => {
-    if (previewCondition) previewCondition.textContent = conditionSel.value || 'Condition';
+  priceInput?.addEventListener("input", () => {
+    const val = parseFloat(priceInput.value);
+    if (previewPrice)
+      previewPrice.textContent = isNaN(val) ? "$0" : `$${val.toLocaleString()}`;
   });
 
-  descInput?.addEventListener('input', () => {
-    const len = descInput.value.length;
-    if (descCount) descCount.textContent = `${len} / 1000`;
+  descriptionInput?.addEventListener("input", () => {
+    if (descCount)
+      descCount.textContent = `${descriptionInput.value.length}/1000`;
   });
 </script>
