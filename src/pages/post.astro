@@ -1,0 +1,418 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Post an Item">
+  <div class="container post-page">
+
+    <div class="page-header">
+      <h1 class="page-title">Post an Item</h1>
+      <p class="page-sub">Fill out the details below to list your item on the FSC Marketplace.</p>
+    </div>
+
+    <div class="post-layout">
+      <form class="post-form" novalidate>
+
+        <!-- Image Upload -->
+        <div class="form-section">
+          <h2 class="section-label">Item Photos</h2>
+          <div class="upload-area" id="uploadArea" tabindex="0" role="button" aria-label="Upload images">
+            <div class="upload-inner">
+              <div class="upload-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <p class="upload-title">Click to upload photos</p>
+              <p class="upload-sub">PNG or JPG · Up to 10 MB each · Max 5 images</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" multiple style="display:none" aria-hidden="true" />
+          </div>
+          <div class="preview-row" id="previewRow" style="display:none"></div>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="form-section">
+          <h2 class="section-label">Item Details</h2>
+          <div class="fields-grid">
+            <div class="form-group span-2">
+              <label class="form-label" for="itemTitle">Item Title <span class="req">*</span></label>
+              <input class="form-input" id="itemTitle" type="text" placeholder="e.g. Biology Textbook 12th Edition" maxlength="80" />
+              <span class="char-count" id="titleCount">0 / 80</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="price">Price <span class="req">*</span></label>
+              <div class="price-input-wrap">
+                <span class="price-prefix">$</span>
+                <input class="form-input price-field" id="price" type="number" placeholder="0.00" min="0" step="0.01" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="category">Category <span class="req">*</span></label>
+              <select class="form-select" id="category">
+                <option value="">Select a category</option>
+                <option>Books</option>
+                <option>Electronics</option>
+                <option>Furniture</option>
+                <option>Clothing</option>
+                <option>Misc</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="condition">Condition <span class="req">*</span></label>
+              <select class="form-select" id="condition">
+                <option value="">Select condition</option>
+                <option>New</option>
+                <option>Like New</option>
+                <option>Good</option>
+                <option>Fair</option>
+                <option>Poor</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="status">Listing Status</label>
+              <select class="form-select" id="status">
+                <option value="available">Available</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-section">
+          <div class="form-group">
+            <label class="form-label" for="description">Description <span class="req">*</span></label>
+            <textarea
+              class="form-input"
+              id="description"
+              rows="5"
+              placeholder="Describe your item — include edition, brand, any wear or damage, reason for selling, etc."
+              maxlength="1000"
+              style="resize:vertical"
+            ></textarea>
+            <span class="char-count" id="descCount">0 / 1000</span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-actions">
+          <a href="/marketplace" class="btn-secondary" style="width:auto">Cancel</a>
+          <button type="submit" class="btn-submit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Publish Listing
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Sidebar preview -->
+      <aside class="post-sidebar">
+        <div class="preview-card">
+          <p class="preview-label">Preview</p>
+          <div class="preview-listing">
+            <div class="preview-img" id="previewImg" style="background: linear-gradient(135deg,#e5e7eb,#d1d5db)">
+              <span id="previewEmoji" style="font-size:2.5rem;opacity:0.4">📷</span>
+            </div>
+            <div class="preview-body">
+              <span class="tag" id="previewCat" style="font-size:0.65rem">Category</span>
+              <p class="preview-title" id="previewTitle">Item title will appear here</p>
+              <p class="preview-price" id="previewPrice">$—</p>
+              <div class="preview-meta">
+                <span class="preview-condition" id="previewCondition">Condition</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tips-card">
+          <p class="tips-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Listing Tips
+          </p>
+          <ul class="tips-list">
+            <li>Use clear, well-lit photos</li>
+            <li>Include the edition or model number</li>
+            <li>Describe any damage honestly</li>
+            <li>Set a fair, competitive price</li>
+            <li>Respond to messages quickly</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .post-page { padding-top: 2rem; padding-bottom: 3rem; }
+
+  .page-header { margin-bottom: 2rem; }
+  .page-title  { font-size: 1.6rem; font-weight: 800; color: var(--gray-800); }
+  .page-sub    { font-size: 0.88rem; color: var(--gray-500); margin-top: 0.3rem; }
+
+  .post-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) { .post-layout { grid-template-columns: 1fr; } }
+
+  .post-form { display: flex; flex-direction: column; gap: 1.75rem; }
+
+  .form-section {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .section-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--gray-700);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  /* Upload */
+  .upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius-md);
+    padding: 2.5rem 1.5rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+  }
+
+  .upload-area:hover, .upload-area:focus {
+    border-color: var(--green);
+    background: var(--green-light);
+  }
+
+  .upload-area.drag-over {
+    border-color: var(--green);
+    background: var(--green-light);
+  }
+
+  .upload-inner { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; pointer-events: none; }
+
+  .upload-icon { color: var(--gray-400); }
+  .upload-title { font-size: 0.92rem; font-weight: 600; color: var(--gray-600); }
+  .upload-sub { font-size: 0.78rem; color: var(--gray-400); }
+
+  .preview-row {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+  }
+
+  /* Fields */
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .span-2 { grid-column: span 2; }
+
+  .req { color: var(--red); font-weight: 700; }
+
+  .char-count {
+    font-size: 0.72rem;
+    color: var(--gray-400);
+    text-align: right;
+    margin-top: 0.15rem;
+  }
+
+  .price-input-wrap { position: relative; }
+  .price-prefix {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-500);
+    font-weight: 600;
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  .price-field { padding-left: 1.75rem; }
+
+  /* Actions */
+  .form-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: var(--green);
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.7rem 1.75rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: background 0.2s;
+  }
+
+  .btn-submit:hover { background: var(--green-hover); }
+
+  /* Sidebar */
+  .post-sidebar { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 80px; }
+
+  .preview-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+  }
+
+  .preview-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 1rem;
+  }
+
+  .preview-listing {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .preview-img {
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+
+  .preview-body { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .preview-title { font-size: 0.85rem; font-weight: 700; color: var(--gray-800); min-height: 1.2em; }
+  .preview-price { font-size: 1rem; font-weight: 800; color: var(--green); }
+  .preview-condition { font-size: 0.72rem; color: var(--gray-500); }
+
+  .tips-card {
+    background: var(--gold-light);
+    border: 1px solid #f9e49a;
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+  }
+
+  .tips-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #78350f;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tips-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .tips-list li {
+    font-size: 0.8rem;
+    color: #92400e;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .tips-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-weight: 700;
+  }
+</style>
+
+<script>
+  const uploadArea  = document.getElementById('uploadArea');
+  const fileInput   = document.getElementById('fileInput') as HTMLInputElement | null;
+  const titleInput  = document.getElementById('itemTitle')   as HTMLInputElement | null;
+  const priceInput  = document.getElementById('price')       as HTMLInputElement | null;
+  const categorySel = document.getElementById('category')    as HTMLSelectElement | null;
+  const conditionSel= document.getElementById('condition')   as HTMLSelectElement | null;
+  const descInput   = document.getElementById('description') as HTMLTextAreaElement | null;
+  const titleCount  = document.getElementById('titleCount');
+  const descCount   = document.getElementById('descCount');
+  const previewTitle    = document.getElementById('previewTitle');
+  const previewPrice    = document.getElementById('previewPrice');
+  const previewCat      = document.getElementById('previewCat');
+  const previewCondition= document.getElementById('previewCondition');
+
+  uploadArea?.addEventListener('click',   () => fileInput?.click());
+  uploadArea?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput?.click(); });
+
+  uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+  uploadArea?.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+  uploadArea?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    if (fileInput && e.dataTransfer?.files) {
+      const dt = new DataTransfer();
+      Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+      fileInput.files = dt.files;
+      fileInput.dispatchEvent(new Event('change'));
+    }
+  });
+
+  titleInput?.addEventListener('input', () => {
+    const len = titleInput.value.length;
+    if (titleCount) titleCount.textContent = `${len} / 80`;
+    if (previewTitle) previewTitle.textContent = titleInput.value || 'Item title will appear here';
+  });
+
+  priceInput?.addEventListener('input', () => {
+    if (previewPrice) {
+      const val = parseFloat(priceInput.value);
+      previewPrice.textContent = isNaN(val) ? '$—' : `$${val.toFixed(2)}`;
+    }
+  });
+
+  categorySel?.addEventListener('change', () => {
+    if (previewCat) previewCat.textContent = categorySel.value || 'Category';
+  });
+
+  conditionSel?.addEventListener('change', () => {
+    if (previewCondition) previewCondition.textContent = conditionSel.value || 'Condition';
+  });
+
+  descInput?.addEventListener('input', () => {
+    const len = descInput.value.length;
+    if (descCount) descCount.textContent = `${len} / 1000`;
+  });
+</script>

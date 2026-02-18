@@ -1,0 +1,300 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const listings = [
+  { id: 1,  title: 'Biology Textbook',      price: 45,  category: 'Books',       condition: 'Like New', seller: 'Sarah J.',   rating: 4.5, reviews: 12, gradient: 'linear-gradient(135deg,#2d6a4f,#52b788)', icon: '📗', status: 'available' },
+  { id: 2,  title: 'MacBook Pro 2020',       price: 850, category: 'Electronics', condition: 'Good',     seller: 'Michael T.', rating: 4.8, reviews: 33, gradient: 'linear-gradient(135deg,#1d3557,#457b9d)', icon: '💻', status: 'available' },
+  { id: 3,  title: 'Desk Lamp',              price: 15,  category: 'Furniture',   condition: 'Good',     seller: 'Emily R.',   rating: 4.2, reviews: 7,  gradient: 'linear-gradient(135deg,#e9c46a,#f4a261)', icon: '🔆', status: 'available' },
+  { id: 4,  title: 'Wooden Desk',            price: 120, category: 'Furniture',   condition: 'Fair',     seller: 'David K.',   rating: 4.7, reviews: 19, gradient: 'linear-gradient(135deg,#8d6e63,#6d4c41)', icon: '🪑', status: 'available' },
+  { id: 5,  title: 'Scientific Calculator',  price: 22,  category: 'Electronics', condition: 'Like New', seller: 'Chris M.',   rating: 5.0, reviews: 8,  gradient: 'linear-gradient(135deg,#e07a5f,#c1440e)', icon: '🔢', status: 'available' },
+  { id: 6,  title: 'Winter Jacket (L)',       price: 40,  category: 'Clothing',    condition: 'Good',     seller: 'Aisha B.',   rating: 4.4, reviews: 5,  gradient: 'linear-gradient(135deg,#457b9d,#1d3557)', icon: '🧥', status: 'available' },
+  { id: 7,  title: 'Chemistry Lab Manual',   price: 18,  category: 'Books',       condition: 'Fair',     seller: 'Jake P.',    rating: 3.9, reviews: 4,  gradient: 'linear-gradient(135deg,#606c38,#283618)', icon: '🧪', status: 'available' },
+  { id: 8,  title: 'Wireless Headphones',    price: 65,  category: 'Electronics', condition: 'Like New', seller: 'Maria L.',   rating: 4.6, reviews: 21, gradient: 'linear-gradient(135deg,#6930c3,#48bfe3)', icon: '🎧', status: 'available' },
+  { id: 9,  title: 'Bookshelf',              price: 55,  category: 'Furniture',   condition: 'Good',     seller: 'Omar S.',    rating: 4.3, reviews: 6,  gradient: 'linear-gradient(135deg,#a0522d,#cd853f)', icon: '📚', status: 'pending'   },
+  { id: 10, title: 'Psychology Textbook',    price: 30,  category: 'Books',       condition: 'Good',     seller: 'Lily C.',    rating: 4.1, reviews: 9,  gradient: 'linear-gradient(135deg,#c77dff,#7b2d8b)', icon: '🧠', status: 'available' },
+  { id: 11, title: 'USB-C Hub',              price: 25,  category: 'Electronics', condition: 'Like New', seller: 'Tom W.',     rating: 4.9, reviews: 14, gradient: 'linear-gradient(135deg,#4cc9f0,#4361ee)', icon: '🔌', status: 'available' },
+  { id: 12, title: 'Backpack',               price: 28,  category: 'Misc',        condition: 'Good',     seller: 'Nadia F.',   rating: 4.5, reviews: 11, gradient: 'linear-gradient(135deg,#ef476f,#f78c6b)', icon: '🎒', status: 'available' },
+];
+
+function renderStars(rating: number) {
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5;
+  return '★'.repeat(full) + (half ? '½' : '');
+}
+---
+
+<Layout title="Marketplace">
+  <div class="mp-page">
+
+    <!-- Category Filter Bar -->
+    <div class="cat-bar">
+      <div class="container">
+        <div class="cat-inner">
+          <div class="cat-chips" id="catChips">
+            {['All', 'Books', 'Electronics', 'Furniture', 'Clothing', 'Misc'].map((cat, i) => (
+              <button class={`cat-chip${i === 0 ? ' active' : ''}`} data-cat={cat}>{cat}</button>
+            ))}
+          </div>
+          <div class="sort-row">
+            <label class="sort-label">Sort by</label>
+            <select class="form-select sort-select">
+              <option>Newest First</option>
+              <option>Price: Low to High</option>
+              <option>Price: High to Low</option>
+              <option>Top Rated</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Listing Grid -->
+    <div class="container">
+      <div class="results-bar">
+        <p class="results-count"><strong>{listings.length}</strong> items available</p>
+        <div class="price-filter">
+          <span class="sort-label">Price</span>
+          <input type="number" class="price-input" placeholder="Min" min="0" />
+          <span class="sort-label" style="color:var(--gray-400)">—</span>
+          <input type="number" class="price-input" placeholder="Max" min="0" />
+          <button class="btn-filter">Filter</button>
+        </div>
+      </div>
+
+      <div class="listing-grid" id="listingGrid">
+        {listings.map((item) => (
+          <a href="/item" class="listing-card">
+            <div class="card-img" style={`background: ${item.gradient}`}>
+              <span class="card-emoji">{item.icon}</span>
+              <button
+                type="button"
+                class="card-fav"
+                aria-label="Save listing"
+                onclick="event.preventDefault(); this.classList.toggle('saved')"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </button>
+              {item.status === 'pending' && <span class="card-badge pending">Pending</span>}
+              {item.status === 'sold'    && <span class="card-badge sold">Sold</span>}
+            </div>
+            <div class="card-body">
+              <div class="card-top-row">
+                <span class="tag">{item.category}</span>
+                <span class="card-condition">{item.condition}</span>
+              </div>
+              <h3 class="card-title">{item.title}</h3>
+              <p class="card-price">${item.price}</p>
+              <div class="card-footer-row">
+                <span class="card-seller">{item.seller}</span>
+                <div class="card-rating">
+                  <span class="stars" style="font-size:0.72rem">{renderStars(item.rating)}</span>
+                  <span class="stars-text">{item.rating}</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .mp-page { padding-bottom: 0; }
+
+  .cat-bar {
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
+    position: sticky;
+    top: 62px;
+    z-index: 100;
+  }
+
+  .cat-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    flex-wrap: wrap;
+  }
+
+  .cat-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  .cat-chip {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    border: 1.5px solid var(--gray-200);
+    background: white;
+    color: var(--gray-600);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+
+  .cat-chip:hover { border-color: var(--green); color: var(--green); }
+  .cat-chip.active { background: var(--green); border-color: var(--green); color: white; }
+
+  .sort-row { display: flex; align-items: center; gap: 0.6rem; }
+  .sort-label { font-size: 0.78rem; font-weight: 600; color: var(--gray-500); white-space: nowrap; }
+  .sort-select { width: 170px; font-size: 0.82rem; padding: 0.45rem 2rem 0.45rem 0.75rem; }
+
+  .results-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .results-count { font-size: 0.88rem; color: var(--gray-600); }
+
+  .price-filter { display: flex; align-items: center; gap: 0.5rem; }
+
+  .price-input {
+    width: 80px;
+    padding: 0.4rem 0.6rem;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .price-input:focus { border-color: var(--green); }
+
+  .btn-filter {
+    padding: 0.4rem 0.85rem;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-filter:hover { background: var(--green-hover); }
+
+  /* Grid */
+  .listing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    padding-bottom: 2rem;
+  }
+
+  @media (max-width: 1024px) { .listing-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 720px)  { .listing-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px)  { .listing-grid { grid-template-columns: 1fr; } }
+
+  .listing-card {
+    background: white;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s, box-shadow 0.18s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .listing-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+  .card-img {
+    height: 175px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-emoji {
+    font-size: 3.5rem;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .card-fav {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    width: 30px;
+    height: 30px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    transition: color 0.15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    z-index: 2;
+  }
+
+  .card-fav:hover { color: #e11d48; }
+  .card-fav.saved { color: #e11d48; }
+  .card-fav.saved svg { fill: #e11d48; stroke: #e11d48; }
+
+  .card-badge {
+    position: absolute;
+    bottom: 0.65rem;
+    left: 0.65rem;
+    font-size: 0.67rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .card-badge.pending { background: var(--gold); color: #333; }
+  .card-badge.sold    { background: var(--red);  color: white; }
+
+  .card-body {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1;
+  }
+
+  .card-top-row { display: flex; align-items: center; justify-content: space-between; }
+  .card-condition { font-size: 0.68rem; color: var(--gray-500); font-weight: 500; }
+  .card-title { font-size: 0.9rem; font-weight: 700; color: var(--gray-800); line-height: 1.3; }
+  .card-price { font-size: 1.05rem; font-weight: 800; color: var(--green); }
+
+  .card-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--gray-100);
+  }
+
+  .card-seller { font-size: 0.75rem; color: var(--gray-500); font-weight: 500; }
+  .card-rating { display: flex; align-items: center; gap: 0.15rem; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.cat-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll<HTMLButtonElement>('.cat-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
