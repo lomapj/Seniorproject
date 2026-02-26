@@ -1,0 +1,59 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Verify Your Email" authLayout={true} showFooter={false}>
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-card" style="text-align:center;">
+        <div class="auth-header">
+          <div style="font-size:3rem;margin-bottom:1rem;">&#9993;</div>
+          <h1 class="auth-title">Check Your Email</h1>
+          <p class="auth-subtitle">
+            We sent a verification link to your <strong>@farmingdale.edu</strong> address.
+            Click the link in your email to activate your account.
+          </p>
+        </div>
+        <div style="margin-top:2rem;">
+          <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:1.5rem;">
+            Didn't receive it? Check your spam folder or wait a minute and try again.
+          </p>
+          <a href="/login" class="btn-secondary" style="display:inline-flex;padding:0.65rem 1.5rem;font-size:0.9rem;">Back to Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .auth-page {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background-color: var(--gray-50);
+    background-image:
+      radial-gradient(at 0% 0%, var(--primary-soft) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, var(--accent-soft) 0px, transparent 50%);
+  }
+  .auth-container { width: 100%; max-width: 480px; }
+  .auth-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-2xl);
+    padding: 3rem;
+    box-shadow: var(--shadow-xl);
+  }
+  .auth-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: 0.75rem;
+  }
+  .auth-subtitle {
+    font-size: 0.95rem;
+    color: var(--gray-500);
+    line-height: 1.6;
+  }
+</style>

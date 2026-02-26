@@ -1,0 +1,102 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Confirming..." authLayout={true} showFooter={false}>
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-card" style="text-align:center;">
+        <div class="auth-header">
+          <h1 class="auth-title" id="callbackTitle">Verifying your email...</h1>
+          <p class="auth-subtitle" id="callbackMessage">Please wait while we confirm your account.</p>
+        </div>
+        <div id="callbackError" style="display:none;margin-top:1.5rem;">
+          <p style="color:var(--error);font-size:0.9rem;margin-bottom:1rem;" id="errorText"></p>
+          <a href="/login" class="btn-secondary" style="display:inline-flex;padding:0.65rem 1.5rem;font-size:0.9rem;">Go to Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .auth-page {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background-color: var(--gray-50);
+  }
+  .auth-container { width: 100%; max-width: 480px; }
+  .auth-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-2xl);
+    padding: 3rem;
+    box-shadow: var(--shadow-xl);
+  }
+  .auth-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: 0.5rem;
+  }
+  .auth-subtitle {
+    font-size: 0.95rem;
+    color: var(--gray-500);
+  }
+</style>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  async function handleCallback() {
+    const titleEl = document.getElementById('callbackTitle');
+    const msgEl = document.getElementById('callbackMessage');
+    const errorDiv = document.getElementById('callbackError');
+    const errorText = document.getElementById('errorText');
+
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+
+    try {
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) throw error;
+      } else if (accessToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        });
+        if (error) throw error;
+      } else {
+        // No code/token in URL — Supabase may have already verified server-side.
+        // Check if a session exists.
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          // No session either — redirect to login
+          window.location.href = '/login';
+          return;
+        }
+      }
+
+      if (titleEl) titleEl.textContent = 'Email verified!';
+      if (msgEl) msgEl.textContent = 'Redirecting to marketplace...';
+      setTimeout(() => {
+        window.location.href = '/marketplace';
+      }, 1500);
+    } catch (err: any) {
+      if (titleEl) titleEl.textContent = 'Verification failed';
+      if (msgEl) msgEl.style.display = 'none';
+      if (errorDiv) errorDiv.style.display = '';
+      if (errorText) errorText.textContent = err.message || 'Something went wrong.';
+    }
+  }
+
+  handleCallback();
+</script>

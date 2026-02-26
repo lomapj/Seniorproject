@@ -11,7 +11,8 @@ import Layout from "../layouts/Layout.astro";
           <p class="auth-subtitle">Sign in to your campus account</p>
         </div>
 
-        <form class="auth-form" novalidate>
+        <form class="auth-form" id="loginForm" novalidate>
+          <div id="loginError" class="form-error" style="display:none;"></div>
           <div class="form-group">
             <label class="form-label" for="email">FSC Student Email</label>
             <input
@@ -257,6 +258,16 @@ import Layout from "../layouts/Layout.astro";
     text-decoration: underline;
   }
 
+  .form-error {
+    background: #fef2f2;
+    color: var(--error);
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
   @media (max-width: 480px) {
     .auth-card {
       padding: 2.5rem 1.5rem;
@@ -265,6 +276,8 @@ import Layout from "../layouts/Layout.astro";
 </style>
 
 <script>
+  import { supabase } from '../lib/supabase';
+
   const toggleBtn = document.getElementById("togglePw");
   const pwInput = document.getElementById(
     "password",
@@ -279,4 +292,48 @@ import Layout from "../layouts/Layout.astro";
     if (eyeOpen) eyeOpen.style.display = showing ? "" : "none";
     if (eyeOff) eyeOff.style.display = showing ? "none" : "";
   });
+
+  // Login form submission
+  const loginForm = document.getElementById("loginForm") as HTMLFormElement | null;
+  const loginError = document.getElementById("loginError") as HTMLElement | null;
+
+  loginForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = (document.getElementById("email") as HTMLInputElement).value.trim().toLowerCase();
+    const password = pwInput?.value || "";
+
+    if (loginError) loginError.style.display = "none";
+
+    if (!email || !password) {
+      showLoginError("Please enter your email and password.");
+      return;
+    }
+
+    const submitBtn = loginForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Signing In...";
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      showLoginError(error.message);
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Sign In";
+      }
+      return;
+    }
+
+    window.location.href = "/marketplace";
+  });
+
+  function showLoginError(msg: string) {
+    if (loginError) {
+      loginError.textContent = msg;
+      loginError.style.display = "";
+    }
+  }
 </script>

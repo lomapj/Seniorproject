@@ -617,60 +617,68 @@ const {
               />
             </div>
             <div class="nav-actions" id="navActions">
-              <a href="/post" class="btn-post-item">
-                List an Item
-              </a>
-              <a
-                href="/marketplace?saved=true"
-                class="nav-icon-btn"
-                title="Saved Items"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+              <!-- Shown when logged IN -->
+              <div id="navLoggedIn" style="display:none;align-items:center;gap:0.75rem;">
+                <a href="/post" class="btn-post-item">
+                  List an Item
+                </a>
+                <a
+                  href="/marketplace?saved=true"
+                  class="nav-icon-btn"
+                  title="Saved Items"
                 >
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <span class="nav-icon-badge">0</span>
-              </a>
-              <a href="/messages" class="nav-icon-btn" title="Messages">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                <span class="nav-badge">3</span>
-              </a>
-              <a href="/profile" class="nav-icon-btn" title="Profile">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <>
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </>
-                </svg>
-              </a>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  <span class="nav-icon-badge">0</span>
+                </a>
+                <a href="/messages" class="nav-icon-btn" title="Messages">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <span class="nav-badge">3</span>
+                </a>
+                <a href="/profile" class="nav-icon-btn" title="Profile">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <>
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </>
+                  </svg>
+                </a>
+              </div>
+              <!-- Shown when logged OUT -->
+              <div id="navLoggedOut" style="display:flex;align-items:center;gap:0.75rem;">
+                <a href="/login" class="btn-secondary" style="padding:0.5rem 1.25rem;font-size:0.85rem;">Log In</a>
+                <a href="/signup" class="btn-post-item">Sign Up</a>
+              </div>
             </div>
           </div>
         </nav>
@@ -747,6 +755,24 @@ const {
     }
 
     <script>
+      import { supabase } from '../lib/supabase';
+
+      // Session-aware nav
+      function setAuthNav(loggedIn: boolean) {
+        const navLoggedIn = document.getElementById('navLoggedIn');
+        const navLoggedOut = document.getElementById('navLoggedOut');
+        if (navLoggedIn) navLoggedIn.style.display = loggedIn ? 'flex' : 'none';
+        if (navLoggedOut) navLoggedOut.style.display = loggedIn ? 'none' : 'flex';
+      }
+
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setAuthNav(!!session);
+      });
+
+      supabase.auth.onAuthStateChange((_event, session) => {
+        setAuthNav(!!session);
+      });
+
       const menuToggle = document.getElementById("menuToggle");
       const navActions = document.getElementById("navActions");
 
