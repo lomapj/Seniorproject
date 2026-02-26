@@ -2,99 +2,177 @@
 import Layout from "../../layouts/Layout.astro";
 ---
 
-<Layout title="Confirming..." authLayout={true} showFooter={false}>
-  <div class="auth-page">
-    <div class="auth-container">
-      <div class="auth-card" style="text-align:center;">
-        <div class="auth-header">
-          <h1 class="auth-title" id="callbackTitle">Verifying your email...</h1>
-          <p class="auth-subtitle" id="callbackMessage">Please wait while we confirm your account.</p>
+<Layout title="Verifying Email" authLayout={true} showFooter={false}>
+  <div class="callback-page">
+    <div class="callback-card">
+      <div id="loadingState" class="callback-state">
+        <div class="spinner"></div>
+        <h2>Verifying your email...</h2>
+        <p>Please wait while we confirm your account.</p>
+      </div>
+
+      <div id="successState" class="callback-state" style="display:none">
+        <div class="success-icon">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
         </div>
-        <div id="callbackError" style="display:none;margin-top:1.5rem;">
-          <p style="color:var(--error);font-size:0.9rem;margin-bottom:1rem;" id="errorText"></p>
-          <a href="/login" class="btn-secondary" style="display:inline-flex;padding:0.65rem 1.5rem;font-size:0.9rem;">Go to Login</a>
+        <h2>Email Verified!</h2>
+        <p>Your account is now active. Redirecting to the marketplace...</p>
+      </div>
+
+      <div id="errorState" class="callback-state" style="display:none">
+        <div class="error-icon">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
         </div>
+        <h2>Verification Failed</h2>
+        <p id="errorMessage">Something went wrong. Please try again.</p>
+        <a
+          href="/login"
+          class="btn-primary"
+          style="margin-top:1.5rem;max-width:240px;">Back to Login</a
+        >
       </div>
     </div>
   </div>
 </Layout>
 
 <style>
-  .auth-page {
+  .callback-page {
     min-height: calc(100vh - 80px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
+    padding: 2rem;
     background-color: var(--gray-50);
   }
-  .auth-container { width: 100%; max-width: 480px; }
-  .auth-card {
+
+  .callback-card {
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-2xl);
-    padding: 3rem;
+    padding: 4rem 3rem;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
     box-shadow: var(--shadow-xl);
   }
-  .auth-title {
+
+  .callback-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .callback-state h2 {
     font-size: 1.5rem;
     font-weight: 800;
     color: var(--gray-900);
-    margin-bottom: 0.5rem;
   }
-  .auth-subtitle {
+
+  .callback-state p {
     font-size: 0.95rem;
     color: var(--gray-500);
+    max-width: 320px;
+    line-height: 1.5;
+  }
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--gray-200);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .success-icon {
+    color: var(--success);
+  }
+
+  .error-icon {
+    color: var(--error);
   }
 </style>
 
 <script>
-  import { supabase } from '../../lib/supabase';
+  import { supabase } from "../../lib/supabase";
+
+  const loadingState = document.getElementById("loadingState") as HTMLElement;
+  const successState = document.getElementById("successState") as HTMLElement;
+  const errorState = document.getElementById("errorState") as HTMLElement;
+  const errorMessage = document.getElementById("errorMessage") as HTMLElement;
 
   async function handleCallback() {
-    const titleEl = document.getElementById('callbackTitle');
-    const msgEl = document.getElementById('callbackMessage');
-    const errorDiv = document.getElementById('callbackError');
-    const errorText = document.getElementById('errorText');
-
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    const refreshToken = hashParams.get('refresh_token');
-
     try {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (error) throw error;
       } else if (accessToken) {
         const { error } = await supabase.auth.setSession({
           access_token: accessToken,
-          refresh_token: refreshToken || '',
+          refresh_token: refreshToken || "",
         });
         if (error) throw error;
       } else {
-        // No code/token in URL — Supabase may have already verified server-side.
-        // Check if a session exists.
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (!session) {
-          // No session either — redirect to login
-          window.location.href = '/login';
+          window.location.href = "/login";
           return;
         }
       }
 
-      if (titleEl) titleEl.textContent = 'Email verified!';
-      if (msgEl) msgEl.textContent = 'Redirecting to marketplace...';
+      // Verification succeeded
+      loadingState.style.display = "none";
+      successState.style.display = "flex";
+
       setTimeout(() => {
-        window.location.href = '/marketplace';
-      }, 1500);
+        window.location.href = "/marketplace";
+      }, 2000);
     } catch (err: any) {
-      if (titleEl) titleEl.textContent = 'Verification failed';
-      if (msgEl) msgEl.style.display = 'none';
-      if (errorDiv) errorDiv.style.display = '';
-      if (errorText) errorText.textContent = err.message || 'Something went wrong.';
+      loadingState.style.display = "none";
+      errorState.style.display = "flex";
+      errorMessage.textContent =
+        err?.message || "Something went wrong. Please try again.";
     }
   }
 

@@ -11,8 +11,11 @@ import Layout from "../layouts/Layout.astro";
           <p class="auth-subtitle">Sign in to your campus account</p>
         </div>
 
+        <div id="errorBanner" class="error-banner" style="display:none">
+          <span id="errorText"></span>
+        </div>
+
         <form class="auth-form" id="loginForm" novalidate>
-          <div id="loginError" class="form-error" style="display:none;"></div>
           <div class="form-group">
             <label class="form-label" for="email">FSC Student Email</label>
             <input
@@ -83,7 +86,9 @@ import Layout from "../layouts/Layout.astro";
             </div>
           </div>
 
-          <button type="submit" class="btn-primary auth-submit">Sign In</button>
+          <button type="submit" class="btn-primary auth-submit" id="submitBtn"
+            >Sign In</button
+          >
 
           <div class="auth-separator">
             <span>New to the marketplace?</span>
@@ -215,6 +220,11 @@ import Layout from "../layouts/Layout.astro";
     padding: 0.85rem;
   }
 
+  .auth-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   .auth-separator {
     text-align: center;
     margin: 2rem 0 1.5rem;
@@ -258,14 +268,15 @@ import Layout from "../layouts/Layout.astro";
     text-decoration: underline;
   }
 
-  .form-error {
+  .error-banner {
     background: #fef2f2;
-    color: var(--error);
     border: 1px solid #fecaca;
-    border-radius: var(--radius-sm);
+    color: #b91c1c;
     padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
     font-size: 0.85rem;
-    margin-bottom: 1rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
   }
 
   @media (max-width: 480px) {
@@ -276,8 +287,23 @@ import Layout from "../layouts/Layout.astro";
 </style>
 
 <script>
-  import { supabase } from '../lib/supabase';
+  import { isValidStudentEmail, supabase } from "../lib/supabase";
 
+  const form = document.getElementById("loginForm") as HTMLFormElement;
+  const errorBanner = document.getElementById("errorBanner") as HTMLElement;
+  const errorText = document.getElementById("errorText") as HTMLElement;
+  const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
+
+  function showError(msg: string) {
+    errorText.textContent = msg;
+    errorBanner.style.display = "block";
+  }
+
+  function hideError() {
+    errorBanner.style.display = "none";
+  }
+
+  // Toggle password visibility
   const toggleBtn = document.getElementById("togglePw");
   const pwInput = document.getElementById(
     "password",
@@ -293,47 +319,54 @@ import Layout from "../layouts/Layout.astro";
     if (eyeOff) eyeOff.style.display = showing ? "none" : "";
   });
 
-  // Login form submission
-  const loginForm = document.getElementById("loginForm") as HTMLFormElement | null;
-  const loginError = document.getElementById("loginError") as HTMLElement | null;
-
-  loginForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const email = (document.getElementById("email") as HTMLInputElement).value.trim().toLowerCase();
-    const password = pwInput?.value || "";
-
-    if (loginError) loginError.style.display = "none";
-
-    if (!email || !password) {
-      showLoginError("Please enter your email and password.");
-      return;
+  // Check if already logged in
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      window.location.href = "/marketplace";
     }
-
-    const submitBtn = loginForm.querySelector('button[type="submit"]') as HTMLButtonElement;
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Signing In...";
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      showLoginError(error.message);
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Sign In";
-      }
-      return;
-    }
-
-    window.location.href = "/marketplace";
   });
 
-  function showLoginError(msg: string) {
-    if (loginError) {
-      loginError.textContent = msg;
-      loginError.style.display = "";
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const email = (document.getElementById("email") as HTMLInputElement).value
+      .trim()
+      .toLowerCase();
+    const password = (document.getElementById("password") as HTMLInputElement)
+      .value;
+
+    if (!email) {
+      showError("Please enter your email address.");
+      return;
     }
-  }
+
+    if (!isValidStudentEmail(email)) {
+      showError("You must use a @farmingdale.edu email address.");
+      return;
+    }
+
+    if (!password) {
+      showError("Please enter your password.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Signing in...";
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      showError(error.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Sign In";
+      return;
+    }
+
+    // Success — redirect to marketplace
+    window.location.href = "/marketplace";
+  });
 </script>

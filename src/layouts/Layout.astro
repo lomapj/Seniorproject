@@ -884,5 +884,67 @@ const {
         }
       });
     </script>
+
+    <script>
+      import { supabase } from "../lib/supabase";
+
+      const PROTECTED_PATHS = ["/profile", "/post", "/messages"];
+      const AUTH_PATHS = ["/login", "/signup"];
+      const currentPath = window.location.pathname;
+
+      async function initAuth() {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        // Guard protected routes — redirect to login if not authenticated
+        if (
+          !session &&
+          PROTECTED_PATHS.some((p) => currentPath.startsWith(p))
+        ) {
+          window.location.href = "/login";
+          return;
+        }
+
+        // If logged in and on auth pages, redirect to marketplace
+        if (session && AUTH_PATHS.some((p) => currentPath.startsWith(p))) {
+          window.location.href = "/marketplace";
+          return;
+        }
+
+        // Update nav UI if a session exists
+        if (session?.user) {
+          const meta = session.user.user_metadata;
+          const fullName: string = meta?.full_name || session.user.email || "";
+          const initials =
+            fullName
+              .split(" ")
+              .map((w: string) => w[0])
+              .join("")
+              .toUpperCase()
+              .slice(0, 2) || "U";
+
+          // Replace the profile SVG icon with initials
+          const profileBtn = document.querySelector(
+            'a[href="/profile"].nav-icon-btn',
+          );
+          if (profileBtn) {
+            profileBtn.innerHTML = `<span style="font-weight:700;font-size:0.75rem;color:var(--primary);">${initials}</span>`;
+          }
+        }
+      }
+
+      // Sign-out handler — attach to any element with data-signout attribute
+      document.addEventListener("click", async (e) => {
+        const btn = (e.target as HTMLElement).closest("[data-signout]");
+        if (btn) {
+          e.preventDefault();
+          await supabase.auth.signOut();
+          window.location.href = "/login";
+        }
+      });
+
+      initAuth();
+    </script>
   </body>
 </html>
