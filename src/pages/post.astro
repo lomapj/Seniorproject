@@ -399,6 +399,37 @@ import Layout from "../layouts/Layout.astro";
     margin-top: 1.5rem;
   }
 
+  .preview-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+}
+.preview-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.thumb-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.thumb-remove:hover { background: #ef4444; }
+
   /* Form Grid */
   .form-grid {
     display: grid;
@@ -715,6 +746,8 @@ import Layout from "../layouts/Layout.astro";
 </style>
 
 <script>
+  import { supabase } from "../lib/supabase";
+
   const uploadZone = document.getElementById("uploadZone");
   const fileInput = document.getElementById("fileInput") as HTMLInputElement;
   const titleInput = document.getElementById("title") as HTMLInputElement;
@@ -733,11 +766,54 @@ import Layout from "../layouts/Layout.astro";
   const previewPrice = document.getElementById("previewPrice");
   const previewCat = document.getElementById("previewCat");
   const previewCondition = document.getElementById("previewCondition");
+  const previewImg = document.getElementById("previewImg")!;
 
   const titleCount = document.getElementById("titleCount");
   const descCount = document.getElementById("descCount");
 
+  let selectedFiles: File[] = [];
+
   // Interactive Upload
+  function updatePreview() {
+    if (selectedFiles.length > 0) {
+      const url = URL.createObjectURL(selectedFiles[0]);
+      previewImg.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
+    } else {
+      previewImg.innerHTML = `<div class="placeholder-content">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21">
+        </polyline></svg><p>Image preview</p></div>`;
+    }
+  }
+
+  function renderThumbs() {
+    const container = document.getElementById("uploadPreviews")!;
+    container.innerHTML = "";
+    selectedFiles.forEach((file, i) => {
+      const url = URL.createObjectURL(file);
+      const div = document.createElement("div");
+      div.className = "preview-thumb";
+      div.innerHTML = `<img src="${url}" alt="preview" /><button type="button" class="thumb-remove" data-index="${i}" aria-label="Remove">×</button>`;
+      container.appendChild(div);
+    });
+    container.querySelectorAll(".thumb-remove").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedFiles.splice(parseInt((btn as HTMLElement).dataset.index ?? "0"), 1);
+        renderThumbs();
+        updatePreview();
+      });
+    });
+  }
+
+  function addFiles(newFiles: File[]) {
+    const toAdd = newFiles
+      .filter(f => f.type.startsWith("image/") && f.size <= 10 * 1024 * 1024)
+      .slice(0, 5 - selectedFiles.length);
+    selectedFiles = [...selectedFiles, ...toAdd];
+    renderThumbs();
+    updatePreview();
+  }
+
   uploadZone?.addEventListener("click", () => fileInput?.click());
 
   uploadZone?.addEventListener("dragover", (e) => {
@@ -752,18 +828,15 @@ import Layout from "../layouts/Layout.astro";
   uploadZone?.addEventListener("drop", (e) => {
     e.preventDefault();
     uploadZone.classList.remove("dragover");
-    if (e.dataTransfer && e.dataTransfer.files.length > 0) {
-      fileInput.files = e.dataTransfer.files;
-      handleFileSelect();
-    }
+    if (e.dataTransfer?.files.length)
+    addFiles(Array.from(e.dataTransfer.files));
   });
 
-  fileInput?.addEventListener("change", handleFileSelect);
-
-  function handleFileSelect() {
-    // Basic logic for previews could go here
-    console.log("Files selected:", fileInput.files);
-  }
+  fileInput?.addEventListener("change", () => {
+    if (fileInput.files)
+    addFiles(Array.from(fileInput.files));
+    fileInput.value = "";
+  });
 
   // Live Preview Updates
   titleInput?.addEventListener("input", () => {
@@ -790,5 +863,73 @@ import Layout from "../layouts/Layout.astro";
   descriptionInput?.addEventListener("input", () => {
     if (descCount)
       descCount.textContent = `${descriptionInput.value.length}/1000`;
+  });
+
+  // Form submit
+  const form = document.getElementById("listingForm") as HTMLFormElement;
+  const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const title = titleInput.value.trim();
+    const category = categoryInput.value;
+    const condition = conditionInput.value;
+    const price = parseFloat(priceInput.value);
+    const status = (document.getElementById("status") as HTMLSelectElement).value;
+    const description = descriptionInput.value.trim();
+
+    if (!title || !category || !condition || isNaN(price) || !description) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Publishing...";
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("You must be logged in to post a listing.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Publish Listing";
+      return;
+    }
+
+    // Upload images
+    const imageUrls: string[] = [];
+    for (const file of selectedFiles) {
+      const ext = file.name.split(".").pop();
+      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, file);
+      if (uploadError) {
+        alert(`Image upload failed: ${uploadError.message}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Publish Listing";
+        return;
+      }
+      const { data: { publicUrl } } = supabase.storage.from("listing-images").getPublicUrl(path);
+      imageUrls.push(publicUrl);
+    }
+
+    // Insert listing row
+    const { error } = await supabase.from("listings").insert({
+      user_id: user.id,
+      title,
+      category,
+      condition,
+      price,
+      status,
+      description,
+      images: imageUrls,
+    });
+
+    if (error) {
+      alert(`Failed to publish: ${error.message}`);
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Publish Listing";
+      return;
+    }
+
+    window.location.href = "/marketplace";
   });
 </script>
