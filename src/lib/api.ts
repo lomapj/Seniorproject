@@ -460,3 +460,43 @@ async function fetchUserNames(
 
   return nameMap;
 }
+
+// ── Storage ───────────────────────────────────────────────────────────────────
+
+const BUCKET = "listing-images";
+
+/** Upload an image to Supabase Storage and return its public URL. */
+export async function uploadListingImage(
+  file: File,
+  userId: string,
+): Promise<string> {
+  const ext = file.name.split(".").pop();
+  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+    contentType: file.type,
+    upsert: false,
+  });
+  if (error) throw error;
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return publicUrl;
+}
+
+/** Delete images from Supabase Storage by their full URLs. */
+export async function deleteListingImages(urls: string[]): Promise<void> {
+  const paths = urls
+    .map((url) => {
+      const marker = `/object/public/${BUCKET}/`;
+      const idx = url.indexOf(marker);
+      return idx !== -1 ? url.slice(idx + marker.length) : null;
+    })
+    .filter(Boolean) as string[];
+
+  if (paths.length === 0) return;
+
+  const { error } = await supabase.storage.from(BUCKET).remove(paths);
+  if (error) throw error;
+}

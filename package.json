@@ -6,7 +6,12 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test:e2e": "cypress run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
@@ -22,6 +27,8 @@
   },
   "devDependencies": {
     "@prisma/client": "^7.4.2",
-    "prisma": "^7.4.2"
+    "cypress": "^15.11.0",
+    "prisma": "^7.4.2",
+    "vitest": "^4.0.18"
   }
 }
