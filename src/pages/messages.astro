@@ -1,743 +1,158 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
 
 const conversations = [
-  {
-    id: 1,
-    name: "Sarah J.",
-    initials: "SJ",
-    color: "var(--primary)",
-    preview: "Is the textbook still available?",
-    time: "2:46 PM",
-    rating: 4.5,
-    unread: 2,
-    active: true,
-  },
-  {
-    id: 2,
-    name: "Michael T.",
-    initials: "MT",
-    color: "#1d3557",
-    preview: "Thanks for the quick response!",
-    time: "1:30 PM",
-    rating: 4.8,
-    unread: 0,
-    active: false,
-  },
-  {
-    id: 3,
-    name: "Emily R.",
-    initials: "ER",
-    color: "#e07a5f",
-    preview: "Can we meet on campus?",
-    time: "Yesterday",
-    rating: 4.2,
-    unread: 0,
-    active: false,
-  },
-  {
-    id: 4,
-    name: "David K.",
-    initials: "DK",
-    color: "#6930c3",
-    preview: "What condition is it in?",
-    time: "Yesterday",
-    rating: 4.7,
-    unread: 0,
-    active: false,
-  },
-  {
-    id: 5,
-    name: "Chris M.",
-    initials: "CM",
-    color: "#606c38",
-    preview: "I'll take it! When can we meet?",
-    time: "Monday",
-    rating: 5.0,
-    unread: 0,
-    active: false,
-  },
+  { id: 1, name: "Sarah J.", initials: "SJ", color: "var(--primary)", preview: "Is the textbook still available?", time: "2:46 PM", rating: 4.5, unread: 2, active: true },
+  { id: 2, name: "Michael T.", initials: "MT", color: "#1d3557", preview: "Thanks for the quick response!", time: "1:30 PM", rating: 4.8, unread: 0, active: false },
+  { id: 3, name: "Emily R.", initials: "ER", color: "#e07a5f", preview: "Can we meet on campus?", time: "Yesterday", rating: 4.2, unread: 0, active: false },
+  { id: 4, name: "David K.", initials: "DK", color: "#6930c3", preview: "What condition is it in?", time: "Yesterday", rating: 4.7, unread: 0, active: false },
+  { id: 5, name: "Chris M.", initials: "CM", color: "#606c38", preview: "I'll take it! When can we meet?", time: "Monday", rating: 5.0, unread: 0, active: false },
 ];
 
 const messages = [
-  {
-    id: 1,
-    sender: "them",
-    text: "Hi! I saw your listing for the Biology textbook. Is it still available?",
-    time: "2:46 PM",
-  },
-  {
-    id: 2,
-    sender: "me",
-    text: "Yes, it is! It's in excellent condition, barely used.",
-    time: "2:47 PM",
-  },
-  {
-    id: 3,
-    sender: "them",
-    text: "Great! Can I pick it up tomorrow?",
-    time: "2:50 PM",
-  },
-  {
-    id: 4,
-    sender: "me",
-    text: "Sure! I'm free after 3 PM. We can meet at the library.",
-    time: "7:02 PM",
-  },
+  { id: 1, sender: "them", text: "Hi! I saw your listing for the Biology textbook. Is it still available?", time: "2:46 PM" },
+  { id: 2, sender: "me", text: "Yes, it is! It's in excellent condition, barely used.", time: "2:47 PM" },
+  { id: 3, sender: "them", text: "Great! Can I pick it up tomorrow?", time: "2:50 PM" },
+  { id: 4, sender: "me", text: "Sure! I'm free after 3 PM. We can meet at the library.", time: "7:02 PM" },
 ];
 ---
 
 <Layout title="Messages" showFooter={false}>
-  <div class="messages-page">
-    <!-- Left panel: conversation list -->
-    <aside class="conv-sidebar">
-      <div class="conv-header">
-        <h1 class="conv-title">Messages</h1>
-        <button type="button" class="btn-icon-soft" aria-label="New message">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-            ></path>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-            ></path>
-          </svg>
+  <div class="grid grid-cols-[360px_1fr] h-[calc(100vh-62px)] bg-card overflow-hidden max-md:grid-cols-1">
+    <!-- Left: Conversation List -->
+    <aside class="border-r border-border flex flex-col bg-muted">
+      <div class="p-5 flex justify-between items-center">
+        <h1 class="text-2xl font-extrabold text-foreground">Messages</h1>
+        <button type="button" class="w-10 h-10 rounded-lg bg-card text-primary flex items-center justify-center shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all" aria-label="New message">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
         </button>
       </div>
 
-      <div class="conv-search">
-        <div class="search-input-wrap">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            ><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"
-            ></path></svg
-          >
-          <input type="text" placeholder="Search people or items..." />
+      <div class="px-5 pb-4">
+        <div class="flex items-center bg-card border border-border rounded-lg px-3">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-muted-foreground mr-2 shrink-0"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+          <input type="text" placeholder="Search people or items..." class="border-0 bg-transparent py-2.5 text-sm w-full outline-none font-inherit" />
         </div>
       </div>
 
-      <div class="conv-list" id="convList">
-        {
-          conversations.map((conv) => (
-            <button
-              type="button"
-              class={`conv-item ${conv.active ? "active" : ""}`}
-              data-conv={conv.id}
-            >
-              <div class="conv-avatar" style={`background: ${conv.color}`}>
-                {conv.initials}
+      <div class="flex-1 overflow-y-auto pb-8" id="convList">
+        {conversations.map((conv) => (
+          <button type="button" class={`conv-item w-full p-4 px-5 flex gap-3 border-0 bg-transparent text-left transition-all border-b border-border/50 hover:bg-card/80 ${conv.active ? "bg-card border-l-4 border-l-primary shadow-inner" : ""}`} data-conv={conv.id}>
+            <Avatar size="lg" class="w-12 h-12 shadow-sm border-0"><AvatarFallback class="text-white font-extrabold text-sm" style={`background: ${conv.color}`}>{conv.initials}</AvatarFallback></Avatar>
+            <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline">
+                <span class="text-sm font-extrabold text-foreground">{conv.name}</span>
+                <span class="text-xs text-muted-foreground">{conv.time}</span>
               </div>
-              <div class="conv-details">
-                <div class="conv-row">
-                  <span class="conv-name">{conv.name}</span>
-                  <span class="conv-time">{conv.time}</span>
-                </div>
-                <div class="conv-row">
-                  <span class="conv-preview">{conv.preview}</span>
-                  {conv.unread > 0 && (
-                    <span class="unread-pill">{conv.unread}</span>
-                  )}
-                </div>
+              <div class="flex justify-between items-baseline">
+                <span class="text-sm text-muted-foreground truncate">{conv.preview}</span>
+                {conv.unread > 0 && (
+                  <span class="bg-primary text-primary-foreground text-[0.7rem] font-extrabold px-1.5 py-px rounded-full min-w-5 text-center">{conv.unread}</span>
+                )}
               </div>
-            </button>
-          ))
-        }
+            </div>
+          </button>
+        ))}
       </div>
     </aside>
 
-    <!-- Right panel: chat area -->
-    <main class="chat-viewport">
-      <header class="chat-header">
-        <div class="chat-user-display">
-          <div class="chat-avatar-main" style="background: var(--primary)">
-            SJ
-          </div>
-          <div class="chat-user-meta">
-            <p class="chat-user-name">Sarah J.</p>
-            <div class="chat-user-rating">
-              <span class="stars-solid">★★★★★</span>
-              <span class="rating-val">4.5</span>
+    <!-- Right: Chat -->
+    <main class="flex flex-col bg-card">
+      <header class="px-5 py-3 border-b border-border flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-3">
+          <Avatar size="lg" variant="primary" class="w-11 h-11 border-0"><AvatarFallback class="bg-primary text-white font-extrabold">SJ</AvatarFallback></Avatar>
+          <div>
+            <p class="text-base font-extrabold text-foreground">Sarah J.</p>
+            <div class="flex items-center gap-2">
+              <span class="text-amber-400 text-xs">★★★★★</span>
+              <span class="text-xs text-muted-foreground font-semibold">4.5</span>
             </div>
           </div>
         </div>
 
-        <a href="/item" class="listing-ref-card">
-          <div
-            class="listing-ref-thumb"
-            style="background: linear-gradient(135deg,#2d6a4f,#52b788)"
-          >
-            📗
+        <a href="/item" class="flex items-center gap-3 px-3 py-2 bg-muted border border-border rounded-lg no-underline text-inherit hover:bg-primary/5 hover:border-primary transition-colors">
+          <div class="w-9 h-9 rounded-md flex items-center justify-center text-base" style="background: linear-gradient(135deg,#2d6a4f,#52b788)">📗</div>
+          <div>
+            <p class="text-xs font-bold text-foreground">Biology Textbook</p>
+            <p class="text-xs font-bold text-primary">$45</p>
           </div>
-          <div class="listing-ref-info">
-            <p class="listing-ref-title">Biology Textbook</p>
-            <p class="listing-ref-price">$45</p>
-          </div>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><polyline points="9 18 15 12 9 6"></polyline></svg
-          >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </a>
       </header>
 
-      <div class="chat-history" id="chatHistory">
-        <div class="date-sep"><span>Today</span></div>
+      <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 bg-muted/30" id="chatHistory">
+        <div class="text-center relative my-3">
+          <div class="absolute left-0 top-1/2 w-full h-px bg-border"></div>
+          <span class="relative bg-muted/30 px-4 text-xs font-bold text-muted-foreground uppercase">Today</span>
+        </div>
 
-        {
-          messages.map((msg) => (
-            <div class={`msg-block ${msg.sender}`}>
-              {msg.sender === "them" && (
-                <div class="msg-avatar-sm" style="background: var(--primary)">
-                  SJ
-                </div>
-              )}
-              <div class="msg-content">
-                <div class="msg-bubble">{msg.text}</div>
-                <span class="msg-time">{msg.time}</span>
+        {messages.map((msg) => (
+          <div class={`flex gap-3 max-w-[70%] ${msg.sender === "me" ? "self-end flex-row-reverse" : ""}`}>
+            {msg.sender === "them" && (
+              <Avatar size="sm" variant="primary" class="shrink-0 mt-auto border-0"><AvatarFallback class="bg-primary text-white text-[0.7rem] font-extrabold">SJ</AvatarFallback></Avatar>
+            )}
+            <div class="flex flex-col gap-1">
+              <div class={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.sender === "me" ? "bg-primary text-primary-foreground rounded-br-sm font-medium" : "bg-card text-foreground rounded-bl-sm border border-border"}`}>
+                {msg.text}
               </div>
+              <span class={`text-[0.7rem] text-muted-foreground font-semibold px-2 ${msg.sender === "me" ? "text-right" : ""}`}>{msg.time}</span>
             </div>
-          ))
-        }
+          </div>
+        ))}
       </div>
 
-      <footer class="chat-footer">
-        <div class="input-actions">
-          <button class="action-btn" title="Send Image">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle
-                cx="8.5"
-                cy="8.5"
-                r="1.5"></circle><polyline points="21 15 16 10 5 21"
-              ></polyline></svg
-            >
+      <footer class="p-5 border-t border-border flex items-center gap-3 bg-card">
+        <div class="flex gap-1.5">
+          <button class="w-11 h-11 rounded-lg bg-muted text-muted-foreground flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors" title="Send Image">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
           </button>
-          <button class="action-btn" title="Attach File">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path
-                d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
-              ></path></svg
-            >
+          <button class="w-11 h-11 rounded-lg bg-muted text-muted-foreground flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors" title="Attach File">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
           </button>
         </div>
-        <div class="chat-input-wrap">
-          <input
-            type="text"
-            id="chatInput"
-            placeholder="Type a message..."
-            autocomplete="off"
-          />
+        <div class="flex-1">
+          <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" class="w-full py-3 px-5 rounded-full border border-border bg-muted text-base outline-none transition-all focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10" />
         </div>
-        <button class="btn-primary-circle" id="sendBtn">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><line x1="22" y1="2" x2="11" y2="13"></line><polygon
-              points="22 2 15 22 11 13 2 9 22 2"></polygon></svg
-          >
+        <button class="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:scale-105 hover:shadow-lg transition-all" id="sendBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
         </button>
       </footer>
     </main>
   </div>
 </Layout>
 
-<style>
-  .messages-page {
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    height: calc(100vh - 62px); /* Assuming 62px header */
-    background: var(--white);
-    overflow: hidden;
-  }
-
-  @media (max-width: 968px) {
-    .messages-page {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* Sidebar */
-  .conv-sidebar {
-    border-right: 1px solid var(--gray-200);
-    display: flex;
-    flex-direction: column;
-    background: var(--gray-50);
-  }
-
-  .conv-header {
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .conv-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-
-  .btn-icon-soft {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    border: none;
-    background: var(--white);
-    color: var(--primary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s;
-  }
-  .btn-icon-soft:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    color: var(--primary-hover);
-  }
-
-  .conv-search {
-    padding: 0 1.5rem 1.5rem;
-  }
-  .search-input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    padding: 0 0.75rem;
-  }
-  .search-input-wrap svg {
-    color: var(--gray-400);
-    margin-right: 0.5rem;
-  }
-  .search-input-wrap input {
-    border: none;
-    background: none;
-    padding: 0.6rem 0;
-    font-size: 0.9rem;
-    width: 100%;
-    outline: none;
-    font-family: inherit;
-  }
-
-  .conv-list {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 2rem;
-  }
-  .conv-item {
-    width: 100%;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    gap: 1rem;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s;
-    border-bottom: 1px solid var(--gray-100);
-  }
-  .conv-item:hover {
-    background: rgba(255, 255, 255, 0.8);
-  }
-  .conv-item.active {
-    background: var(--white);
-    border-left: 4px solid var(--primary);
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
-  }
-
-  .conv-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--white);
-    font-weight: 800;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .conv-details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    min-width: 0;
-  }
-  .conv-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-  }
-  .conv-name {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-  .conv-time {
-    font-size: 0.75rem;
-    color: var(--gray-400);
-  }
-  .conv-preview {
-    font-size: 0.85rem;
-    color: var(--gray-500);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .unread-pill {
-    background: var(--primary);
-    color: var(--white);
-    font-size: 0.7rem;
-    font-weight: 800;
-    padding: 0.1rem 0.4rem;
-    border-radius: var(--radius-full);
-    min-width: 20px;
-    text-align: center;
-  }
-
-  /* Chat Viewport */
-  .chat-viewport {
-    display: flex;
-    flex-direction: column;
-    background: var(--white);
-  }
-
-  .chat-header {
-    padding: 0.75rem 1.5rem;
-    border-bottom: 1px solid var(--gray-200);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  }
-
-  .chat-user-display {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .chat-avatar-main {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-  }
-  .chat-user-name {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-  .chat-user-rating {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .stars-solid {
-    color: var(--accent);
-    font-size: 0.75rem;
-  }
-  .rating-val {
-    font-size: 0.8rem;
-    color: var(--gray-400);
-    font-weight: 600;
-  }
-
-  .listing-ref-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.4rem 0.75rem;
-    background: var(--gray-50);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.2s;
-  }
-  .listing-ref-card:hover {
-    background: var(--primary-soft);
-    border-color: var(--primary);
-  }
-  .listing-ref-thumb {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-  }
-  .listing-ref-title {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--gray-900);
-  }
-  .listing-ref-price {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--primary);
-  }
-  .listing-ref-card svg {
-    color: var(--gray-400);
-  }
-
-  .chat-history {
-    flex: 1;
-    overflow-y: auto;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    background: #fbfbfb;
-  }
-
-  .date-sep {
-    text-align: center;
-    position: relative;
-    margin: 1rem 0;
-  }
-  .date-sep::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 100%;
-    height: 1px;
-    background: var(--gray-200);
-  }
-  .date-sep span {
-    position: relative;
-    background: #fbfbfb;
-    padding: 0 1rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--gray-400);
-    text-transform: uppercase;
-  }
-
-  .msg-block {
-    display: flex;
-    gap: 1rem;
-    max-width: 70%;
-  }
-  .msg-block.me {
-    align-self: flex-end;
-    flex-direction: row-reverse;
-  }
-
-  .msg-avatar-sm {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 800;
-    flex-shrink: 0;
-    margin-top: auto;
-  }
-
-  .msg-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .msg-bubble {
-    padding: 0.75rem 1.25rem;
-    border-radius: 1.25rem;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .them .msg-bubble {
-    background: var(--white);
-    color: var(--gray-800);
-    border-bottom-left-radius: 0.25rem;
-    border: 1px solid var(--gray-200);
-  }
-  .me .msg-bubble {
-    background: var(--primary);
-    color: var(--white);
-    border-bottom-right-radius: 0.25rem;
-    font-weight: 500;
-  }
-
-  .msg-time {
-    font-size: 0.7rem;
-    color: var(--gray-400);
-    font-weight: 600;
-    padding: 0 0.5rem;
-  }
-  .me .msg-time {
-    text-align: right;
-  }
-
-  /* Footer */
-  .chat-footer {
-    padding: 1.5rem;
-    border-top: 1px solid var(--gray-200);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: var(--white);
-  }
-
-  .input-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-  .action-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-md);
-    border: none;
-    background: var(--gray-50);
-    color: var(--gray-500);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-  .action-btn:hover {
-    background: var(--primary-soft);
-    color: var(--primary);
-  }
-
-  .chat-input-wrap {
-    flex: 1;
-  }
-  .chat-input-wrap input {
-    width: 100%;
-    padding: 0.85rem 1.25rem;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--gray-200);
-    background: var(--gray-50);
-    font-family: inherit;
-    font-size: 1rem;
-    outline: none;
-    transition: all 0.2s;
-  }
-  .chat-input-wrap input:focus {
-    background: var(--white);
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px var(--primary-soft);
-  }
-
-  .btn-primary-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: none;
-    background: var(--primary);
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: all 0.2s;
-  }
-  .btn-primary-circle:hover {
-    transform: scale(1.05);
-    background: var(--primary-hover);
-    box-shadow: var(--shadow-lg);
-  }
-</style>
-
 <script>
-  const convList = document.getElementById("convList");
   const convItems = document.querySelectorAll(".conv-item");
   const chatHistory = document.getElementById("chatHistory");
   const chatInput = document.getElementById("chatInput") as HTMLInputElement;
   const sendBtn = document.getElementById("sendBtn");
 
-  // Switch conversation
   convItems.forEach((item) => {
     item.addEventListener("click", () => {
-      convItems.forEach((i) => i.classList.remove("active"));
-      item.classList.add("active");
+      convItems.forEach((i) => i.classList.remove("bg-card", "border-l-4", "border-l-primary", "shadow-inner"));
+      item.classList.add("bg-card", "border-l-4", "border-l-primary", "shadow-inner");
     });
   });
 
-  // Sending message logic
   function sendMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
 
-    const time = new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
     const msgBlock = document.createElement("div");
-    msgBlock.className = "msg-block me";
+    msgBlock.className = "flex gap-3 max-w-[70%] self-end flex-row-reverse";
     msgBlock.innerHTML = `
-      <div class="msg-content">
-        <div class="msg-bubble">${text}</div>
-        <span class="msg-time">${time}</span>
+      <div class="flex flex-col gap-1">
+        <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-primary text-primary-foreground rounded-br-sm font-medium">${text}</div>
+        <span class="text-[0.7rem] text-muted-foreground font-semibold px-2 text-right">${time}</span>
       </div>
     `;
 
     chatHistory?.appendChild(msgBlock);
     chatInput.value = "";
-    chatHistory?.scrollTo({
-      top: chatHistory.scrollHeight,
-      behavior: "smooth",
-    });
+    chatHistory?.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
   }
 
   sendBtn?.addEventListener("click", sendMessage);
@@ -745,20 +160,5 @@ const messages = [
     if (e.key === "Enter") sendMessage();
   });
 
-  // Initial scroll
   if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
-  const sidebar = document.querySelector(".conv-sidebar");
-  const mobileBackBtn = document.getElementById("mobileBackBtn");
-
-  mobileBackBtn?.addEventListener("click", () => {
-    sidebar?.classList.remove("hidden");
-  });
-
-  convItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      if (window.innerWidth <= 768) {
-        sidebar?.classList.add("hidden");
-      }
-    });
-  });
 </script>

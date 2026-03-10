@@ -1,368 +1,91 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import Label from "@/components/starwind/label/Label.astro";
+import Input from "@/components/starwind/input/Input.astro";
+import Checkbox from "@/components/starwind/checkbox/Checkbox.astro";
+import { Alert, AlertDescription } from "@/components/starwind/alert";
 ---
 
 <Layout title="Sign Up" authLayout={true} showFooter={true}>
-  <div class="auth-page">
-    <div class="auth-container">
-      <div class="auth-card">
-        <div class="auth-header">
-          <h1 class="auth-title">Create Account</h1>
-          <p class="auth-subtitle">Join the FSC student community</p>
-        </div>
+  <div class="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 sm:p-8 bg-muted">
+    <div class="w-full max-w-120">
+      <Card class="shadow-xl">
+        <CardHeader class="text-center pb-2">
+          <CardTitle class="text-2xl font-extrabold tracking-tight">Create Account</CardTitle>
+          <CardDescription>Join the FSC student community</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert id="successMessage" variant="success" class="hidden mb-4 items-start gap-3">
+            <AlertDescription class="text-sm">
+              <strong class="block mb-1">Check your email!</strong>
+              <p class="leading-snug">We sent a verification link to your @farmingdale.edu inbox. Click it to activate your account.</p>
+            </AlertDescription>
+          </Alert>
 
-        <div id="successMessage" class="success-banner" style="display:none">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
-          <div>
-            <strong>Check your email!</strong>
-            <p>
-              We sent a verification link to your @farmingdale.edu inbox. Click
-              it to activate your account.
-            </p>
-          </div>
-        </div>
+          <Alert id="errorBanner" variant="error" class="hidden mb-4">
+            <AlertDescription id="errorText" class="text-sm font-medium"></AlertDescription>
+          </Alert>
 
-        <div id="errorBanner" class="error-banner" style="display:none">
-          <span id="errorText"></span>
-        </div>
-
-        <form class="auth-form" id="signupForm" novalidate>
-          <div class="form-group">
-            <label class="form-label" for="fullName">Full Name</label>
-            <input
-              class="form-input"
-              id="fullName"
-              type="text"
-              placeholder="Jane Smith"
-              autocomplete="name"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="email">Student Email</label>
-            <input
-              class="form-input"
-              id="email"
-              type="email"
-              placeholder="name@farmingdale.edu"
-              autocomplete="email"
-              required
-            />
-            <span class="form-hint">Must be your @farmingdale.edu address</span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="phone">
-              Phone Number <span class="optional">(optional)</span>
-            </label>
-            <input
-              class="form-input"
-              id="phone"
-              type="tel"
-              placeholder="(555) 000-0000"
-              autocomplete="tel"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="password">Password</label>
-            <div class="input-wrap">
-              <input
-                class="form-input"
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                autocomplete="new-password"
-                required
-              />
-              <button
-                type="button"
-                class="toggle-pw"
-                id="togglePw"
-                aria-label="Toggle password visibility"
-              >
-                <svg
-                  id="eyeOpen"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-                <svg
-                  id="eyeOff"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  style="display:none"
-                >
-                  <path
-                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
-                  ></path>
-                  <path
-                    d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
-                  ></path>
-                  <line x1="1" y1="1" x2="23" y2="23"></line>
-                </svg>
-              </button>
+          <form class="flex flex-col" id="signupForm" novalidate>
+            <div class="space-y-1.5 mb-4">
+              <Label for="fullName">Full Name</Label>
+              <Input id="fullName" type="text" placeholder="Jane Smith" autocomplete="name" required />
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label" for="confirmPassword"
-              >Confirm Password</label
-            >
-            <input
-              class="form-input"
-              id="confirmPassword"
-              type="password"
-              placeholder="Re-enter your password"
-              autocomplete="new-password"
-              required
-            />
-          </div>
+            <div class="space-y-1.5 mb-4">
+              <Label for="email">Student Email</Label>
+              <Input id="email" type="email" placeholder="name@farmingdale.edu" autocomplete="email" required />
+              <span class="text-xs text-muted-foreground">Must be your @farmingdale.edu address</span>
+            </div>
 
-          <div class="terms-row">
-            <input type="checkbox" id="terms" class="terms-checkbox" required />
-            <label for="terms" class="terms-label">
-              I agree to the <a href="#">Terms</a> and <a href="#"
-                >Privacy Policy</a
-              >
-            </label>
-          </div>
+            <div class="space-y-1.5 mb-4">
+              <Label for="phone">Phone Number <span class="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+              <Input id="phone" type="tel" placeholder="(555) 000-0000" autocomplete="tel" />
+            </div>
 
-          <button type="submit" class="btn-primary auth-submit" id="submitBtn"
-            >Create Account</button
-          >
+            <div class="space-y-1.5 mb-4">
+              <Label for="password">Password</Label>
+              <div class="relative">
+                <Input id="password" type="password" placeholder="••••••••" autocomplete="new-password" class="pr-12" required />
+                <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1" id="togglePw" aria-label="Toggle password visibility">
+                  <svg id="eyeOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg id="eyeOff" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
 
-          <p class="auth-switch">
-            Already have an account? <a href="/login">Log In</a>
-          </p>
-        </form>
-      </div>
+            <div class="space-y-1.5 mb-4">
+              <Label for="confirmPassword">Confirm Password</Label>
+              <Input id="confirmPassword" type="password" placeholder="Re-enter your password" autocomplete="new-password" required />
+            </div>
+
+            <div class="flex items-start gap-3 my-4">
+              <Checkbox id="terms" required class="mt-0.5" />
+              <label for="terms" class="text-sm text-muted-foreground leading-snug cursor-pointer">
+                I agree to the <a href="#" class="text-primary font-semibold hover:underline">Terms</a> and <a href="#" class="text-primary font-semibold hover:underline">Privacy Policy</a>
+              </label>
+            </div>
+
+            <Button variant="primary" type="submit" class="w-full mb-4" id="submitBtn">Create Account</Button>
+
+            <p class="text-center text-sm text-muted-foreground">
+              Already have an account? <a href="/login" class="text-primary font-bold hover:underline">Log In</a>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   </div>
 </Layout>
-
-<style>
-  .auth-page {
-    min-height: calc(100vh - 80px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-    background-color: var(--gray-50);
-    background-image:
-      radial-gradient(at 0% 0%, var(--primary-soft) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, var(--accent-soft) 0px, transparent 50%);
-  }
-
-  .auth-container {
-    width: 100%;
-    max-width: 480px;
-  }
-
-  .auth-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-2xl);
-    padding: 3rem;
-    width: 100%;
-    box-shadow: var(--shadow-xl);
-  }
-
-  @media (max-width: 580px) {
-    .auth-page {
-      padding: 1.5rem;
-    }
-    .auth-card {
-      padding: 2.5rem 1.5rem;
-    }
-    .auth-title {
-      font-size: 1.75rem;
-    }
-  }
-
-  .auth-header {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
-
-  .auth-title {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: var(--gray-900);
-    letter-spacing: -0.02em;
-    margin-bottom: 0.5rem;
-  }
-
-  .auth-subtitle {
-    font-size: 0.95rem;
-    color: var(--gray-500);
-  }
-
-  .auth-form {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-hint {
-    font-size: 0.75rem;
-    color: var(--gray-400);
-    margin-top: 0.25rem;
-  }
-
-  .optional {
-    font-size: 0.75rem;
-    color: var(--gray-400);
-    font-weight: 400;
-  }
-
-  .input-wrap {
-    position: relative;
-  }
-  .input-wrap .form-input {
-    padding-right: 3rem;
-  }
-
-  .toggle-pw {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--gray-400);
-    display: flex;
-    align-items: center;
-    transition: color 0.15s;
-    padding: 0.25rem;
-  }
-
-  .toggle-pw:hover {
-    color: var(--gray-600);
-  }
-
-  .terms-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin: 1rem 0 2rem;
-  }
-
-  .terms-checkbox {
-    margin-top: 0.2rem;
-    accent-color: var(--primary);
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  .terms-label {
-    font-size: 0.85rem;
-    color: var(--gray-600);
-    line-height: 1.4;
-    cursor: pointer;
-  }
-  .terms-label a {
-    color: var(--primary);
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .terms-label a:hover {
-    text-decoration: underline;
-  }
-
-  .auth-submit {
-    margin-bottom: 1.5rem;
-    padding: 0.85rem;
-  }
-
-  .auth-switch {
-    text-align: center;
-    font-size: 0.9rem;
-    color: var(--gray-500);
-  }
-  .auth-switch a {
-    color: var(--primary);
-    font-weight: 700;
-    text-decoration: none;
-  }
-  .auth-switch a:hover {
-    text-decoration: underline;
-  }
-
-  .error-banner {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-  }
-
-  .success-banner {
-    background: #f0fdf4;
-    border: 1px solid #86efac;
-    color: #166534;
-    padding: 1rem 1.25rem;
-    border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-  }
-
-  .success-banner strong {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.95rem;
-  }
-
-  .success-banner p {
-    line-height: 1.45;
-  }
-
-  .auth-submit:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 480px) {
-    .auth-card {
-      padding: 2.5rem 1.5rem;
-    }
-  }
-</style>
 
 <script>
   import { isValidStudentEmail, supabase } from "../lib/supabase";
@@ -370,26 +93,22 @@ import Layout from "../layouts/Layout.astro";
   const form = document.getElementById("signupForm") as HTMLFormElement;
   const errorBanner = document.getElementById("errorBanner") as HTMLElement;
   const errorText = document.getElementById("errorText") as HTMLElement;
-  const successMessage = document.getElementById(
-    "successMessage",
-  ) as HTMLElement;
+  const successMessage = document.getElementById("successMessage") as HTMLElement;
   const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
 
   function showError(msg: string) {
     errorText.textContent = msg;
-    errorBanner.style.display = "block";
-    successMessage.style.display = "none";
+    errorBanner.classList.remove("hidden");
+    successMessage.classList.add("hidden");
   }
 
   function hideError() {
-    errorBanner.style.display = "none";
+    errorBanner.classList.add("hidden");
   }
 
   // Toggle password visibility
   const toggleBtn = document.getElementById("togglePw");
-  const pwInput = document.getElementById(
-    "password",
-  ) as HTMLInputElement | null;
+  const pwInput = document.getElementById("password") as HTMLInputElement | null;
   const eyeOpen = document.getElementById("eyeOpen") as HTMLElement | null;
   const eyeOff = document.getElementById("eyeOff") as HTMLElement | null;
 
@@ -412,55 +131,20 @@ import Layout from "../layouts/Layout.astro";
     e.preventDefault();
     hideError();
 
-    const fullName = (
-      document.getElementById("fullName") as HTMLInputElement
-    ).value.trim();
-    const email = (document.getElementById("email") as HTMLInputElement).value
-      .trim()
-      .toLowerCase();
-    const phone = (
-      document.getElementById("phone") as HTMLInputElement
-    ).value.trim();
-    const password = (document.getElementById("password") as HTMLInputElement)
-      .value;
-    const confirmPassword = (
-      document.getElementById("confirmPassword") as HTMLInputElement
-    ).value;
-    const termsChecked = (document.getElementById("terms") as HTMLInputElement)
-      .checked;
+    const fullName = (document.getElementById("fullName") as HTMLInputElement).value.trim();
+    const email = (document.getElementById("email") as HTMLInputElement).value.trim().toLowerCase();
+    const phone = (document.getElementById("phone") as HTMLInputElement).value.trim();
+    const password = (document.getElementById("password") as HTMLInputElement).value;
+    const confirmPassword = (document.getElementById("confirmPassword") as HTMLInputElement).value;
+    const termsChecked = (document.getElementById("terms") as HTMLInputElement).checked;
 
-    // Client-side validation
-    if (!fullName) {
-      showError("Please enter your full name.");
-      return;
-    }
+    if (!fullName) { showError("Please enter your full name."); return; }
+    if (!email) { showError("Please enter your email address."); return; }
+    if (!isValidStudentEmail(email)) { showError("You must use a @farmingdale.edu email address to register."); return; }
+    if (password.length < 6) { showError("Password must be at least 6 characters."); return; }
+    if (password !== confirmPassword) { showError("Passwords do not match."); return; }
+    if (!termsChecked) { showError("You must agree to the Terms and Privacy Policy."); return; }
 
-    if (!email) {
-      showError("Please enter your email address.");
-      return;
-    }
-
-    if (!isValidStudentEmail(email)) {
-      showError("You must use a @farmingdale.edu email address to register.");
-      return;
-    }
-
-    if (password.length < 6) {
-      showError("Password must be at least 6 characters.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      showError("Passwords do not match.");
-      return;
-    }
-
-    if (!termsChecked) {
-      showError("You must agree to the Terms and Privacy Policy.");
-      return;
-    }
-
-    // Disable button while processing
     submitBtn.disabled = true;
     submitBtn.textContent = "Creating Account...";
 
@@ -483,8 +167,8 @@ import Layout from "../layouts/Layout.astro";
       return;
     }
 
-    // Success — show confirmation message
     form.style.display = "none";
+    successMessage.classList.remove("hidden");
     successMessage.style.display = "flex";
   });
 </script>

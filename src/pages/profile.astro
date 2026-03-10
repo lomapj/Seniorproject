@@ -1,862 +1,187 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Card, CardContent } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import Badge from "@/components/starwind/badge/Badge.astro";
+import Separator from "@/components/starwind/separator/Separator.astro";
+import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/starwind/table";
 
 const listings = [
-  {
-    id: 1,
-    title: "Biology Textbook",
-    price: 45,
-    category: "Books",
-    gradient: "linear-gradient(135deg,#2d6a4f,#52b788)",
-    icon: "📗",
-    status: "available",
-  },
-  {
-    id: 2,
-    title: "MacBook Pro 2019",
-    price: 800,
-    category: "Electronics",
-    gradient: "linear-gradient(135deg,#1d3557,#457b9d)",
-    icon: "💻",
-    status: "available",
-  },
-  {
-    id: 3,
-    title: "Desk Lamp",
-    price: 15,
-    category: "Furniture",
-    gradient: "linear-gradient(135deg,#e9c46a,#f4a261)",
-    icon: "🔆",
-    status: "available",
-  },
-  {
-    id: 4,
-    title: "School Backpack",
-    price: 30,
-    category: "Misc",
-    gradient: "linear-gradient(135deg,#ef476f,#f78c6b)",
-    icon: "🎒",
-    status: "sold",
-  },
+  { id: 1, title: "Biology Textbook", price: 45, category: "Books", gradient: "linear-gradient(135deg,#2d6a4f,#52b788)", icon: "📗", status: "available" },
+  { id: 2, title: "MacBook Pro 2019", price: 800, category: "Electronics", gradient: "linear-gradient(135deg,#1d3557,#457b9d)", icon: "💻", status: "available" },
+  { id: 3, title: "Desk Lamp", price: 15, category: "Furniture", gradient: "linear-gradient(135deg,#e9c46a,#f4a261)", icon: "🔆", status: "available" },
+  { id: 4, title: "School Backpack", price: 30, category: "Misc", gradient: "linear-gradient(135deg,#ef476f,#f78c6b)", icon: "🎒", status: "sold" },
 ];
 ---
 
 <Layout title="My Profile">
-  <div class="profile-page">
-    <!-- Cover & Profile Header -->
-    <div class="profile-cover-section">
-      <div class="profile-cover">
-        <div class="cover-pattern"></div>
-        <div class="cover-overlay"></div>
+  <div class="bg-muted min-h-screen pb-16">
+    <!-- Cover -->
+    <div class="relative pb-8">
+      <div class="h-60 bg-linear-to-br from-primary to-[#004d42] relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+        <div class="absolute inset-0 bg-linear-to-b from-transparent to-black/20"></div>
       </div>
-      <div class="container">
-        <div class="profile-header-card">
-          <div class="profile-avatar-area">
-            <div class="profile-avatar-main">SJ</div>
-            <button class="avatar-edit-btn" aria-label="Edit avatar">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><path
-                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                ></path><circle cx="12" cy="13" r="4"></circle></svg
-              >
-            </button>
-          </div>
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <Card class="shadow-xl -mt-20 relative z-10">
+          <CardContent class="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start pt-6">
+            <!-- Avatar -->
+            <div class="relative shrink-0">
+              <Avatar size="lg" variant="primary" class="w-35 h-35 text-5xl border-6 border-card shadow-lg"><AvatarFallback class="bg-primary text-primary-foreground">SJ</AvatarFallback></Avatar>
+              <button class="absolute bottom-1 right-1 w-9 h-9 bg-card border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-primary shadow-sm transition-colors" aria-label="Edit avatar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              </button>
+            </div>
 
-          <div class="profile-main-info">
-            <div class="profile-name-row">
-              <h1 class="profile-name">Sarah Johnson</h1>
-              <div class="profile-actions">
-                <a href="#" class="btn-secondary-sm">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path d="M12 20h9"></path><path
-                      d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
-                    ></path></svg
-                  >
+            <div class="flex-1 text-center md:text-left">
+              <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-2 mb-2">
+                <h1 class="text-3xl font-extrabold text-foreground tracking-tight">Sarah Johnson</h1>
+                <Button variant="outline" size="sm" class="gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                   Edit Profile
-                </a>
+                </Button>
+              </div>
+
+              <div class="flex items-center gap-3 flex-wrap justify-center md:justify-start mb-3">
+                <span class="text-amber-400 text-sm">★★★★★</span>
+                <span class="text-sm font-semibold text-muted-foreground">4.5 (12 Reviews)</span>
+                <Badge variant="ghost" size="sm" class="text-primary bg-primary/10">Junior @ FSC</Badge>
+              </div>
+
+              <p class="text-base text-muted-foreground leading-relaxed max-w-150 mb-4">
+                Selling my old textbooks and some dorm furniture I don't need
+                anymore. Usually free for meetups near the library or campus
+                center during the week!
+              </p>
+
+              <div class="flex items-center gap-6 justify-center md:justify-start">
+                <div class="flex flex-col"><span class="text-xl font-extrabold text-foreground">4</span><span class="text-xs font-semibold text-muted-foreground uppercase">Listings</span></div>
+                <Separator orientation="vertical" class="h-8" />
+                <div class="flex flex-col"><span class="text-xl font-extrabold text-foreground">18</span><span class="text-xs font-semibold text-muted-foreground uppercase">Sales</span></div>
+                <Separator orientation="vertical" class="h-8" />
+                <div class="flex flex-col"><span class="text-xl font-extrabold text-foreground">12</span><span class="text-xs font-semibold text-muted-foreground uppercase">Reviews</span></div>
               </div>
             </div>
-
-            <div class="profile-rating-row">
-              <div class="stars-solid">★★★★★</div>
-              <span class="rating-text">4.5 (12 Reviews)</span>
-              <span class="profile-role-tag">Junior @ FSC</span>
-            </div>
-
-            <p class="profile-bio">
-              Selling my old textbooks and some dorm furniture I don't need
-              anymore. Usually free for meetups near the library or campus
-              center during the week!
-            </p>
-
-            <div class="profile-stats-grid">
-              <div class="stat-item">
-                <span class="stat-value">4</span>
-                <span class="stat-label">Listings</span>
-              </div>
-              <div class="stat-sep"></div>
-              <div class="stat-item">
-                <span class="stat-value">18</span>
-                <span class="stat-label">Sales</span>
-              </div>
-              <div class="stat-sep"></div>
-              <div class="stat-item">
-                <span class="stat-value">12</span>
-                <span class="stat-label">Reviews</span>
-              </div>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
 
-    <!-- Profile Content Area -->
-    <div class="container profile-content">
-      <div class="profile-tabs" id="profileTabs">
-        <button class="tab-btn active" data-tab="listings">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><rect x="3" y="3" width="7" height="7"></rect><rect
-              x="14"
-              y="3"
-              width="7"
-              height="7"></rect><rect x="14" y="14" width="7" height="7"
-            ></rect><rect x="3" y="14" width="7" height="7"></rect></svg
-          >
-          My Listings
-        </button>
-        <button class="tab-btn" data-tab="reviews">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><path
-              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-            ></path></svg
-          >
-          Feedback
-        </button>
-        <button class="tab-btn" data-tab="history">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><circle cx="12" cy="12" r="10"></circle><polyline
-              points="12 6 12 12 16 14"></polyline></svg
-          >
-          History
-        </button>
-      </div>
+    <!-- Tabs Content -->
+    <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-8">
+      <Tabs defaultValue="listings">
+        <TabsList class="w-full justify-start bg-transparent border-b-2 border-border rounded-none mb-8 p-0">
+          <TabsTrigger value="listings" class="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            My Listings
+          </TabsTrigger>
+          <TabsTrigger value="reviews" class="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Feedback
+          </TabsTrigger>
+          <TabsTrigger value="history" class="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            History
+          </TabsTrigger>
+        </TabsList>
 
-      <div class="tab-panels">
-        <!-- Listings Panel -->
-        <div class="tab-panel active" id="listingsPanel">
-          <div class="panel-header">
-            <h2 class="panel-title">Active Listings</h2>
-            <div class="panel-controls">
-              <div class="search-box">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  ><circle cx="11" cy="11" r="8"></circle><path
-                    d="m21 21-4.35-4.35"></path></svg
-                >
-                <input type="text" placeholder="Search my items..." />
-              </div>
-              <a href="/post" class="btn-primary-sm">+ New Listing</a>
+      <!-- Listings Panel -->
+      <TabsContent value="listings" class="flex flex-col gap-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h2 class="text-2xl font-extrabold text-foreground">Active Listings</h2>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center bg-card border border-border rounded-lg px-3 w-60">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-muted-foreground mr-2 shrink-0"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+              <input type="text" placeholder="Search my items..." class="border-0 bg-transparent py-2 text-sm w-full outline-none" />
             </div>
+            <Button variant="primary" size="sm" href="/post">+ New Listing</Button>
           </div>
+        </div>
 
-          <div class="manage-grid">
-            {
-              listings.map((item) => (
-                <div class="manage-card">
-                  <div
-                    class="manage-img-wrap"
-                    style={`background: ${item.gradient}`}
-                  >
-                    <span class="manage-emoji">{item.icon}</span>
-                    {item.status === "sold" && (
-                      <div class="sold-badge">SOLD</div>
-                    )}
-                  </div>
-                  <div class="manage-details">
-                    <div class="manage-info">
-                      <span class="manage-cat">{item.category}</span>
-                      <h3 class="manage-title">{item.title}</h3>
-                      <p class="manage-price">${item.price}</p>
-                    </div>
-                    <div class="manage-actions">
-                      <button class="btn-icon-secondary" title="Edit Listing">
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <>
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                          </>
-                        </svg>
-                      </button>
-                      <button class="btn-icon-danger" title="Delete Listing">
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <>
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                          </>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {listings.map((item) => (
+            <Card class="overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all">
+              <div class="h-40 flex items-center justify-center relative" style={`background: ${item.gradient}`}>
+                <span class="text-5xl drop-shadow-md">{item.icon}</span>
+                {item.status === "sold" && (
+                  <div class="absolute inset-0 bg-foreground/60 flex items-center justify-center text-white font-extrabold text-2xl tracking-widest">SOLD</div>
+                )}
+              </div>
+              <CardContent class="flex justify-between items-end pt-4">
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-xs font-bold text-muted-foreground uppercase">{item.category}</span>
+                  <h3 class="text-base font-extrabold text-foreground">{item.title}</h3>
+                  <p class="text-lg font-extrabold text-primary">${item.price}</p>
                 </div>
-              ))
-            }
-          </div>
-        </div>
-
-        <!-- Feedback Panel -->
-        <div class="tab-panel" id="reviewsPanel">
-          <div class="panel-header">
-            <h2 class="panel-title">Recent Feedback</h2>
-          </div>
-          <div class="reviews-stack">
-            {
-              [
-                {
-                  author: "Michael T.",
-                  initials: "MT",
-                  rating: 5,
-                  text: "Great seller! The textbook was exactly as described and she responded very quickly.",
-                  date: "2 days ago",
-                },
-                {
-                  author: "Emily R.",
-                  initials: "ER",
-                  rating: 5,
-                  text: "Met on campus, smooth transaction. Item looks brand new!",
-                  date: "1 week ago",
-                },
-                {
-                  author: "David K.",
-                  initials: "DK",
-                  rating: 4,
-                  text: "Responsive and easy to coordinate with. Thanks!",
-                  date: "2 weeks ago",
-                },
-              ].map((review) => (
-                <div class="review-card-premium">
-                  <div class="review-user-info">
-                    <div class="review-avatar-sm">{review.initials}</div>
-                    <div class="review-meta">
-                      <span class="review-author">{review.author}</span>
-                      <span class="review-date">{review.date}</span>
-                    </div>
-                    <div class="review-stars-solid">
-                      {"★".repeat(review.rating)}
-                    </div>
-                  </div>
-                  <p class="review-body">{review.text}</p>
+                <div class="flex gap-1.5">
+                  <button class="w-10 h-10 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors" title="Edit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                  </button>
+                  <button class="w-10 h-10 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-error hover:border-error transition-colors" title="Delete">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>
+                  </button>
                 </div>
-              ))
-            }
-          </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      </TabsContent>
 
-        <!-- History Panel -->
-        <div class="tab-panel" id="historyPanel">
-          <div class="panel-header">
-            <h2 class="panel-title">Transaction History</h2>
-          </div>
-          <div class="table-card">
-            <table class="premium-table">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="td-item">Biology Textbook</td>
-                  <td>Oct 12, 2025</td>
-                  <td class="td-price">$45.00</td>
-                  <td><span class="h-badge-success">Completed</span></td>
-                </tr>
-                <tr>
-                  <td class="td-item">Desk Lamp</td>
-                  <td>Sep 28, 2025</td>
-                  <td class="td-price">$15.00</td>
-                  <td><span class="h-badge-success">Completed</span></td>
-                </tr>
-                <tr>
-                  <td class="td-item">MacBook Case</td>
-                  <td>Sep 15, 2025</td>
-                  <td class="td-price">$12.00</td>
-                  <td><span class="h-badge-success">Completed</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      <!-- Feedback Panel -->
+      <TabsContent value="reviews" class="flex flex-col gap-4">
+        <h2 class="text-2xl font-extrabold text-foreground mb-2">Recent Feedback</h2>
+        {[
+          { author: "Michael T.", initials: "MT", rating: 5, text: "Great seller! The textbook was exactly as described and she responded very quickly.", date: "2 days ago" },
+          { author: "Emily R.", initials: "ER", rating: 5, text: "Met on campus, smooth transaction. Item looks brand new!", date: "1 week ago" },
+          { author: "David K.", initials: "DK", rating: 4, text: "Responsive and easy to coordinate with. Thanks!", date: "2 weeks ago" },
+        ].map((review) => (
+          <Card size="sm">
+            <CardContent>
+              <div class="flex items-center gap-3 mb-3">
+                <Avatar size="md"><AvatarFallback>{review.initials}</AvatarFallback></Avatar>
+                <div class="flex-1">
+                  <span class="text-sm font-extrabold text-foreground">{review.author}</span>
+                  <span class="text-xs text-muted-foreground block">{review.date}</span>
+                </div>
+                <span class="text-amber-400 text-sm">{"★".repeat(review.rating)}</span>
+              </div>
+              <p class="text-sm text-muted-foreground leading-relaxed">{review.text}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </TabsContent>
+
+      <!-- History Panel -->
+      <TabsContent value="history" class="flex flex-col gap-4">
+        <h2 class="text-2xl font-extrabold text-foreground mb-2">Transaction History</h2>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Item</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[
+              { item: "Biology Textbook", date: "Oct 12, 2025", amount: "$45.00" },
+              { item: "Desk Lamp", date: "Sep 28, 2025", amount: "$15.00" },
+              { item: "MacBook Case", date: "Sep 15, 2025", amount: "$12.00" },
+            ].map((row) => (
+              <TableRow>
+                <TableCell class="font-bold text-foreground">{row.item}</TableCell>
+                <TableCell class="text-muted-foreground">{row.date}</TableCell>
+                <TableCell class="font-bold text-primary">{row.amount}</TableCell>
+                <TableCell><Badge variant="success" size="sm">Completed</Badge></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TabsContent>
+      </Tabs>
     </div>
   </div>
 </Layout>
-
-<style>
-  .profile-page {
-    background: var(--gray-50);
-    min-height: 100vh;
-    padding-bottom: 4rem;
-  }
-
-  /* Cover Area */
-  .profile-cover-section {
-    position: relative;
-    padding-bottom: 2rem;
-  }
-  .profile-cover {
-    height: 240px;
-    background: linear-gradient(135deg, var(--primary) 0%, #004d42 100%);
-    position: relative;
-    overflow: hidden;
-  }
-  .cover-pattern {
-    position: absolute;
-    inset: 0;
-    opacity: 0.1;
-    background-image: radial-gradient(
-      circle at 2px 2px,
-      white 1px,
-      transparent 0
-    );
-    background-size: 24px 24px;
-  }
-  .cover-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.2));
-  }
-
-  /* Header Card */
-  .profile-header-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 2.5rem;
-    margin-top: -80px;
-    position: relative;
-    z-index: 10;
-    display: flex;
-    gap: 2.5rem;
-    box-shadow: var(--shadow-xl);
-  }
-
-  @media (max-width: 768px) {
-    .profile-header-card {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 1.5rem;
-      padding: 2rem 1.5rem;
-    }
-  }
-
-  .profile-avatar-area {
-    position: relative;
-    flex-shrink: 0;
-  }
-  .profile-avatar-main {
-    width: 140px;
-    height: 140px;
-    background: var(--primary);
-    color: var(--white);
-    font-size: 3rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    border: 6px solid var(--white);
-    box-shadow: var(--shadow-lg);
-  }
-  .avatar-edit-btn {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    width: 36px;
-    height: 36px;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gray-600);
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s;
-  }
-  .avatar-edit-btn:hover {
-    background: var(--gray-50);
-    color: var(--primary);
-  }
-
-  .profile-main-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .profile-name-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .profile-name {
-    font-size: 2.25rem;
-    font-weight: 800;
-    color: var(--gray-900);
-    letter-spacing: -0.02em;
-  }
-
-  .profile-rating-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-  .stars-solid {
-    color: var(--accent);
-    font-size: 0.9rem;
-  }
-  .rating-text {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--gray-500);
-  }
-  .profile-role-tag {
-    background: var(--primary-soft);
-    color: var(--primary);
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .profile-bio {
-    font-size: 1rem;
-    color: var(--gray-600);
-    line-height: 1.6;
-    max-width: 600px;
-  }
-
-  .profile-stats-grid {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-top: 1rem;
-  }
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .stat-value {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-  .stat-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--gray-400);
-    text-transform: uppercase;
-  }
-  .stat-sep {
-    width: 1px;
-    height: 32px;
-    background: var(--gray-200);
-  }
-
-  /* Tabs */
-  .profile-content {
-    margin-top: 3rem;
-  }
-  .profile-tabs {
-    display: flex;
-    gap: 2rem;
-    border-bottom: 2px solid var(--gray-200);
-    margin-bottom: 2.5rem;
-  }
-  .tab-btn {
-    background: none;
-    border: none;
-    padding: 1rem 0;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--gray-400);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    position: relative;
-    transition: all 0.2s;
-  }
-  .tab-btn::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--primary);
-    transition: all 0.2s;
-  }
-  .tab-btn.active {
-    color: var(--primary);
-  }
-  .tab-btn.active::after {
-    width: 100%;
-  }
-  .tab-btn:hover {
-    color: var(--gray-600);
-  }
-
-  /* Panels */
-  .tab-panel {
-    display: none;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  .tab-panel.active {
-    display: flex;
-  }
-
-  .panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .panel-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-  .panel-controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .search-box {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    padding: 0 1rem;
-    width: 240px;
-  }
-  .search-box svg {
-    color: var(--gray-400);
-    margin-right: 0.75rem;
-  }
-  .search-box input {
-    border: none;
-    background: none;
-    padding: 0.75rem 0;
-    font-family: inherit;
-    font-size: 0.9rem;
-    width: 100%;
-    outline: none;
-  }
-
-  /* Management Cards */
-  .manage-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-  .manage-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: all 0.2s;
-  }
-  .manage-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .manage-img-wrap {
-    height: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  .manage-emoji {
-    font-size: 4rem;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-  }
-  .sold-badge {
-    position: absolute;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--white);
-    font-weight: 800;
-    font-size: 1.5rem;
-    letter-spacing: 0.1em;
-  }
-
-  .manage-details {
-    padding: 1.25rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-  .manage-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .manage-cat {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--gray-400);
-    text-transform: uppercase;
-  }
-  .manage-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-  .manage-price {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--primary);
-  }
-
-  .manage-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-  .btn-icon-secondary {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--gray-200);
-    background: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gray-500);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-icon-secondary:hover {
-    color: var(--primary);
-    border-color: var(--primary);
-    background: var(--primary-soft);
-  }
-
-  .btn-icon-danger {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--gray-200);
-    background: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gray-500);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-icon-danger:hover {
-    color: var(--error);
-    border-color: var(--error);
-    background: #fef2f2;
-  }
-
-  /* Reviews */
-  .reviews-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .review-card-premium {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .review-user-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  .review-avatar-sm {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--gray-100);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    color: var(--gray-600);
-  }
-  .review-meta {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .review-author {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-  .review-date {
-    font-size: 0.8rem;
-    color: var(--gray-400);
-  }
-  .review-stars-solid {
-    color: var(--accent);
-    font-size: 0.8rem;
-  }
-  .review-body {
-    color: var(--gray-600);
-    line-height: 1.6;
-    font-size: 0.95rem;
-  }
-
-  /* History Table */
-  .table-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-  }
-  .premium-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-  }
-  .premium-table th {
-    padding: 1rem 1.5rem;
-    background: var(--gray-50);
-    color: var(--gray-400);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--gray-200);
-  }
-  .premium-table td {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--gray-100);
-  }
-  .td-item {
-    font-weight: 700;
-    color: var(--gray-900);
-  }
-  .td-price {
-    font-weight: 700;
-    color: var(--primary);
-  }
-
-  .h-badge-success {
-    background: #dcfce7;
-    color: #166534;
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-</style>
-
-<script>
-  const tabs = document.querySelectorAll(".tab-btn");
-  const panels = document.querySelectorAll(".tab-panel");
-
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      // Remove active from all
-      tabs.forEach((t) => t.classList.remove("active"));
-      panels.forEach((p) => p.classList.remove("active"));
-
-      // Add active to current
-      tab.classList.add("active");
-      const panelId = (tab as HTMLElement).dataset.tab + "Panel";
-      document.getElementById(panelId)?.classList.add("active");
-    });
-  });
-</script>

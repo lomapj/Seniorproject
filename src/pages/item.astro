@@ -1,121 +1,91 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Card, CardContent } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import Badge from "@/components/starwind/badge/Badge.astro";
+import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/starwind/breadcrumb";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/starwind/dialog";
+import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-select";
+import Textarea from "@/components/starwind/textarea/Textarea.astro";
 ---
 
 <Layout title="Item Detail">
-  <div class="mp-page">
-    <div class="container item-container">
+  <div class="bg-muted min-h-screen pb-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8 pt-6">
       <!-- Breadcrumb -->
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/marketplace">Marketplace</a>
-        <div class="bc-sep">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><polyline points="9 18 15 12 9 6"></polyline></svg
-          >
-        </div>
-        <a href="/marketplace">Books</a>
-        <div class="bc-sep">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><polyline points="9 18 15 12 9 6"></polyline></svg
-          >
-        </div>
-        <span class="active">Biology Textbook</span>
-      </nav>
+      <Breadcrumb class="mb-6">
+        <BreadcrumbList class="text-sm">
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/marketplace">Marketplace</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/marketplace">Books</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage class="font-bold">Biology Textbook</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      <div class="item-grid">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         <!-- Left: Gallery -->
-        <div class="item-gallery">
-          <div
-            class="gallery-main"
-            style="background: linear-gradient(135deg,#2d6a4f,#52b788)"
-          >
-            <span class="gallery-emoji">📗</span>
+        <div class="flex flex-col gap-4">
+          <div class="aspect-4/3 rounded-xl flex items-center justify-center shadow-xl border border-border" style="background: linear-gradient(135deg,#2d6a4f,#52b788)">
+            <span class="text-[8rem] drop-shadow-lg">📗</span>
           </div>
-          <div class="gallery-thumbs">
-            {
-              [1, 2, 3, 4].map((i) => (
-                <button
-                  type="button"
-                  class={`thumb-btn${i === 1 ? " active" : ""}`}
-                  style={`background: linear-gradient(135deg,#2d6a4f,#52b788)`}
-                >
-                  <span>📗</span>
-                </button>
-              ))
-            }
+          <div class="flex gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <button type="button" class={`thumb-btn flex-1 aspect-square rounded-lg flex items-center justify-center text-2xl transition-all opacity-60 hover:opacity-100 ${i === 1 ? "border-2 border-primary opacity-100 shadow-sm" : "border-2 border-transparent"}`} style="background: linear-gradient(135deg,#2d6a4f,#52b788)">
+                <span>📗</span>
+              </button>
+            ))}
           </div>
         </div>
 
         <!-- Right: Content -->
-        <div class="item-info">
-          <div class="info-header">
-            <div class="header-tags">
-              <span class="category-tag">Books</span>
-              <span class="condition-tag">Like New</span>
+        <div class="flex flex-col gap-5">
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <Badge variant="outline" size="sm">Books</Badge>
+              <Badge variant="ghost" size="sm" class="text-primary bg-primary/10">Like New</Badge>
             </div>
-            <button
-              type="button"
-              class="action-btn-circle"
-              id="favBtn"
-              aria-label="Save listing"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                ></path>
+            <button type="button" class="w-11 h-11 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:border-error hover:text-error transition-colors" id="favBtn" aria-label="Save listing">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
             </button>
           </div>
 
-          <h1 class="item-title">Biology Textbook</h1>
-          <div class="price-row">
-            <span class="item-price">$45</span>
-            <span class="status-badge available">Available</span>
+          <h1 class="text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">Biology Textbook</h1>
+
+          <div class="flex items-center gap-4">
+            <span class="text-3xl font-extrabold text-primary">$45</span>
+            <Badge variant="success" size="sm">Available</Badge>
           </div>
 
-          <div class="info-card">
-            <div class="info-row">
-              <span class="info-label">Condition</span>
-              <span class="info-value">Like New</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Posted</span>
-              <span class="info-value">2 days ago</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Location</span>
-              <span class="info-value">Conklin Hall</span>
-            </div>
-          </div>
+          <Card size="sm">
+            <CardContent class="grid grid-cols-3 gap-4">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xs font-semibold text-muted-foreground uppercase">Condition</span>
+                <span class="text-sm font-bold text-foreground">Like New</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xs font-semibold text-muted-foreground uppercase">Posted</span>
+                <span class="text-sm font-bold text-foreground">2 days ago</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xs font-semibold text-muted-foreground uppercase">Location</span>
+                <span class="text-sm font-bold text-foreground">Conklin Hall</span>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div class="description-section">
-            <h2 class="section-title">Description</h2>
-            <p class="description-text">
+          <div class="mt-2">
+            <h2 class="text-base font-extrabold text-foreground mb-2">Description</h2>
+            <p class="text-base text-muted-foreground leading-relaxed">
               Gently used Florida Biology textbook in excellent condition. This
               comprehensive biology textbook covers all major topics including
               cell biology, genetics, evolution, and ecology. Perfect for BIO
@@ -123,534 +93,85 @@ import Layout from "../layouts/Layout.astro";
             </p>
           </div>
 
-          <div class="seller-card-premium">
-            <div class="seller-display">
-              <div class="seller-avatar">SJ</div>
-              <div class="seller-meta">
-                <span class="seller-name">Sarah J.</span>
-                <div class="seller-rating-group">
-                  <div class="stars-solid">★★★★★</div>
-                  <span class="rating-text">4.5 (12 reviews)</span>
+          <!-- Seller Card -->
+          <Card size="sm" class="shadow-md">
+            <CardContent class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <Avatar size="lg" variant="primary" class="w-14 h-14 text-xl shadow-md"><AvatarFallback class="bg-primary text-primary-foreground font-extrabold">SJ</AvatarFallback></Avatar>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-base font-extrabold text-foreground">Sarah J.</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-amber-400 text-sm">★★★★★</span>
+                    <span class="text-sm text-muted-foreground font-medium">4.5 (12 reviews)</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <a href="/profile/sarah" class="btn-outline-sm">View Profile</a>
-          </div>
+              <Button variant="outline" size="sm" href="/profile/sarah">View Profile</Button>
+            </CardContent>
+          </Card>
 
-          <div class="action-group">
-            <a href="/messages/new" class="btn-primary message-btn">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                ></path>
-              </svg>
+          <!-- Actions -->
+          <div class="grid grid-cols-[1fr_auto] gap-3 mt-2">
+            <Button variant="primary" href="/messages/new" class="gap-2 font-extrabold">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
               Message Seller
-            </a>
-            <button class="btn-ghost-danger" id="reportBtn">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
-                ></path><line x1="4" y1="22" x2="4" y2="15"></line>
-              </svg>
-              Report Listing
-            </button>
+            </Button>
+            <Dialog>
+              <DialogTrigger class="inline-flex items-center justify-center border border-border text-muted-foreground hover:text-error hover:border-error gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                Report
+              </DialogTrigger>
+              <DialogContent class="max-w-120">
+                <DialogHeader>
+                  <DialogTitle>Report Listing</DialogTitle>
+                  <DialogDescription>Help us keep our community safe. Why are you reporting this?</DialogDescription>
+                </DialogHeader>
+                <div class="space-y-4 py-4">
+                  <div class="space-y-1.5">
+                    <label class="text-sm font-semibold text-foreground">Reason</label>
+                    <NativeSelect>
+                      <NativeSelectOption>Inappropriate content</NativeSelectOption>
+                      <NativeSelectOption>Suspected scam</NativeSelectOption>
+                      <NativeSelectOption>Wrong category</NativeSelectOption>
+                      <NativeSelectOption>Prohibited item</NativeSelectOption>
+                      <NativeSelectOption>Other</NativeSelectOption>
+                    </NativeSelect>
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="text-sm font-semibold text-foreground">Details</label>
+                    <Textarea placeholder="Additional information..." rows={3} />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="secondary">Cancel</Button>
+                  </DialogClose>
+                  <Button variant="error">Submit Report</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Report Modal -->
-    <div class="modal-overlay" id="reportModal" style="display:none">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3 class="modal-title">Report Listing</h3>
-          <button class="close-btn" id="modalClose">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p class="modal-helper">
-            Help us keep our community safe. Why are you reporting this?
-          </p>
-          <div class="form-group">
-            <label class="form-label">Reason</label>
-            <select class="form-select">
-              <option>Inappropriate content</option>
-              <option>Suspected scam</option>
-              <option>Wrong category</option>
-              <option>Prohibited item</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Details</label>
-            <textarea
-              class="form-input"
-              rows="3"
-              placeholder="Additional information..."></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-ghost" id="cancelReport">Cancel</button>
-          <button class="btn-danger">Submit Report</button>
-        </div>
-      </div>
-    </div>
   </div>
 </Layout>
 
-<style>
-  .mp-page {
-    background: var(--gray-50);
-    min-height: 100vh;
-    padding-bottom: 4rem;
-  }
-  .item-container {
-    padding-top: 2rem;
-  }
-
-  /* Breadcrumb */
-  .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    font-size: 0.9rem;
-  }
-  .breadcrumb a {
-    color: var(--gray-500);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-  .breadcrumb a:hover {
-    color: var(--primary);
-  }
-  .breadcrumb .active {
-    color: var(--gray-900);
-    font-weight: 700;
-  }
-  .bc-sep {
-    color: var(--gray-300);
-    display: flex;
-    align-items: center;
-  }
-
-  /* Grid Layout */
-  .item-main-grid {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 3rem;
-  }
-
-  @media (max-width: 968px) {
-      gap: 2rem;
-    }
-  }
-
-  /* Gallery */
-  .item-gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .gallery-main {
-    aspect-ratio: 4/3;
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-xl);
-    border: 1px solid var(--gray-200);
-  }
-  .gallery-emoji {
-    font-size: 8rem;
-    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
-  }
-
-  .gallery-thumbs {
-    display: flex;
-    gap: 1rem;
-  }
-  .thumb-btn {
-    flex: 1;
-    aspect-ratio: 1;
-    border-radius: var(--radius-md);
-    border: 2px solid transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    transition: all 0.2s;
-    opacity: 0.6;
-  }
-  .thumb-btn.active {
-    border-color: var(--primary);
-    opacity: 1;
-    box-shadow: var(--shadow-sm);
-  }
-  .thumb-btn:hover {
-    opacity: 1;
-  }
-
-  /* Info Section */
-  .item-info {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .info-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .header-tags {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .category-tag {
-    background: var(--white);
-    color: var(--gray-600);
-    padding: 0.4rem 1rem;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    border: 1px solid var(--gray-200);
-  }
-
-  .condition-tag {
-    background: var(--primary-soft);
-    color: var(--primary);
-    padding: 0.4rem 1rem;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .action-btn-circle {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1px solid var(--gray-200);
-    background: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gray-400);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .action-btn-circle:hover {
-    border-color: #ef4444;
-    color: #ef4444;
-  }
-  .action-btn-circle.saved {
-    background: #fee2e2;
-    border-color: #ef4444;
-    color: #ef4444;
-  }
-  .action-btn-circle.saved svg {
-    fill: #ef4444;
-  }
-
-  .item-title {
-    font-size: 2.25rem;
-    font-weight: 800;
-    color: var(--gray-900);
-    letter-spacing: -0.02em;
-  }
-
-  .price-row {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-  .item-price {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--primary);
-  }
-
-  .status-badge {
-    padding: 0.4rem 1rem;
-    border-radius: var(--radius-full);
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-  .status-badge.available {
-    background: #dcfce7;
-    color: #166534;
-  }
-
-  .info-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-  .info-row {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .info-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--gray-400);
-    text-transform: uppercase;
-  }
-  .info-value {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--gray-800);
-  }
-
-  @media (max-width: 480px) {
-    .info-card {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-  }
-
-  .description-section {
-    margin-top: 1rem;
-  }
-  .section-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--gray-900);
-    margin-bottom: 0.75rem;
-  }
-  .description-text {
-    font-size: 1rem;
-    line-height: 1.7;
-    color: var(--gray-600);
-  }
-
-  /* Seller Card */
-  .seller-card-premium {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    box-shadow: var(--shadow-md);
-  }
-
-  .seller-display {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .seller-avatar {
-    width: 60px;
-    height: 60px;
-    background: var(--primary);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 800;
-    box-shadow: 0 4px 12px rgba(0, 97, 83, 0.2);
-  }
-
-  .seller-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .seller-name {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-  .seller-rating-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .stars-solid {
-    color: var(--accent);
-    font-size: 0.9rem;
-  }
-  .rating-text {
-    font-size: 0.85rem;
-    color: var(--gray-500);
-    font-weight: 500;
-  }
-
-  /* Actions */
-  .action-group {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  .message-btn {
-    padding: 1rem;
-    font-weight: 800;
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-  }
-  .btn-ghost-danger {
-    background: transparent;
-    border: 1px solid var(--gray-200);
-    color: var(--gray-500);
-    padding: 1rem;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
-  }
-  .btn-ghost-danger:hover {
-    color: var(--error);
-    border-color: var(--error);
-    background: #fef2f2;
-  }
-
-  /* Modal */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-  }
-  .modal-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 480px;
-    box-shadow: var(--shadow-xl);
-    overflow: hidden;
-  }
-  .modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--gray-100);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .modal-title {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--gray-900);
-  }
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: var(--gray-400);
-    cursor: pointer;
-  }
-  .modal-body {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-  .modal-helper {
-    font-size: 0.95rem;
-    color: var(--gray-500);
-    line-height: 1.5;
-  }
-  .modal-footer {
-    padding: 1.5rem;
-    border-top: 1px solid var(--gray-100);
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-  }
-
-  .btn-ghost {
-    background: var(--gray-100);
-    color: var(--gray-700);
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-md);
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .btn-danger {
-    background: var(--error);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-md);
-    font-weight: 700;
-    cursor: pointer;
-  }
-</style>
-
 <script>
   const favBtn = document.getElementById("favBtn");
-  const reportBtn = document.getElementById("reportBtn");
-  const reportModal = document.getElementById("reportModal");
-  const modalClose = document.getElementById("modalClose");
-  const cancelReport = document.getElementById("cancelReport");
   const thumbs = document.querySelectorAll<HTMLButtonElement>(".thumb-btn");
 
   favBtn?.addEventListener("click", () => favBtn.classList.toggle("saved"));
 
-  reportBtn?.addEventListener("click", () => {
-    if (reportModal) reportModal.style.display = "flex";
-  });
-
-  function closeModal() {
-    if (reportModal) reportModal.style.display = "none";
-  }
-
-  modalClose?.addEventListener("click", closeModal);
-  cancelReport?.addEventListener("click", closeModal);
-
-  reportModal?.addEventListener("click", (e) => {
-    if (e.target === reportModal) closeModal();
-  });
-
   thumbs.forEach((thumb) => {
     thumb.addEventListener("click", () => {
       thumbs.forEach((t) => {
-        t.classList.remove("active");
+        t.classList.remove("border-primary", "opacity-100", "shadow-sm");
+        t.classList.add("border-transparent", "opacity-60");
       });
-      thumb.classList.add("active");
+      thumb.classList.add("border-primary", "opacity-100", "shadow-sm");
+      thumb.classList.remove("border-transparent", "opacity-60");
     });
   });
 </script>
