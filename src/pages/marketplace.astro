@@ -137,6 +137,24 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   let currentCat = "All";
   let allListings: Listing[] = [];
 
+  const initParams = new URLSearchParams(window.location.search);
+  const urlCat = initParams.get("cat");
+  if (urlCat) {
+    currentCat = urlCat;
+    catChips.forEach((cat) => {
+      const chipCat = cat.getAttribute("data-cat");
+
+      if (chipCat === urlCat) {
+        cat.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
+        cat.classList.remove("bg-card", "border-border", "text-muted-foreground");
+      }
+      else {
+        cat.classList.remove("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
+        cat.classList.add("bg-card", "border-border", "text-muted-foreground");
+      }
+    });
+  }
+
   function renderCard(item: Listing): string {
     const gradient = CATEGORY_GRADIENTS[item.category] || "linear-gradient(135deg,#6b7280,#9ca3af)";
     const icon = CATEGORY_ICONS[item.category] || "\u{1F4E6}";
