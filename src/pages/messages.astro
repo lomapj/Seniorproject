@@ -1,21 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
-
-const conversations = [
-  { id: 1, name: "Sarah J.", initials: "SJ", color: "var(--primary)", preview: "Is the textbook still available?", time: "2:46 PM", rating: 4.5, unread: 2, active: true },
-  { id: 2, name: "Michael T.", initials: "MT", color: "#1d3557", preview: "Thanks for the quick response!", time: "1:30 PM", rating: 4.8, unread: 0, active: false },
-  { id: 3, name: "Emily R.", initials: "ER", color: "#e07a5f", preview: "Can we meet on campus?", time: "Yesterday", rating: 4.2, unread: 0, active: false },
-  { id: 4, name: "David K.", initials: "DK", color: "#6930c3", preview: "What condition is it in?", time: "Yesterday", rating: 4.7, unread: 0, active: false },
-  { id: 5, name: "Chris M.", initials: "CM", color: "#606c38", preview: "I'll take it! When can we meet?", time: "Monday", rating: 5.0, unread: 0, active: false },
-];
-
-const messages = [
-  { id: 1, sender: "them", text: "Hi! I saw your listing for the Biology textbook. Is it still available?", time: "2:46 PM" },
-  { id: 2, sender: "me", text: "Yes, it is! It's in excellent condition, barely used.", time: "2:47 PM" },
-  { id: 3, sender: "them", text: "Great! Can I pick it up tomorrow?", time: "2:50 PM" },
-  { id: 4, sender: "me", text: "Sure! I'm free after 3 PM. We can meet at the library.", time: "7:02 PM" },
-];
 ---
 
 <Layout title="Messages" showFooter={false}>
@@ -32,74 +17,45 @@ const messages = [
       <div class="px-5 pb-4">
         <div class="flex items-center bg-card border border-border rounded-lg px-3">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-muted-foreground mr-2 shrink-0"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-          <input type="text" placeholder="Search people or items..." class="border-0 bg-transparent py-2.5 text-sm w-full outline-none font-inherit" />
+          <input type="text" id="searchInput" placeholder="Search people or items..." class="border-0 bg-transparent py-2.5 text-sm w-full outline-none font-inherit" />
         </div>
       </div>
 
       <div class="flex-1 overflow-y-auto pb-8" id="convList">
-        {conversations.map((conv) => (
-          <button type="button" class={`conv-item w-full p-4 px-5 flex gap-3 border-0 bg-transparent text-left transition-all border-b border-border/50 hover:bg-card/80 ${conv.active ? "bg-card border-l-4 border-l-primary shadow-inner" : ""}`} data-conv={conv.id}>
-            <Avatar size="lg" class="w-12 h-12 shadow-sm border-0"><AvatarFallback class="text-white font-extrabold text-sm" style={`background: ${conv.color}`}>{conv.initials}</AvatarFallback></Avatar>
-            <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-              <div class="flex justify-between items-baseline">
-                <span class="text-sm font-extrabold text-foreground">{conv.name}</span>
-                <span class="text-xs text-muted-foreground">{conv.time}</span>
-              </div>
-              <div class="flex justify-between items-baseline">
-                <span class="text-sm text-muted-foreground truncate">{conv.preview}</span>
-                {conv.unread > 0 && (
-                  <span class="bg-primary text-primary-foreground text-[0.7rem] font-extrabold px-1.5 py-px rounded-full min-w-5 text-center">{conv.unread}</span>
-                )}
-              </div>
-            </div>
-          </button>
-        ))}
+        <!-- Conversations rendered dynamically -->
       </div>
     </aside>
 
     <!-- Right: Chat -->
     <main class="flex flex-col bg-card">
-      <header class="px-5 py-3 border-b border-border flex justify-between items-center shadow-sm">
+      <header id="chatHeader" class="px-5 py-3 border-b border-border flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-3">
-          <Avatar size="lg" variant="primary" class="w-11 h-11 border-0"><AvatarFallback class="bg-primary text-white font-extrabold">SJ</AvatarFallback></Avatar>
+          <div class="w-11 h-11 rounded-full bg-muted flex items-center justify-center">
+            <span id="headerInitials" class="text-sm font-extrabold text-muted-foreground"></span>
+          </div>
           <div>
-            <p class="text-base font-extrabold text-foreground">Sarah J.</p>
-            <div class="flex items-center gap-2">
-              <span class="text-amber-400 text-xs">★★★★★</span>
-              <span class="text-xs text-muted-foreground font-semibold">4.5</span>
-            </div>
+            <p id="headerName" class="text-base font-extrabold text-foreground">Select a conversation</p>
+            <p id="headerSub" class="text-xs text-muted-foreground"></p>
           </div>
         </div>
-
-        <a href="/item" class="flex items-center gap-3 px-3 py-2 bg-muted border border-border rounded-lg no-underline text-inherit hover:bg-primary/5 hover:border-primary transition-colors">
-          <div class="w-9 h-9 rounded-md flex items-center justify-center text-base" style="background: linear-gradient(135deg,#2d6a4f,#52b788)">📗</div>
+        <a id="headerListingLink" href="#" class="hidden items-center gap-3 px-3 py-2 bg-muted border border-border rounded-lg no-underline text-inherit hover:bg-primary/5 hover:border-primary transition-colors">
+          <div class="w-9 h-9 rounded-md flex items-center justify-center text-base bg-primary/10">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+          </div>
           <div>
-            <p class="text-xs font-bold text-foreground">Biology Textbook</p>
-            <p class="text-xs font-bold text-primary">$45</p>
+            <p id="headerListingTitle" class="text-xs font-bold text-foreground"></p>
+            <p id="headerListingPrice" class="text-xs font-bold text-primary"></p>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </a>
       </header>
 
       <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 bg-muted/30" id="chatHistory">
-        <div class="text-center relative my-3">
-          <div class="absolute left-0 top-1/2 w-full h-px bg-border"></div>
-          <span class="relative bg-muted/30 px-4 text-xs font-bold text-muted-foreground uppercase">Today</span>
+        <!-- Empty state shown when no conversation selected -->
+        <div id="emptyChat" class="flex-1 flex flex-col items-center justify-center text-muted-foreground">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-3 opacity-40"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <p class="text-sm font-semibold">Select a conversation to start messaging</p>
         </div>
-
-        {messages.map((msg) => (
-          <div class={`flex gap-3 max-w-[70%] ${msg.sender === "me" ? "self-end flex-row-reverse" : ""}`}>
-            {msg.sender === "them" && (
-              <Avatar size="sm" variant="primary" class="shrink-0 mt-auto border-0"><AvatarFallback class="bg-primary text-white text-[0.7rem] font-extrabold">SJ</AvatarFallback></Avatar>
-            )}
-            <div class="flex flex-col gap-1">
-              <div class={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.sender === "me" ? "bg-primary text-primary-foreground rounded-br-sm font-medium" : "bg-card text-foreground rounded-bl-sm border border-border"}`}>
-                {msg.text}
-              </div>
-              <span class={`text-[0.7rem] text-muted-foreground font-semibold px-2 ${msg.sender === "me" ? "text-right" : ""}`}>{msg.time}</span>
-            </div>
-          </div>
-        ))}
       </div>
 
       <footer class="p-5 border-t border-border flex items-center gap-3 bg-card">
@@ -123,42 +79,420 @@ const messages = [
 </Layout>
 
 <script>
-  const convItems = document.querySelectorAll(".conv-item");
-  const chatHistory = document.getElementById("chatHistory");
+  import { supabase } from "../lib/supabase";
+  import {
+    fetchConversations,
+    fetchOrCreateConversation,
+    fetchMessages,
+    sendMessage,
+    markMessagesRead,
+  } from "../lib/api";
+  import type { ConversationWithPreview, Message } from "../lib/api";
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const convList = document.getElementById("convList")!;
+  const chatHistory = document.getElementById("chatHistory")!;
   const chatInput = document.getElementById("chatInput") as HTMLInputElement;
-  const sendBtn = document.getElementById("sendBtn");
+  const sendBtn = document.getElementById("sendBtn")!;
+  const searchInput = document.getElementById("searchInput") as HTMLInputElement;
+  const headerInitials = document.getElementById("headerInitials")!;
+  const headerName = document.getElementById("headerName")!;
+  const headerSub = document.getElementById("headerSub")!;
+  const headerListingLink = document.getElementById("headerListingLink") as HTMLAnchorElement;
+  const headerListingTitle = document.getElementById("headerListingTitle")!;
+  const headerListingPrice = document.getElementById("headerListingPrice")!;
+  const emptyChat = document.getElementById("emptyChat");
 
-  convItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      convItems.forEach((i) => i.classList.remove("bg-card", "border-l-4", "border-l-primary", "shadow-inner"));
-      item.classList.add("bg-card", "border-l-4", "border-l-primary", "shadow-inner");
-    });
-  });
+  // ── State ─────────────────────────────────────────────────────────────────
+  let currentUserId: string | null = null;
+  let currentConversationId: string | null = null;
+  let conversations: ConversationWithPreview[] = [];
+  let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
 
-  function sendMessage() {
-    const text = chatInput.value.trim();
-    if (!text) return;
-
-    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-    const msgBlock = document.createElement("div");
-    msgBlock.className = "flex gap-3 max-w-[70%] self-end flex-row-reverse";
-    msgBlock.innerHTML = `
-      <div class="flex flex-col gap-1">
-        <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-primary text-primary-foreground rounded-br-sm font-medium">${text}</div>
-        <span class="text-[0.7rem] text-muted-foreground font-semibold px-2 text-right">${time}</span>
-      </div>
-    `;
-
-    chatHistory?.appendChild(msgBlock);
-    chatInput.value = "";
-    chatHistory?.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
+  // ── Color palette for initials avatars ────────────────────────────────────
+  const avatarColors = [
+    "#2d6a4f", "#1d3557", "#e07a5f", "#6930c3", "#606c38",
+    "#d62828", "#003049", "#f77f00", "#7209b7", "#3a86a7",
+  ];
+  function getColorForId(id: string): string {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return avatarColors[Math.abs(hash) % avatarColors.length];
   }
 
-  sendBtn?.addEventListener("click", sendMessage);
-  chatInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage();
+  // ── Format time ───────────────────────────────────────────────────────────
+  function formatTime(dateStr: string): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    } else if (diffDays === 1) {
+      return "Yesterday";
+    } else if (diffDays < 7) {
+      return date.toLocaleDateString([], { weekday: "long" });
+    } else {
+      return date.toLocaleDateString([], { month: "short", day: "numeric" });
+    }
+  }
+
+  // ── Render conversation list ──────────────────────────────────────────────
+  function renderConversations(convos: ConversationWithPreview[]) {
+    if (convos.length === 0) {
+      convList.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-16 text-muted-foreground">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-3 opacity-40"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <p class="text-sm font-semibold">No conversations yet</p>
+          <p class="text-xs mt-1">Start by messaging a seller on a listing</p>
+        </div>
+      `;
+      return;
+    }
+
+    convList.innerHTML = convos
+      .map((conv) => {
+        const isActive = conv.id === currentConversationId;
+        const color = getColorForId(conv.id);
+        const activeClasses = isActive ? "bg-card border-l-4 border-l-primary shadow-inner" : "";
+        return `
+          <button type="button"
+            class="conv-item w-full p-4 px-5 flex gap-3 border-0 bg-transparent text-left transition-all border-b border-border/50 hover:bg-card/80 ${activeClasses}"
+            data-conv="${conv.id}">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm" style="background: ${color}">
+              <span class="text-white font-extrabold text-sm">${escapeHtml(conv.other_initials)}</span>
+            </div>
+            <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+              <div class="flex justify-between items-baseline">
+                <span class="text-sm font-extrabold text-foreground">${escapeHtml(conv.other_name)}</span>
+                <span class="text-xs text-muted-foreground">${formatTime(conv.last_message_time)}</span>
+              </div>
+              <div class="flex justify-between items-baseline">
+                <span class="text-sm text-muted-foreground truncate">${escapeHtml(conv.last_message || "No messages yet")}</span>
+                ${conv.unread_count > 0 ? `<span class="bg-primary text-primary-foreground text-[0.7rem] font-extrabold px-1.5 py-px rounded-full min-w-5 text-center">${conv.unread_count}</span>` : ""}
+              </div>
+            </div>
+          </button>
+        `;
+      })
+      .join("");
+
+    // Attach click listeners
+    convList.querySelectorAll(".conv-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const convId = btn.getAttribute("data-conv")!;
+        selectConversation(convId);
+      });
+    });
+  }
+
+  // ── Render messages ───────────────────────────────────────────────────────
+  function renderMessages(msgs: Message[], otherInitials: string) {
+    if (emptyChat) emptyChat.remove();
+
+    // Group by date
+    let lastDate = "";
+    let html = "";
+
+    for (const msg of msgs) {
+      const msgDate = new Date(msg.created_at).toLocaleDateString();
+      if (msgDate !== lastDate) {
+        lastDate = msgDate;
+        const today = new Date().toLocaleDateString();
+        const yesterday = new Date(Date.now() - 86400000).toLocaleDateString();
+        let label = msgDate;
+        if (msgDate === today) label = "Today";
+        else if (msgDate === yesterday) label = "Yesterday";
+
+        html += `
+          <div class="text-center relative my-3">
+            <div class="absolute left-0 top-1/2 w-full h-px bg-border"></div>
+            <span class="relative bg-muted/30 px-4 text-xs font-bold text-muted-foreground uppercase">${label}</span>
+          </div>
+        `;
+      }
+
+      const isMe = msg.sender_id === currentUserId;
+      const time = new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+      if (isMe) {
+        html += `
+          <div class="flex gap-3 max-w-[70%] self-end flex-row-reverse">
+            <div class="flex flex-col gap-1">
+              <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-primary text-primary-foreground rounded-br-sm font-medium">${escapeHtml(msg.content)}</div>
+              <span class="text-[0.7rem] text-muted-foreground font-semibold px-2 text-right">${time}</span>
+            </div>
+          </div>
+        `;
+      } else {
+        const color = getColorForId(currentConversationId || "");
+        html += `
+          <div class="flex gap-3 max-w-[70%]">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-auto" style="background: ${color}">
+              <span class="text-white text-[0.7rem] font-extrabold">${escapeHtml(otherInitials)}</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-card text-foreground rounded-bl-sm border border-border">${escapeHtml(msg.content)}</div>
+              <span class="text-[0.7rem] text-muted-foreground font-semibold px-2">${time}</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    chatHistory.innerHTML = html;
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  }
+
+  // ── Append a single message to chat ───────────────────────────────────────
+  function appendMessage(msg: Message, otherInitials: string) {
+    if (emptyChat) emptyChat.remove();
+
+    const isMe = msg.sender_id === currentUserId;
+    const time = new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const div = document.createElement("div");
+
+    if (isMe) {
+      div.className = "flex gap-3 max-w-[70%] self-end flex-row-reverse";
+      div.innerHTML = `
+        <div class="flex flex-col gap-1">
+          <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-primary text-primary-foreground rounded-br-sm font-medium">${escapeHtml(msg.content)}</div>
+          <span class="text-[0.7rem] text-muted-foreground font-semibold px-2 text-right">${time}</span>
+        </div>
+      `;
+    } else {
+      const color = getColorForId(currentConversationId || "");
+      div.className = "flex gap-3 max-w-[70%]";
+      div.innerHTML = `
+        <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-auto" style="background: ${color}">
+          <span class="text-white text-[0.7rem] font-extrabold">${escapeHtml(otherInitials)}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-card text-foreground rounded-bl-sm border border-border">${escapeHtml(msg.content)}</div>
+          <span class="text-[0.7rem] text-muted-foreground font-semibold px-2">${time}</span>
+        </div>
+      `;
+    }
+
+    chatHistory.appendChild(div);
+    chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
+  }
+
+  // ── Select a conversation ─────────────────────────────────────────────────
+  async function selectConversation(convId: string) {
+    currentConversationId = convId;
+    const conv = conversations.find((c) => c.id === convId);
+    if (!conv || !currentUserId) return;
+
+    // Update sidebar active state
+    renderConversations(conversations);
+
+    // Update header
+    const color = getColorForId(conv.id);
+    headerInitials.textContent = conv.other_initials;
+    headerInitials.parentElement!.setAttribute("style", `background: ${color}`);
+    headerInitials.parentElement!.className = "w-11 h-11 rounded-full flex items-center justify-center";
+    headerInitials.className = "text-sm font-extrabold text-white";
+    headerName.textContent = conv.other_name;
+    headerSub.textContent = conv.listing_title ? `Re: ${conv.listing_title}` : "";
+
+    // Listing link
+    if (conv.listing_id && conv.listing_title) {
+      headerListingLink.href = `/item/${conv.listing_id}`;
+      headerListingLink.classList.remove("hidden");
+      headerListingLink.classList.add("flex");
+      headerListingTitle.textContent = conv.listing_title;
+      headerListingPrice.textContent = conv.listing_price != null ? `$${conv.listing_price}` : "";
+    } else {
+      headerListingLink.classList.add("hidden");
+      headerListingLink.classList.remove("flex");
+    }
+
+    // Load messages
+    try {
+      const msgs = await fetchMessages(convId);
+      renderMessages(msgs, conv.other_initials);
+
+      // Mark as read
+      await markMessagesRead(convId, currentUserId);
+
+      // Update unread count in sidebar
+      conv.unread_count = 0;
+      renderConversations(conversations);
+    } catch (err) {
+      console.error("Failed to load messages:", err);
+      chatHistory.innerHTML = `
+        <div class="flex-1 flex items-center justify-center text-muted-foreground">
+          <p class="text-sm">Failed to load messages. Please try again.</p>
+        </div>
+      `;
+    }
+  }
+
+  // ── Send message handler ──────────────────────────────────────────────────
+  async function handleSend() {
+    const text = chatInput.value.trim();
+    if (!text || !currentConversationId || !currentUserId) return;
+
+    const conv = conversations.find((c) => c.id === currentConversationId);
+
+    // Optimistic append
+    const optimisticMsg: Message = {
+      id: "optimistic-" + Date.now(),
+      conversation_id: currentConversationId,
+      sender_id: currentUserId,
+      content: text,
+      read: false,
+      created_at: new Date().toISOString(),
+    };
+    appendMessage(optimisticMsg, conv?.other_initials || "");
+    chatInput.value = "";
+
+    // Update conversation preview in sidebar
+    if (conv) {
+      conv.last_message = text;
+      conv.last_message_time = optimisticMsg.created_at;
+    }
+
+    try {
+      await sendMessage(currentConversationId, currentUserId, text);
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    }
+  }
+
+  sendBtn.addEventListener("click", handleSend);
+  chatInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleSend();
   });
 
-  if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+  // ── Search filter ─────────────────────────────────────────────────────────
+  searchInput?.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase().trim();
+    if (!query) {
+      renderConversations(conversations);
+      return;
+    }
+    const filtered = conversations.filter(
+      (c) =>
+        c.other_name.toLowerCase().includes(query) ||
+        (c.listing_title && c.listing_title.toLowerCase().includes(query)) ||
+        c.last_message.toLowerCase().includes(query),
+    );
+    renderConversations(filtered);
+  });
+
+  // ── Realtime subscription ─────────────────────────────────────────────────
+  function subscribeToRealtime() {
+    realtimeChannel = supabase
+      .channel("messages-realtime")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload: any) => {
+          const newMsg = payload.new as Message;
+
+          // If message is in the current conversation and not from us, append it
+          if (newMsg.conversation_id === currentConversationId && newMsg.sender_id !== currentUserId) {
+            const conv = conversations.find((c) => c.id === currentConversationId);
+            appendMessage(newMsg, conv?.other_initials || "??");
+
+            // Mark as read since we're viewing it
+            if (currentUserId) {
+              markMessagesRead(newMsg.conversation_id, currentUserId).catch(() => {});
+            }
+          }
+
+          // Update sidebar preview for the conversation
+          const conv = conversations.find((c) => c.id === newMsg.conversation_id);
+          if (conv) {
+            conv.last_message = newMsg.content;
+            conv.last_message_time = newMsg.created_at;
+
+            // If it's a different conversation, increment unread
+            if (newMsg.conversation_id !== currentConversationId && newMsg.sender_id !== currentUserId) {
+              conv.unread_count += 1;
+            }
+
+            // Re-sort conversations by last message time
+            conversations.sort(
+              (a, b) => new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime(),
+            );
+            renderConversations(conversations);
+          }
+        },
+      )
+      .subscribe();
+  }
+
+  // ── Handle URL params (?to=SELLER_ID&listing=LISTING_ID) ─────────────────
+  async function handleUrlParams(): Promise<string | null> {
+    const params = new URLSearchParams(window.location.search);
+    const sellerId = params.get("to");
+    const listingId = params.get("listing");
+
+    if (!sellerId || !currentUserId) return null;
+    if (sellerId === currentUserId) return null; // Can't message yourself
+
+    try {
+      const conv = await fetchOrCreateConversation(listingId, currentUserId, sellerId);
+      // Clean up URL
+      window.history.replaceState({}, "", "/messages");
+      return conv.id;
+    } catch (err) {
+      console.error("Failed to create conversation:", err);
+      return null;
+    }
+  }
+
+  // ── HTML escape helper ────────────────────────────────────────────────────
+  function escapeHtml(str: string): string {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ── Initialize ────────────────────────────────────────────────────────────
+  async function init() {
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      window.location.href = "/login";
+      return;
+    }
+    currentUserId = user.id;
+
+    // Handle ?to=...&listing=... param
+    const targetConvId = await handleUrlParams();
+
+    // Load conversations
+    try {
+      conversations = await fetchConversations(currentUserId);
+    } catch (err) {
+      console.error("Failed to load conversations:", err);
+      conversations = [];
+    }
+
+    renderConversations(conversations);
+
+    // Auto-select: URL-targeted conversation, or first in list
+    if (targetConvId) {
+      // Reload conversations since we may have just created one
+      try {
+        conversations = await fetchConversations(currentUserId);
+        renderConversations(conversations);
+      } catch (_) {}
+      await selectConversation(targetConvId);
+    } else if (conversations.length > 0) {
+      await selectConversation(conversations[0].id);
+    }
+
+    // Subscribe to realtime messages
+    subscribeToRealtime();
+  }
+
+  init();
 </script>

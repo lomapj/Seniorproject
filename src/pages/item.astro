@@ -107,15 +107,16 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
                 <Avatar size="lg" variant="primary" class="w-14 h-14 text-xl shadow-md"><AvatarFallback class="bg-primary text-primary-foreground font-extrabold" id="sellerInitials">?</AvatarFallback></Avatar>
                 <div class="flex flex-col gap-0.5">
                   <span class="text-base font-extrabold text-foreground" id="sellerName">Seller</span>
+                  <span class="text-sm text-muted-foreground" id="sellerRating"></span>
                 </div>
               </div>
-              <Button variant="outline" size="sm" href="/messages">Message</Button>
+              <Button variant="outline" size="sm" href="/messages" id="sellerCardMsgBtn">Message</Button>
             </CardContent>
           </Card>
 
           <!-- Actions -->
           <div class="grid grid-cols-[1fr_auto] gap-3 mt-2">
-            <Button variant="primary" href="/messages" class="gap-2 font-extrabold">
+            <Button variant="primary" href="/messages" id="actionMsgBtn" class="gap-2 font-extrabold">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
               Message Seller
             </Button>
@@ -132,7 +133,7 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
                 <div class="space-y-4 py-4">
                   <div class="space-y-1.5">
                     <label class="text-sm font-semibold text-foreground">Reason</label>
-                    <NativeSelect>
+                    <NativeSelect id="reportReason">
                       <NativeSelectOption>Inappropriate content</NativeSelectOption>
                       <NativeSelectOption>Suspected scam</NativeSelectOption>
                       <NativeSelectOption>Wrong category</NativeSelectOption>
@@ -142,19 +143,41 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
                   </div>
                   <div class="space-y-1.5">
                     <label class="text-sm font-semibold text-foreground">Details</label>
-                    <Textarea placeholder="Additional information..." rows={3} />
+                    <Textarea id="reportDetails" placeholder="Additional information..." rows={3} />
                   </div>
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
                     <Button variant="secondary">Cancel</Button>
                   </DialogClose>
-                  <Button variant="error">Submit Report</Button>
+                  <Button variant="error" id="reportSubmitBtn">Submit Report</Button>
                 </DialogFooter>
+                <div id="reportStatus" class="px-6 pb-4"></div>
               </DialogContent>
             </Dialog>
           </div>
         </div>
+      </div>
+
+      <!-- Review Section (sold items only) -->
+      <div id="reviewSection" class="hidden mt-12">
+        <h2 class="text-2xl font-extrabold text-foreground mb-6">Seller Reviews</h2>
+        <div id="reviewForm" class="hidden mb-8 p-6 rounded-xl border border-border bg-card">
+          <h3 class="text-lg font-bold text-foreground mb-4">Leave a Review</h3>
+          <div class="flex items-center gap-1 mb-4" id="starSelector">
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="1">&#9733;</button>
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="2">&#9733;</button>
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="3">&#9733;</button>
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="4">&#9733;</button>
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="5">&#9733;</button>
+            <span class="ml-2 text-sm text-muted-foreground" id="starLabel">Select a rating</span>
+          </div>
+          <Textarea id="reviewComment" placeholder="Write a comment (optional)..." rows={3} class="mb-4" />
+          <Button variant="primary" id="reviewSubmitBtn">Submit Review</Button>
+          <div id="reviewStatus" class="mt-3"></div>
+        </div>
+        <div id="reviewsList" class="space-y-4"></div>
+        <p id="noReviews" class="hidden text-muted-foreground">No reviews yet.</p>
       </div>
 
       <!-- Error state -->
@@ -172,7 +195,8 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
 </Layout>
 
 <script>
-  import { fetchListing } from "../lib/api";
+  import { fetchListing, fetchSellerRating, fetchSellerReviews, submitReport, submitReview } from "../lib/api";
+  import { supabase } from "../lib/supabase";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
     Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
@@ -204,6 +228,25 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
     return date.toLocaleDateString();
   }
 
+  function renderStars(rating: number): string {
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return '<span class="text-amber-400">' +
+      "\u2605".repeat(full) +
+      (half ? "\u2605" : "") +
+      '</span>' +
+      '<span class="text-muted-foreground">' +
+      "\u2606".repeat(empty - (half ? 0 : 0)) +
+      '</span>';
+  }
+
+  function renderStarsPlain(rating: number): string {
+    const full = Math.floor(rating);
+    const empty = 5 - full;
+    return "\u2605".repeat(full) + "\u2606".repeat(empty);
+  }
+
   async function loadItem() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
@@ -212,6 +255,10 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       showError();
       return;
     }
+
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    const currentUserId = user?.id ?? null;
 
     try {
       const item = await fetchListing(id);
@@ -250,6 +297,32 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       document.getElementById("sellerName")!.textContent = sellerName;
       const initials = sellerName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
       document.getElementById("sellerInitials")!.textContent = initials || "?";
+
+      // Seller rating
+      try {
+        const rating = await fetchSellerRating(item.user_id);
+        const sellerRatingEl = document.getElementById("sellerRating");
+        if (sellerRatingEl && rating.count > 0) {
+          sellerRatingEl.innerHTML = `<span class="text-amber-400">${renderStarsPlain(rating.average)}</span> ${rating.average} <span class="text-muted-foreground">(${rating.count} review${rating.count !== 1 ? "s" : ""})</span>`;
+        } else if (sellerRatingEl) {
+          sellerRatingEl.textContent = "No ratings yet";
+        }
+      } catch (e) {
+        console.error("Failed to load seller rating:", e);
+      }
+
+      // Message Seller links - update hrefs with seller/listing context
+      const msgHref = `/messages?to=${item.user_id}&listing=${item.id}`;
+      const sellerCardMsgBtn = document.getElementById("sellerCardMsgBtn");
+      const actionMsgBtn = document.getElementById("actionMsgBtn");
+      if (sellerCardMsgBtn) sellerCardMsgBtn.setAttribute("href", msgHref);
+      if (actionMsgBtn) actionMsgBtn.setAttribute("href", msgHref);
+
+      // Hide Message Seller buttons if current user IS the seller
+      if (currentUserId && currentUserId === item.user_id) {
+        if (sellerCardMsgBtn) sellerCardMsgBtn.style.display = "none";
+        if (actionMsgBtn) actionMsgBtn.style.display = "none";
+      }
 
       // Fav button
       const favBtn = document.getElementById("favBtn");
@@ -295,6 +368,122 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
           }
         });
       });
+
+      // ── Report Dialog Handler ──────────────────────────────────────────
+      const reportSubmitBtn = document.getElementById("reportSubmitBtn");
+      if (reportSubmitBtn) {
+        reportSubmitBtn.addEventListener("click", async () => {
+          const reportStatus = document.getElementById("reportStatus")!;
+          if (!currentUserId) {
+            reportStatus.innerHTML = `<p class="text-sm text-error">You must be logged in to report a listing.</p>`;
+            return;
+          }
+          const reason = (document.getElementById("reportReason") as HTMLSelectElement)?.value;
+          const details = (document.getElementById("reportDetails") as HTMLTextAreaElement)?.value;
+          try {
+            reportSubmitBtn.setAttribute("disabled", "true");
+            reportSubmitBtn.textContent = "Submitting...";
+            await submitReport(id, currentUserId, reason, details || undefined);
+            reportStatus.innerHTML = `<p class="text-sm text-success font-semibold">Report submitted. Thank you for helping keep our community safe.</p>`;
+            (reportSubmitBtn as HTMLButtonElement).disabled = true;
+            reportSubmitBtn.textContent = "Report Submitted";
+          } catch (err: any) {
+            const msg = err?.message || "Failed to submit report.";
+            reportStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
+            (reportSubmitBtn as HTMLButtonElement).disabled = false;
+            reportSubmitBtn.textContent = "Submit Report";
+          }
+        });
+      }
+
+      // ── Review Section (sold items only) ───────────────────────────────
+      if (item.status === "sold") {
+        const reviewSection = document.getElementById("reviewSection")!;
+        reviewSection.classList.remove("hidden");
+
+        async function loadReviews() {
+          const reviewsList = document.getElementById("reviewsList")!;
+          const noReviews = document.getElementById("noReviews")!;
+          try {
+            const reviews = await fetchSellerReviews(item.user_id);
+            if (reviews.length === 0) {
+              reviewsList.innerHTML = "";
+              noReviews.classList.remove("hidden");
+            } else {
+              noReviews.classList.add("hidden");
+              reviewsList.innerHTML = reviews.map(r => `
+                <div class="p-4 rounded-lg border border-border bg-card">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-amber-400">${renderStarsPlain(r.rating)}</span>
+                    <span class="text-sm text-muted-foreground">${timeAgo(r.created_at)}</span>
+                  </div>
+                  ${r.comment ? `<p class="text-sm text-foreground">${r.comment}</p>` : ""}
+                </div>
+              `).join("");
+            }
+            return reviews;
+          } catch (e) {
+            console.error("Failed to load reviews:", e);
+            return [];
+          }
+        }
+
+        const reviews = await loadReviews();
+
+        // Show review form if current user is NOT the seller and hasn't reviewed yet
+        if (currentUserId && currentUserId !== item.user_id) {
+          const alreadyReviewed = reviews.some(r => r.reviewer_id === currentUserId);
+          if (!alreadyReviewed) {
+            const reviewForm = document.getElementById("reviewForm")!;
+            reviewForm.classList.remove("hidden");
+
+            let selectedRating = 0;
+            const starBtns = document.querySelectorAll<HTMLButtonElement>("#starSelector .star-btn");
+            const starLabel = document.getElementById("starLabel")!;
+
+            starBtns.forEach((btn) => {
+              btn.addEventListener("click", () => {
+                selectedRating = parseInt(btn.getAttribute("data-star") || "0");
+                starLabel.textContent = `${selectedRating} of 5`;
+                starBtns.forEach((b) => {
+                  const val = parseInt(b.getAttribute("data-star") || "0");
+                  if (val <= selectedRating) {
+                    b.classList.remove("text-muted-foreground");
+                    b.classList.add("text-amber-400");
+                  } else {
+                    b.classList.add("text-muted-foreground");
+                    b.classList.remove("text-amber-400");
+                  }
+                });
+              });
+            });
+
+            const reviewSubmitBtn = document.getElementById("reviewSubmitBtn")!;
+            reviewSubmitBtn.addEventListener("click", async () => {
+              const reviewStatus = document.getElementById("reviewStatus")!;
+              if (selectedRating === 0) {
+                reviewStatus.innerHTML = `<p class="text-sm text-error">Please select a star rating.</p>`;
+                return;
+              }
+              const comment = (document.getElementById("reviewComment") as HTMLTextAreaElement)?.value;
+              try {
+                (reviewSubmitBtn as HTMLButtonElement).disabled = true;
+                reviewSubmitBtn.textContent = "Submitting...";
+                await submitReview(id, currentUserId, item.user_id, selectedRating, comment || undefined);
+                reviewStatus.innerHTML = `<p class="text-sm text-success font-semibold">Review submitted!</p>`;
+                reviewSubmitBtn.textContent = "Review Submitted";
+                // Refresh reviews list
+                await loadReviews();
+              } catch (err: any) {
+                const msg = err?.message || "Failed to submit review.";
+                reviewStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
+                (reviewSubmitBtn as HTMLButtonElement).disabled = false;
+                reviewSubmitBtn.textContent = "Submit Review";
+              }
+            });
+          }
+        }
+      }
 
     } catch (err) {
       console.error("Failed to load item:", err);

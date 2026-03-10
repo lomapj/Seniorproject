@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["public"]
+}
+
+// ── Existing table ──────────────────────────────────────────────────────────
+
+model Listing {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     String   @db.Uuid
+  title       String
+  category    String
+  condition   String
+  price       Float
+  status      String   @default("available")
+  description String
+  images      Json     @default("[]")
+  seller_name String?
+  created_at  DateTime @default(now()) @db.Timestamptz
+
+  conversations Conversation[]
+  reports       Report[]
+  reviews       Review[]
+
+  @@map("listings")
+  @@schema("public")
+}
+
+// ── Messaging ───────────────────────────────────────────────────────────────
+
+model Conversation {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  listing_id String?  @db.Uuid
+  buyer_id   String   @db.Uuid
+  seller_id  String   @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz
+
+  listing  Listing?  @relation(fields: [listing_id], references: [id], onDelete: SetNull)
+  messages Message[]
+
+  @@unique([listing_id, buyer_id, seller_id])
+  @@map("conversations")
+  @@schema("public")
+}
+
+model Message {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversation_id String   @db.Uuid
+  sender_id       String   @db.Uuid
+  content         String
+  read            Boolean  @default(false)
+  created_at      DateTime @default(now()) @db.Timestamptz
+
+  conversation Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+  @@schema("public")
+}
+
+// ── Reporting ───────────────────────────────────────────────────────────────
+
+model Report {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  listing_id  String   @db.Uuid
+  reporter_id String   @db.Uuid
+  reason      String
+  details     String?
+  status      String   @default("pending")
+  created_at  DateTime @default(now()) @db.Timestamptz
+
+  listing Listing @relation(fields: [listing_id], references: [id], onDelete: Cascade)
+
+  @@unique([listing_id, reporter_id])
+  @@map("reports")
+  @@schema("public")
+}
+
+// ── Reviews ─────────────────────────────────────────────────────────────────
+
+model Review {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  listing_id  String   @db.Uuid
+  reviewer_id String   @db.Uuid
+  seller_id   String   @db.Uuid
+  rating      Int
+  comment     String?
+  created_at  DateTime @default(now()) @db.Timestamptz
+
+  listing Listing @relation(fields: [listing_id], references: [id], onDelete: Cascade)
+
+  @@unique([listing_id, reviewer_id])
+  @@map("reviews")
+  @@schema("public")
+}

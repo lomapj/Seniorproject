@@ -1,0 +1,179 @@
+// Auto-generated from Supabase OpenAPI spec
+// Regenerate: fetch https://<project>.supabase.co/rest/v1/?apikey=<anon_key>
+
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export interface Database {
+  public: {
+    Tables: {
+      listings: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          category: string;
+          condition: string;
+          price: number;
+          status: string;
+          description: string;
+          created_at: string;
+          seller_name: string | null;
+          images: string[];
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          category: string;
+          condition: string;
+          price: number;
+          status?: string;
+          description: string;
+          created_at?: string;
+          seller_name?: string | null;
+          images?: string[];
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          category?: string;
+          condition?: string;
+          price?: number;
+          status?: string;
+          description?: string;
+          created_at?: string;
+          seller_name?: string | null;
+          images?: string[];
+        };
+      };
+      conversations: {
+        Row: {
+          id: string;
+          listing_id: string | null;
+          buyer_id: string;
+          seller_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id?: string | null;
+          buyer_id: string;
+          seller_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          listing_id?: string | null;
+          buyer_id?: string;
+          seller_id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      messages: {
+        Row: {
+          id: string;
+          conversation_id: string;
+          sender_id: string;
+          content: string;
+          read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          conversation_id: string;
+          sender_id: string;
+          content: string;
+          read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          conversation_id?: string;
+          sender_id?: string;
+          content?: string;
+          read?: boolean;
+          created_at?: string;
+        };
+      };
+      reports: {
+        Row: {
+          id: string;
+          listing_id: string;
+          reporter_id: string;
+          reason: string;
+          details: string | null;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id: string;
+          reporter_id: string;
+          reason: string;
+          details?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          listing_id?: string;
+          reporter_id?: string;
+          reason?: string;
+          details?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+      };
+      reviews: {
+        Row: {
+          id: string;
+          listing_id: string;
+          reviewer_id: string;
+          seller_id: string;
+          rating: number;
+          comment: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id: string;
+          reviewer_id: string;
+          seller_id: string;
+          rating: number;
+          comment?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          listing_id?: string;
+          reviewer_id?: string;
+          seller_id?: string;
+          rating?: number;
+          comment?: string | null;
+          created_at?: string;
+        };
+      };
+    };
+  };
+}
+
+// Convenience row type aliases
+export type Listing = Database["public"]["Tables"]["listings"]["Row"];
+export type ListingInsert = Database["public"]["Tables"]["listings"]["Insert"];
+export type ListingUpdate = Database["public"]["Tables"]["listings"]["Update"];
+
+export type Conversation = Database["public"]["Tables"]["conversations"]["Row"];
+export type ConversationInsert = Database["public"]["Tables"]["conversations"]["Insert"];
+
+export type Message = Database["public"]["Tables"]["messages"]["Row"];
+export type MessageInsert = Database["public"]["Tables"]["messages"]["Insert"];
+
+export type Report = Database["public"]["Tables"]["reports"]["Row"];
+export type ReportInsert = Database["public"]["Tables"]["reports"]["Insert"];
+
+export type Review = Database["public"]["Tables"]["reviews"]["Row"];
+export type ReviewInsert = Database["public"]["Tables"]["reviews"]["Insert"];
