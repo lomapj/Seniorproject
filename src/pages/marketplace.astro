@@ -1,22 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Button from "@/components/starwind/button/Button.astro";
-import Badge from "@/components/starwind/badge/Badge.astro";
 import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-select";
-
-const listings = [
-  { id: 1, title: "Premium Headphones", price: 80, category: "Electronics", condition: "Like New", seller: "Sarah J.", rating: 4.5, reviews: 12, image: "/img/generated/headphones.png", gradient: "linear-gradient(135deg, #006153, #00a896)", status: "available" },
-  { id: 2, title: "Calculus Textbook", price: 45, category: "Books", condition: "Good", seller: "Michael T.", rating: 4.8, reviews: 33, image: "/img/generated/textbook.png", gradient: "linear-gradient(135deg, #fce043, #fb7419)", status: "available" },
-  { id: 3, title: "MacBook Pro M1", price: 950, category: "Electronics", condition: "Good", seller: "David K.", rating: 4.7, reviews: 19, gradient: "linear-gradient(135deg, #1e3c72, #2a5298)", icon: "💻", status: "available" },
-  { id: 5, title: "Scientific Calculator", price: 22, category: "Electronics", condition: "Like New", seller: "Chris M.", rating: 5.0, reviews: 8, gradient: "linear-gradient(135deg,#e07a5f,#c1440e)", icon: "🔢", status: "available" },
-  { id: 6, title: "Winter Jacket (L)", price: 40, category: "Clothing", condition: "Good", seller: "Aisha B.", rating: 4.4, reviews: 5, gradient: "linear-gradient(135deg,#457b9d,#1d3557)", icon: "🧥", status: "available" },
-  { id: 7, title: "Chemistry Lab Manual", price: 18, category: "Books", condition: "Fair", seller: "Jake P.", rating: 3.9, reviews: 4, gradient: "linear-gradient(135deg,#606c38,#283618)", icon: "🧪", status: "available" },
-  { id: 8, title: "Wireless Headphones", price: 65, category: "Electronics", condition: "Like New", seller: "Maria L.", rating: 4.6, reviews: 21, gradient: "linear-gradient(135deg,#6930c3,#48bfe3)", icon: "🎧", status: "available" },
-  { id: 9, title: "Bookshelf", price: 55, category: "Furniture", condition: "Good", seller: "Omar S.", rating: 4.3, reviews: 6, gradient: "linear-gradient(135deg,#a0522d,#cd853f)", icon: "📚", status: "pending" },
-  { id: 10, title: "Psychology Textbook", price: 30, category: "Books", condition: "Good", seller: "Lily C.", rating: 4.1, reviews: 9, gradient: "linear-gradient(135deg,#c77dff,#7b2d8b)", icon: "🧠", status: "available" },
-  { id: 11, title: "USB-C Hub", price: 25, category: "Electronics", condition: "Like New", seller: "Tom W.", rating: 4.9, reviews: 14, gradient: "linear-gradient(135deg,#4cc9f0,#4361ee)", icon: "🔌", status: "available" },
-  { id: 12, title: "Backpack", price: 28, category: "Misc", condition: "Good", seller: "Nadia F.", rating: 4.5, reviews: 11, gradient: "linear-gradient(135deg,#ef476f,#f78c6b)", icon: "🎒", status: "available" },
-];
 ---
 
 <Layout title="Marketplace">
@@ -51,11 +36,10 @@ const listings = [
           </div>
           <div class="flex items-center gap-3 shrink-0">
             <span class="text-sm font-semibold text-muted-foreground">Sort by</span>
-            <NativeSelect size="sm" class="min-w-44">
-              <NativeSelectOption>Newest First</NativeSelectOption>
-              <NativeSelectOption>Price: Low to High</NativeSelectOption>
-              <NativeSelectOption>Price: High to Low</NativeSelectOption>
-              <NativeSelectOption>Top Rated</NativeSelectOption>
+            <NativeSelect size="sm" class="min-w-44" id="sortSelect">
+              <NativeSelectOption value="newest">Newest First</NativeSelectOption>
+              <NativeSelectOption value="price_asc">Price: Low to High</NativeSelectOption>
+              <NativeSelectOption value="price_desc">Price: High to Low</NativeSelectOption>
             </NativeSelect>
           </div>
         </div>
@@ -66,59 +50,51 @@ const listings = [
     <div class="mx-auto max-w-7xl px-6 lg:px-8 pt-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 class="text-lg text-muted-foreground font-medium">
-          <strong class="font-extrabold text-primary">{listings.length}</strong> Results Found
+          <strong class="font-extrabold text-primary" id="resultsCount">0</strong> Results Found
         </h2>
         <div class="flex items-center gap-3 bg-card p-2 rounded-lg border border-border">
           <div class="relative flex items-center">
             <span class="absolute left-3 text-sm text-muted-foreground font-semibold">$</span>
-            <input type="number" class="w-22 pl-7 pr-2 py-1.5 border border-border rounded-md text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Min" />
+            <input type="number" class="w-22 pl-7 pr-2 py-1.5 border border-border rounded-md text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Min" id="priceMin" />
           </div>
-          <span class="text-muted-foreground">—</span>
+          <span class="text-muted-foreground">&mdash;</span>
           <div class="relative flex items-center">
             <span class="absolute left-3 text-sm text-muted-foreground font-semibold">$</span>
-            <input type="number" class="w-22 pl-7 pr-2 py-1.5 border border-border rounded-md text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Max" />
+            <input type="number" class="w-22 pl-7 pr-2 py-1.5 border border-border rounded-md text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Max" id="priceMax" />
           </div>
-          <button class="px-3 py-1.5 bg-primary/10 text-primary rounded-md text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-colors btn-filter-apply">Apply</button>
+          <button class="px-3 py-1.5 bg-primary/10 text-primary rounded-md text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-colors" id="applyPriceBtn">Apply</button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="listingGrid">
-        {listings.map((item) => (
-          <a href="/item" class="listing-card group bg-card rounded-xl border border-border overflow-hidden no-underline text-inherit flex flex-col shadow-sm hover:-translate-y-2 hover:shadow-xl hover:border-primary/20 transition-all duration-300" data-category={item.category} data-price={item.price}>
-            <div class="h-55 relative flex items-center justify-center overflow-hidden" style={`background: ${item.gradient}`}>
-              {item.image ? (
-                <img src={item.image} alt={item.title} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-              ) : (
-                <span class="text-5xl">{item.icon}</span>
-              )}
-              <button type="button" class="card-fav-btn absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-muted-foreground hover:text-error z-10 border-0" aria-label="Save listing" onclick="event.preventDefault(); this.classList.toggle('saved')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-              </button>
-              {item.status !== "available" && (
-                <div class={`absolute inset-0 bg-black/40 flex items-center justify-center z-10`}>
-                  <span class="px-4 py-1.5 rounded-full font-extrabold uppercase tracking-widest text-sm text-white border-2 border-white">{item.status}</span>
-                </div>
-              )}
-            </div>
-            <div class="p-4 flex-1 flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <Badge variant="ghost" size="sm" class="text-primary bg-primary/10">{item.condition}</Badge>
-                <span class="flex items-center gap-1 text-sm font-bold text-muted-foreground">
-                  {item.rating}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                </span>
+      <!-- Loading skeleton -->
+      <div id="loadingSkeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {Array.from({ length: 8 }).map(() => (
+          <div class="bg-card rounded-xl border border-border overflow-hidden flex flex-col shadow-sm animate-pulse">
+            <div class="h-55 bg-muted"></div>
+            <div class="p-4 flex-1 flex flex-col gap-3">
+              <div class="flex justify-between">
+                <div class="h-5 w-20 bg-muted rounded"></div>
+                <div class="h-5 w-10 bg-muted rounded"></div>
               </div>
-              <h3 class="text-base font-bold text-foreground leading-tight line-clamp-2">{item.title}</h3>
-              <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
-                <span class="text-xl font-extrabold text-primary">${item.price}</span>
-                <span class="text-sm font-semibold text-muted-foreground">{item.seller.split(" ")[0]}</span>
+              <div class="h-5 w-3/4 bg-muted rounded"></div>
+              <div class="flex justify-between mt-auto pt-3 border-t border-border">
+                <div class="h-6 w-16 bg-muted rounded"></div>
+                <div class="h-5 w-14 bg-muted rounded"></div>
               </div>
             </div>
-          </a>
+          </div>
         ))}
       </div>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="hidden text-center py-20">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-muted-foreground mb-4"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+        <h3 class="text-xl font-bold text-foreground mb-2">No listings found</h3>
+        <p class="text-muted-foreground">Try adjusting your filters or search terms.</p>
+      </div>
+
+      <!-- Listings grid (populated by JS) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden" id="listingGrid"></div>
     </div>
   </div>
 </Layout>
@@ -130,49 +106,158 @@ const listings = [
 </style>
 
 <script>
+  import { fetchListings, type Listing } from "../lib/api";
+
+  const CATEGORY_GRADIENTS: Record<string, string> = {
+    Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
+    Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
+    Furniture: "linear-gradient(135deg,#a0522d,#cd853f)",
+    Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
+    Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
+  };
+
+  const CATEGORY_ICONS: Record<string, string> = {
+    Books: "\u{1F4D7}",
+    Electronics: "\u{1F4BB}",
+    Furniture: "\u{1FA91}",
+    Clothing: "\u{1F9E5}",
+    Misc: "\u{1F4E6}",
+  };
+
+  const listingGrid = document.getElementById("listingGrid")!;
+  const loadingSkeleton = document.getElementById("loadingSkeleton")!;
+  const emptyState = document.getElementById("emptyState")!;
+  const resultsCount = document.getElementById("resultsCount")!;
   const catChips = document.querySelectorAll(".cat-chip");
-  const listingGrid = document.getElementById("listingGrid");
-  const listingCards = document.querySelectorAll(".listing-card");
-  const priceMin = document.querySelector<HTMLInputElement>("input[placeholder='Min']");
-  const priceMax = document.querySelector<HTMLInputElement>("input[placeholder='Max']");
-  const applyBtn = document.querySelector(".btn-filter-apply");
+  const sortSelect = document.getElementById("sortSelect") as HTMLSelectElement;
+  const priceMin = document.getElementById("priceMin") as HTMLInputElement;
+  const priceMax = document.getElementById("priceMax") as HTMLInputElement;
+  const applyPriceBtn = document.getElementById("applyPriceBtn");
 
   let currentCat = "All";
+  let allListings: Listing[] = [];
 
-  function filterListings() {
-    const min = parseFloat(priceMin?.value || "0");
-    const max = parseFloat(priceMax?.value || "Infinity") || Infinity;
+  function renderCard(item: Listing): string {
+    const gradient = CATEGORY_GRADIENTS[item.category] || "linear-gradient(135deg,#6b7280,#9ca3af)";
+    const icon = CATEGORY_ICONS[item.category] || "\u{1F4E6}";
+    const hasImage = item.images && item.images.length > 0;
+    const sellerName = item.seller_name || "Seller";
+
+    const imageHtml = hasImage
+      ? `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />`
+      : `<span class="text-5xl">${icon}</span>`;
+
+    const statusOverlay = item.status !== "available"
+      ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10"><span class="px-4 py-1.5 rounded-full font-extrabold uppercase tracking-widest text-sm text-white border-2 border-white">${item.status}</span></div>`
+      : "";
+
+    return `
+      <a href="/item?id=${item.id}" class="listing-card group bg-card rounded-xl border border-border overflow-hidden no-underline text-inherit flex flex-col shadow-sm hover:-translate-y-2 hover:shadow-xl hover:border-primary/20 transition-all duration-300 fade-in-shimmer" data-category="${item.category}" data-price="${item.price}" data-id="${item.id}">
+        <div class="h-55 relative flex items-center justify-center overflow-hidden" style="background: ${gradient}">
+          ${imageHtml}
+          <button type="button" class="save-btn card-fav-btn absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-muted-foreground hover:text-error z-10 border-0" aria-label="Save listing" data-id="${item.id}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+          ${statusOverlay}
+        </div>
+        <div class="p-4 flex-1 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-primary bg-primary/10">${item.condition}</span>
+          </div>
+          <h3 class="text-base font-bold text-foreground leading-tight line-clamp-2">${item.title}</h3>
+          <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
+            <span class="text-xl font-extrabold text-primary">$${item.price}</span>
+            <span class="text-sm font-semibold text-muted-foreground">${sellerName.split(" ")[0]}</span>
+          </div>
+        </div>
+      </a>
+    `;
+  }
+
+  function renderListings(listings: Listing[]) {
+    loadingSkeleton.classList.add("hidden");
+
+    if (listings.length === 0) {
+      listingGrid.classList.add("hidden");
+      emptyState.classList.remove("hidden");
+      resultsCount.textContent = "0";
+      return;
+    }
+
+    emptyState.classList.add("hidden");
+    listingGrid.classList.remove("hidden");
+    listingGrid.innerHTML = listings.map(renderCard).join("");
+    resultsCount.textContent = listings.length.toString();
+
+    // Animate cards in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("fade-in-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+    listingGrid.querySelectorAll(".listing-card").forEach((card) => observer.observe(card));
+  }
+
+  function applyClientFilters() {
+    const min = parseFloat(priceMin.value || "0");
+    const max = parseFloat(priceMax.value || "Infinity") || Infinity;
     const params = new URLSearchParams(window.location.search);
     const query = (params.get("q") || params.get("search"))?.toLowerCase() || "";
     const savedOnly = params.get("saved") === "true";
     const savedIds = new Set(JSON.parse(localStorage.getItem("fsc_marketplace_saved") || "[]").map((id: any) => id.toString()));
 
-    listingCards.forEach((c) => {
-      const card = c as HTMLElement;
-      const cardId = card.getAttribute("data-id") || "";
-      const cardCat = card.getAttribute("data-category");
-      const cardPrice = parseFloat(card.getAttribute("data-price") || "0");
-      const cardTitle = card.querySelector("h3")?.textContent?.toLowerCase() || "";
+    let filtered = allListings;
 
-      const catMatch = currentCat === "All" || cardCat === currentCat;
-      const priceMatch = cardPrice >= min && cardPrice <= max;
-      const searchMatch = !query || cardTitle.includes(query);
-      const savedMatch = !savedOnly || savedIds.has(cardId);
+    if (currentCat !== "All") {
+      filtered = filtered.filter((l) => l.category === currentCat);
+    }
+    if (min > 0) {
+      filtered = filtered.filter((l) => l.price >= min);
+    }
+    if (max < Infinity) {
+      filtered = filtered.filter((l) => l.price <= max);
+    }
+    if (query) {
+      filtered = filtered.filter((l) => l.title.toLowerCase().includes(query));
+    }
+    if (savedOnly) {
+      filtered = filtered.filter((l) => savedIds.has(l.id.toString()));
+    }
 
-      if (catMatch && priceMatch && searchMatch && savedMatch) {
-        card.style.display = "flex";
-        setTimeout(() => card.classList.add("fade-in-visible"), 10);
-      } else {
-        card.style.display = "none";
-        card.classList.remove("fade-in-visible");
-      }
-    });
+    // Sort
+    const sort = sortSelect.value;
+    if (sort === "price_asc") {
+      filtered = [...filtered].sort((a, b) => a.price - b.price);
+    } else if (sort === "price_desc") {
+      filtered = [...filtered].sort((a, b) => b.price - a.price);
+    }
 
-    const visibleCount = Array.from(listingCards).filter((c) => (c as HTMLElement).style.display !== "none").length;
-    const countEl = document.querySelector(".results-count strong, h2 strong");
-    if (countEl) countEl.textContent = visibleCount.toString();
+    renderListings(filtered);
   }
 
+  // Load listings from Supabase
+  async function loadListings() {
+    try {
+      allListings = await fetchListings();
+      applyClientFilters();
+    } catch (err) {
+      console.error("Failed to load listings:", err);
+      loadingSkeleton.classList.add("hidden");
+      emptyState.classList.remove("hidden");
+      const h3 = emptyState.querySelector("h3");
+      const p = emptyState.querySelector("p");
+      if (h3) h3.textContent = "Failed to load listings";
+      if (p) p.textContent = "Please try refreshing the page.";
+    }
+  }
+
+  // Category chip click
   catChips.forEach((chip) => {
     chip.addEventListener("click", () => {
       catChips.forEach((c) => {
@@ -182,29 +267,15 @@ const listings = [
       chip.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
       chip.classList.remove("bg-card", "border-border", "text-muted-foreground");
       currentCat = chip.getAttribute("data-cat") || "All";
-      filterListings();
+      applyClientFilters();
     });
   });
 
-  applyBtn?.addEventListener("click", filterListings);
-  filterListings();
+  sortSelect.addEventListener("change", applyClientFilters);
+  applyPriceBtn?.addEventListener("click", applyClientFilters);
+  window.addEventListener("saved-changed", applyClientFilters);
 
-  const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("fade-in-visible");
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-
-  listingCards.forEach((card) => {
-    card.classList.add("fade-in-shimmer");
-    observer.observe(card);
-  });
-
-  window.addEventListener("saved-changed", filterListings);
+  loadListings();
 </script>
 
 <style is:global>

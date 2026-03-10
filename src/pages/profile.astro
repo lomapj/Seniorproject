@@ -7,13 +7,6 @@ import Separator from "@/components/starwind/separator/Separator.astro";
 import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/starwind/table";
-
-const listings = [
-  { id: 1, title: "Biology Textbook", price: 45, category: "Books", gradient: "linear-gradient(135deg,#2d6a4f,#52b788)", icon: "📗", status: "available" },
-  { id: 2, title: "MacBook Pro 2019", price: 800, category: "Electronics", gradient: "linear-gradient(135deg,#1d3557,#457b9d)", icon: "💻", status: "available" },
-  { id: 3, title: "Desk Lamp", price: 15, category: "Furniture", gradient: "linear-gradient(135deg,#e9c46a,#f4a261)", icon: "🔆", status: "available" },
-  { id: 4, title: "School Backpack", price: 30, category: "Misc", gradient: "linear-gradient(135deg,#ef476f,#f78c6b)", icon: "🎒", status: "sold" },
-];
 ---
 
 <Layout title="My Profile">
@@ -29,15 +22,12 @@ const listings = [
           <CardContent class="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start pt-6">
             <!-- Avatar -->
             <div class="relative shrink-0">
-              <Avatar size="lg" variant="primary" class="w-35 h-35 text-5xl border-6 border-card shadow-lg"><AvatarFallback class="bg-primary text-primary-foreground">SJ</AvatarFallback></Avatar>
-              <button class="absolute bottom-1 right-1 w-9 h-9 bg-card border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-primary shadow-sm transition-colors" aria-label="Edit avatar">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              </button>
+              <Avatar size="lg" variant="primary" class="w-35 h-35 text-5xl border-6 border-card shadow-lg"><AvatarFallback class="bg-primary text-primary-foreground" id="profileInitials">...</AvatarFallback></Avatar>
             </div>
 
             <div class="flex-1 text-center md:text-left">
               <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-2 mb-2">
-                <h1 class="text-3xl font-extrabold text-foreground tracking-tight">Sarah Johnson</h1>
+                <h1 class="text-3xl font-extrabold text-foreground tracking-tight" id="profileName">Loading...</h1>
                 <Button variant="outline" size="sm" class="gap-1.5">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                   Edit Profile
@@ -45,23 +35,15 @@ const listings = [
               </div>
 
               <div class="flex items-center gap-3 flex-wrap justify-center md:justify-start mb-3">
-                <span class="text-amber-400 text-sm">★★★★★</span>
-                <span class="text-sm font-semibold text-muted-foreground">4.5 (12 Reviews)</span>
-                <Badge variant="ghost" size="sm" class="text-primary bg-primary/10">Junior @ FSC</Badge>
+                <Badge variant="ghost" size="sm" class="text-primary bg-primary/10">Student @ FSC</Badge>
               </div>
 
-              <p class="text-base text-muted-foreground leading-relaxed max-w-150 mb-4">
-                Selling my old textbooks and some dorm furniture I don't need
-                anymore. Usually free for meetups near the library or campus
-                center during the week!
-              </p>
+              <p class="text-base text-muted-foreground leading-relaxed max-w-150 mb-4" id="profileEmail"></p>
 
               <div class="flex items-center gap-6 justify-center md:justify-start">
-                <div class="flex flex-col"><span class="text-xl font-extrabold text-foreground">4</span><span class="text-xs font-semibold text-muted-foreground uppercase">Listings</span></div>
+                <div class="flex flex-col"><span class="text-xl font-extrabold text-foreground" id="listingCount">0</span><span class="text-xs font-semibold text-muted-foreground uppercase">Listings</span></div>
                 <Separator orientation="vertical" class="h-8" />
-                <div class="flex flex-col"><span class="text-xl font-extrabold text-foreground">18</span><span class="text-xs font-semibold text-muted-foreground uppercase">Sales</span></div>
-                <Separator orientation="vertical" class="h-8" />
-                <div class="flex flex-col"><span class="text-xl font-extrabold text-foreground">12</span><span class="text-xs font-semibold text-muted-foreground uppercase">Reviews</span></div>
+                <div class="flex flex-col"><span class="text-xl font-extrabold text-foreground" id="soldCount">0</span><span class="text-xs font-semibold text-muted-foreground uppercase">Sold</span></div>
               </div>
             </div>
           </CardContent>
@@ -77,13 +59,9 @@ const listings = [
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             My Listings
           </TabsTrigger>
-          <TabsTrigger value="reviews" class="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            Feedback
-          </TabsTrigger>
           <TabsTrigger value="history" class="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            History
+            Sold Items
           </TabsTrigger>
         </TabsList>
 
@@ -91,97 +69,220 @@ const listings = [
       <TabsContent value="listings" class="flex flex-col gap-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 class="text-2xl font-extrabold text-foreground">Active Listings</h2>
-          <div class="flex items-center gap-3">
-            <div class="flex items-center bg-card border border-border rounded-lg px-3 w-60">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-muted-foreground mr-2 shrink-0"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-              <input type="text" placeholder="Search my items..." class="border-0 bg-transparent py-2 text-sm w-full outline-none" />
-            </div>
-            <Button variant="primary" size="sm" href="/post">+ New Listing</Button>
-          </div>
+          <Button variant="primary" size="sm" href="/post">+ New Listing</Button>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {listings.map((item) => (
-            <Card class="overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all">
-              <div class="h-40 flex items-center justify-center relative" style={`background: ${item.gradient}`}>
-                <span class="text-5xl drop-shadow-md">{item.icon}</span>
-                {item.status === "sold" && (
-                  <div class="absolute inset-0 bg-foreground/60 flex items-center justify-center text-white font-extrabold text-2xl tracking-widest">SOLD</div>
-                )}
+        <!-- Loading skeleton -->
+        <div id="listingsLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map(() => (
+            <div class="bg-card rounded-xl border border-border overflow-hidden animate-pulse">
+              <div class="h-40 bg-muted"></div>
+              <div class="p-4 space-y-2">
+                <div class="h-4 w-16 bg-muted rounded"></div>
+                <div class="h-5 w-3/4 bg-muted rounded"></div>
+                <div class="h-6 w-20 bg-muted rounded"></div>
               </div>
-              <CardContent class="flex justify-between items-end pt-4">
-                <div class="flex flex-col gap-0.5">
-                  <span class="text-xs font-bold text-muted-foreground uppercase">{item.category}</span>
-                  <h3 class="text-base font-extrabold text-foreground">{item.title}</h3>
-                  <p class="text-lg font-extrabold text-primary">${item.price}</p>
-                </div>
-                <div class="flex gap-1.5">
-                  <button class="w-10 h-10 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors" title="Edit">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                  </button>
-                  <button class="w-10 h-10 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-error hover:border-error transition-colors" title="Delete">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
+            </div>
           ))}
         </div>
+
+        <!-- Empty state -->
+        <div id="listingsEmpty" class="hidden text-center py-12">
+          <p class="text-muted-foreground mb-4">You haven't posted any listings yet.</p>
+          <Button variant="primary" href="/post">Create Your First Listing</Button>
+        </div>
+
+        <!-- Listings grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 hidden" id="listingsGrid"></div>
       </TabsContent>
 
-      <!-- Feedback Panel -->
-      <TabsContent value="reviews" class="flex flex-col gap-4">
-        <h2 class="text-2xl font-extrabold text-foreground mb-2">Recent Feedback</h2>
-        {[
-          { author: "Michael T.", initials: "MT", rating: 5, text: "Great seller! The textbook was exactly as described and she responded very quickly.", date: "2 days ago" },
-          { author: "Emily R.", initials: "ER", rating: 5, text: "Met on campus, smooth transaction. Item looks brand new!", date: "1 week ago" },
-          { author: "David K.", initials: "DK", rating: 4, text: "Responsive and easy to coordinate with. Thanks!", date: "2 weeks ago" },
-        ].map((review) => (
-          <Card size="sm">
-            <CardContent>
-              <div class="flex items-center gap-3 mb-3">
-                <Avatar size="md"><AvatarFallback>{review.initials}</AvatarFallback></Avatar>
-                <div class="flex-1">
-                  <span class="text-sm font-extrabold text-foreground">{review.author}</span>
-                  <span class="text-xs text-muted-foreground block">{review.date}</span>
-                </div>
-                <span class="text-amber-400 text-sm">{"★".repeat(review.rating)}</span>
-              </div>
-              <p class="text-sm text-muted-foreground leading-relaxed">{review.text}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </TabsContent>
-
-      <!-- History Panel -->
+      <!-- Sold Items Panel -->
       <TabsContent value="history" class="flex flex-col gap-4">
-        <h2 class="text-2xl font-extrabold text-foreground mb-2">Transaction History</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[
-              { item: "Biology Textbook", date: "Oct 12, 2025", amount: "$45.00" },
-              { item: "Desk Lamp", date: "Sep 28, 2025", amount: "$15.00" },
-              { item: "MacBook Case", date: "Sep 15, 2025", amount: "$12.00" },
-            ].map((row) => (
+        <h2 class="text-2xl font-extrabold text-foreground mb-2">Sold Items</h2>
+        <div id="soldLoading" class="animate-pulse space-y-3">
+          <div class="h-10 bg-muted rounded"></div>
+          <div class="h-10 bg-muted rounded"></div>
+          <div class="h-10 bg-muted rounded"></div>
+        </div>
+        <div id="soldEmpty" class="hidden text-center py-12">
+          <p class="text-muted-foreground">No sold items yet.</p>
+        </div>
+        <div id="soldTable" class="hidden">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell class="font-bold text-foreground">{row.item}</TableCell>
-                <TableCell class="text-muted-foreground">{row.date}</TableCell>
-                <TableCell class="font-bold text-primary">{row.amount}</TableCell>
-                <TableCell><Badge variant="success" size="sm">Completed</Badge></TableCell>
+                <TableHead>Item</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody id="soldTableBody">
+            </TableBody>
+          </Table>
+        </div>
       </TabsContent>
       </Tabs>
     </div>
   </div>
 </Layout>
+
+<script>
+  import { supabase } from "../lib/supabase";
+  import { fetchUserListings, deleteListing, updateListing, type Listing } from "../lib/api";
+
+  const CATEGORY_GRADIENTS: Record<string, string> = {
+    Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
+    Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
+    Furniture: "linear-gradient(135deg,#a0522d,#cd853f)",
+    Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
+    Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
+  };
+
+  const CATEGORY_ICONS: Record<string, string> = {
+    Books: "\u{1F4D7}",
+    Electronics: "\u{1F4BB}",
+    Furniture: "\u{1FA91}",
+    Clothing: "\u{1F9E5}",
+    Misc: "\u{1F4E6}",
+  };
+
+  async function loadProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const meta = user.user_metadata;
+    const fullName = meta?.full_name || user.email || "User";
+    const initials = fullName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2) || "U";
+
+    document.getElementById("profileName")!.textContent = fullName;
+    document.getElementById("profileInitials")!.textContent = initials;
+    document.getElementById("profileEmail")!.textContent = user.email || "";
+
+    try {
+      const listings = await fetchUserListings(user.id);
+      const active = listings.filter((l) => l.status !== "sold");
+      const sold = listings.filter((l) => l.status === "sold");
+
+      document.getElementById("listingCount")!.textContent = active.length.toString();
+      document.getElementById("soldCount")!.textContent = sold.length.toString();
+
+      // Render active listings
+      const loadingEl = document.getElementById("listingsLoading")!;
+      const emptyEl = document.getElementById("listingsEmpty")!;
+      const gridEl = document.getElementById("listingsGrid")!;
+      loadingEl.classList.add("hidden");
+
+      if (active.length === 0) {
+        emptyEl.classList.remove("hidden");
+      } else {
+        gridEl.classList.remove("hidden");
+        gridEl.innerHTML = active.map((item) => renderListingCard(item)).join("");
+        attachCardHandlers(gridEl);
+      }
+
+      // Render sold items
+      const soldLoading = document.getElementById("soldLoading")!;
+      const soldEmpty = document.getElementById("soldEmpty")!;
+      const soldTable = document.getElementById("soldTable")!;
+      const soldTableBody = document.getElementById("soldTableBody")!;
+      soldLoading.classList.add("hidden");
+
+      if (sold.length === 0) {
+        soldEmpty.classList.remove("hidden");
+      } else {
+        soldTable.classList.remove("hidden");
+        soldTableBody.innerHTML = sold.map((item) => `
+          <tr class="border-b border-border">
+            <td class="p-3 font-bold text-foreground">${item.title}</td>
+            <td class="p-3 text-muted-foreground">${new Date(item.created_at).toLocaleDateString()}</td>
+            <td class="p-3 font-bold text-primary">$${item.price.toFixed(2)}</td>
+            <td class="p-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border border-green-500 text-green-600">Sold</span></td>
+          </tr>
+        `).join("");
+      }
+    } catch (err) {
+      console.error("Failed to load listings:", err);
+      document.getElementById("listingsLoading")!.classList.add("hidden");
+      document.getElementById("listingsEmpty")!.classList.remove("hidden");
+    }
+  }
+
+  function renderListingCard(item: Listing): string {
+    const gradient = CATEGORY_GRADIENTS[item.category] || "linear-gradient(135deg,#6b7280,#9ca3af)";
+    const icon = CATEGORY_ICONS[item.category] || "\u{1F4E6}";
+    const hasImage = item.images && item.images.length > 0;
+
+    return `
+      <div class="bg-card rounded-xl border border-border overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all" data-listing-id="${item.id}">
+        <a href="/item?id=${item.id}" class="block">
+          <div class="h-40 flex items-center justify-center relative" style="background: ${gradient}">
+            ${hasImage
+              ? `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover" />`
+              : `<span class="text-5xl drop-shadow-md">${icon}</span>`
+            }
+            ${item.status === "pending" ? `<div class="absolute inset-0 bg-foreground/40 flex items-center justify-center text-white font-extrabold text-lg tracking-widest">PENDING</div>` : ""}
+          </div>
+        </a>
+        <div class="p-4 flex justify-between items-end">
+          <a href="/item?id=${item.id}" class="flex flex-col gap-0.5 no-underline text-inherit">
+            <span class="text-xs font-bold text-muted-foreground uppercase">${item.category}</span>
+            <h3 class="text-base font-extrabold text-foreground">${item.title}</h3>
+            <p class="text-lg font-extrabold text-primary">$${item.price}</p>
+          </a>
+          <div class="flex gap-1.5">
+            <button class="mark-sold-btn w-10 h-10 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-green-600 hover:border-green-600 transition-colors" title="Mark as Sold" data-id="${item.id}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <button class="delete-btn w-10 h-10 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-error hover:border-error transition-colors" title="Delete" data-id="${item.id}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function attachCardHandlers(container: HTMLElement) {
+    container.querySelectorAll<HTMLButtonElement>(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        if (!id || !confirm("Delete this listing? This cannot be undone.")) return;
+        btn.disabled = true;
+        try {
+          await deleteListing(id);
+          const card = btn.closest("[data-listing-id]");
+          card?.remove();
+          // Update count
+          const remaining = container.querySelectorAll("[data-listing-id]").length;
+          document.getElementById("listingCount")!.textContent = remaining.toString();
+          if (remaining === 0) {
+            container.classList.add("hidden");
+            document.getElementById("listingsEmpty")!.classList.remove("hidden");
+          }
+        } catch (err) {
+          alert("Failed to delete listing.");
+          btn.disabled = false;
+        }
+      });
+    });
+
+    container.querySelectorAll<HTMLButtonElement>(".mark-sold-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        if (!id || !confirm("Mark this listing as sold?")) return;
+        btn.disabled = true;
+        try {
+          await updateListing(id, { status: "sold" });
+          // Reload to reflect changes
+          window.location.reload();
+        } catch (err) {
+          alert("Failed to update listing.");
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  loadProfile();
+</script>
