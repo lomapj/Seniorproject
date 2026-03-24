@@ -97,7 +97,7 @@ const {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
-                  <span class="absolute -top-0.5 -right-0.5 bg-amber-400 text-foreground text-[0.65rem] font-extrabold min-w-4.5 h-4.5 px-1 rounded-full flex items-center justify-center border-2 border-card">3</span>
+                  <span id="msgBadge" class="hidden absolute -top-0.5 -right-0.5 bg-amber-400 text-foreground text-[0.65rem] font-extrabold min-w-4.5 h-4.5 px-1 rounded-full flex items-center justify-center border-2 border-card">0</span>
                 </a>
                 <a href="/profile" class="nav-icon-btn w-10 h-10 rounded-full border-[1.5px] border-border bg-card text-muted-foreground flex items-center justify-center no-underline transition-all relative hover:border-primary hover:text-primary hover:bg-primary/5" title="Profile">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -181,6 +181,7 @@ const {
 
     <script>
       import { supabase } from '../lib/supabase';
+      import { getUnreadCount } from '../lib/api';
 
       // Session-aware nav
       function setAuthNav(loggedIn: boolean) {
@@ -190,8 +191,52 @@ const {
         if (navLoggedOut) navLoggedOut.style.display = loggedIn ? 'none' : 'flex';
       }
 
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      function updateMsgBadge(count: number) {
+        const badge = document.getElementById('msgBadge');
+        if (!badge) return;
+        if (count > 0) {
+          badge.textContent = count.toString();
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
         setAuthNav(!!session);
+        if (session?.user) {
+          try {
+            const count = await getUnreadCount(session.user.id);
+            updateMsgBadge(count);
+          } catch (err) {
+            console.error('Failed to fetch unread count:', err);
+          }
+
+          // Realtime subscription for new messages
+          supabase
+            .channel('unread-messages')
+            .on(
+              'postgres_changes',
+              { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${session.user.id}` },
+              async () => {
+                try {
+                  const count = await getUnreadCount(session.user.id);
+                  updateMsgBadge(count);
+                } catch (_) {}
+              }
+            )
+            .on(
+              'postgres_changes',
+              { event: 'UPDATE', schema: 'public', table: 'messages', filter: `receiver_id=eq.${session.user.id}` },
+              async () => {
+                try {
+                  const count = await getUnreadCount(session.user.id);
+                  updateMsgBadge(count);
+                } catch (_) {}
+              }
+            )
+            .subscribe();
+        }
       });
 
       supabase.auth.onAuthStateChange((_event, session) => {

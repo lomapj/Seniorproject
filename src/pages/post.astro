@@ -184,6 +184,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
 
 <script>
   import { supabase } from "../lib/supabase";
+  import { uploadListingImage } from "../lib/api";
 
   const uploadZone = document.getElementById("uploadZone");
   const fileInput = document.getElementById("fileInput") as HTMLInputElement;
@@ -281,12 +282,15 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
 
     const imageUrls: string[] = [];
     for (const file of selectedFiles) {
-      const ext = file.name.split(".").pop();
-      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, file);
-      if (uploadError) { alert(`Image upload failed: ${uploadError.message}`); submitBtn.disabled = false; submitBtn.textContent = "Publish Listing"; return; }
-      const { data: { publicUrl } } = supabase.storage.from("listing-images").getPublicUrl(path);
-      imageUrls.push(publicUrl);
+      try {
+        const url = await uploadListingImage(file, user.id);
+        imageUrls.push(url);
+      } catch (err: any) {
+        alert(`Image upload failed: ${err.message}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Publish Listing";
+        return;
+      }
     }
 
     const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName });
