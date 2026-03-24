@@ -157,6 +157,50 @@ export interface Database {
           created_at?: string;
         };
       };
+      profiles: {
+        Row: {
+          id: string;
+          full_name: string;
+          phone: string | null;
+          bio: string;
+          major: string;
+          graduation_year: number | null;
+          avatar_url: string | null;
+          preferred_contact: "messaging"| "email" | "phone";
+          notify_messages: boolean;
+          notify_listings: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          full_name?: string;
+          phone?: string | null;
+          bio?: string;
+          major?: string;
+          graduation_year?: number | null;
+          avatar_url?: string | null;
+          preferred_contact?: "messaging"| "email" | "phone";
+          notify_messages?: boolean;
+          notify_listings?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          full_name?: string;
+          phone?: string | null;
+          bio?: string;
+          major?: string;
+          graduation_year?: number | null;
+          avatar_url?: string | null;
+          preferred_contact?: "messaging"| "email" | "phone";
+          notify_messages?: boolean;
+          notify_listings?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        }
+      };
     };
   };
 }
@@ -177,3 +221,7 @@ export type ReportInsert = Database["public"]["Tables"]["reports"]["Insert"];
 
 export type Review = Database["public"]["Tables"]["reviews"]["Row"];
 export type ReviewInsert = Database["public"]["Tables"]["reviews"]["Insert"];
+
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
+export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
