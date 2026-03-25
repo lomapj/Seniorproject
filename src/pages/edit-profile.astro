@@ -55,7 +55,7 @@
             <!-- Avatar Upload -->
             <div class="flex items-center gap-6">
               <div class="relative shrink-0 group cursor-pointer" id="avatarUploadZone">
-                <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/webp" hidden/>
+                <input type="file" id="avatar" accept="image/png, image/jpeg, image/webp" hidden/>
                 <Avatar size="lg" variant="primary" class="w-24 h-24 text-3x1 border-4 border-card shadow-lg">
                   <img id="avatarPreview" src="" alt="Avatar" class="hidden w-full h-full object-cover rounded-full">
                   <AvatarFallback class="bg-primary text-primary-foreground" id="avatarInitials">...</AvatarFallback>
@@ -178,7 +178,7 @@
             </div>
             <div class="space-y-1.5">
               <Label for="confirmPassword">Confirm New Password</Label>
-              <Input id="confirmPassword" type="password" placeholder="Re-enter newpassword" autocomplete="new-password" class="pr-12" />
+              <Input id="confirmPassword" type="password" placeholder="Re-enter new password" autocomplete="new-password" class="pr-12" />
             </div>
          </CardContent>
         </Card>
@@ -191,3 +191,201 @@
     </div>
   </div>
 </Layout>
+
+<script>
+  import { supabase} from "../lib/supabase";
+
+  const form = document.getElementById("editProfileForm") as HTMLFormElement;
+  const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
+  const successBanner = document.getElementById("successBanner")!;
+  const errorBanner = document.getElementById("errorBanner")!;
+  const successText = document.getElementById("successText")!;
+  const errorText = document.getElementById("errorText")!;
+
+  const fullNameInput = document.getElementById("fullName") as HTMLInputElement;
+  const phoneInput = document.getElementById("phone") as HTMLInputElement;
+  const emailInput = document.getElementById("email") as HTMLInputElement;
+  const bioInput = document.getElementById("bio") as HTMLTextAreaElement;
+  const bioCount = document.getElementById("bioCount")!;
+  const majorInput = document.getElementById("major") as HTMLInputElement;
+  const graduationYearSelect = document.getElementById("graduationYear") as HTMLSelectElement;
+
+  const notifyMessagesSwitch = document.querySelector("#notifyMessages button[role='switch']") as HTMLButtonElement;
+  const notifyListingsSwitch = document.querySelector("#notifyListings button[role='switch']") as HTMLButtonElement;
+
+  const newPasswordInput = document.getElementById("newPassword") as HTMLInputElement;
+  const confirmPasswordText = document.getElementById("confirmPassword") as HTMLInputElement;
+
+  const avatarInput = document.getElementById("avatar") as HTMLInputElement;
+  const avatarUploadZone = document.getElementById("avatarUploadZone")!;
+  const avatarPreview = document.getElementById("avatarPreview") as HTMLImageElement;
+  const avatarInitials = document.getElementById("avatarInitials")!;
+  const removeAvatarButton = document.getElementById("removeAvatarButton") as HTMLButtonElement;
+
+  const toggleNewPassword = document.getElementById("toggleNewPassword")!;
+  const eyeOpenNew = document.getElementById("eyeOpenNew")!;
+  const eyeOffNew = document.getElementById("eyeOffNew")!;
+  toggleNewPassword.addEventListener("click", () => {
+    const isPassword = newPasswordInput.type === "password";
+    newPasswordInput.type = isPassword ? "text" : "password";
+    eyeOpenNew.style.display = isPassword ? "none" : "block";
+    eyeOffNew.style.display = isPassword ? "block" : "none";
+  });
+
+  bioInput.addEventListener("input", () => {
+    bioCount.textContent = `${bioInput.value.length}/300`;
+  });
+
+  let currentUserId: string | null = null;
+  let currentAvatarUrl: string | null = null;
+  let pendingAvatarFile: File | null = null;
+  let removeAvatar = false;
+
+  // Avatar Handling
+  avatarUploadZone.addEventListener("click", () => avatarInput.click());
+
+  avatarInput.addEventListener("change", () => {
+    const file = avatarInput.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      showError("Avatar file must be smaller than 2MB.");
+      return;
+    }
+
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      showError("Avatar file must be a PNG, JPEG, or WEBP image.");
+      return;
+    }
+
+    pendingAvatarFile = file;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      avatarPreview.src = event.target?.result as string;
+      avatarPreview.classList.remove("hidden");
+      avatarInitials.classList.add("hidden");
+      removeAvatarButton.classList.remove("hidden");
+    };
+    reader.readAsDataURL(file);
+  });
+
+  removeAvatarButton.addEventListener("click", () => {
+    pendingAvatarFile = null;
+    removeAvatar = true;
+    avatarPreview.classList.add("hidden");
+    avatarInitials.classList.remove("hidden");
+    removeAvatarButton.classList.add("hidden");
+    avatarInput.value = "";
+  });
+
+  async function uploadAvatarToStorage(userId: string, file: File): Promise<string> {
+    const ext = file.name.split(".").pop();
+    const path = `${userId}/avatar.${ext}`;
+
+    const { error } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { contentType: file.type, upsert: true });
+
+    if (error) {
+      throw error;
+    }
+
+    const { data: {publicUrl } } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(path);
+
+    return `${publicUrl}?t=${Date.now()}`;
+  }
+
+  async function deleteAvatarFromStorage(userId: string) {
+    const { data: files } = await supabase.storage
+      .from("avatars")
+      .list(userId);
+
+    if  (files && files.length > 0) {
+      const paths = files.map((file) => `${userId}/${file.name}`);
+      await supabase.storage.from("avatars").remove(paths);
+    }
+  }
+
+  async function loadProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+
+    currentUserId = user.id;
+    emailInput.value = user.email || "";
+
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (error) {
+      console.error("Failed to load profile: ", error);
+    }
+
+    if (profile) {
+      fullNameInput.value = profile.name || "";
+      phoneInput.value = profile.phone || "";
+      bioInput.value = profile.bio || "";
+      bioCount.textContent = `${profile.bio || ""}.length/300`;
+      majorInput.value = profile.major || "";
+      graduationYearSelect.value = profile.graduation_year?.toString() || "";
+
+      setSwitchState(notifyMessagesSwitch, profile.notify_messages ?? true);
+      setSwitchState(notifyListingsSwitch, profile.notify_listings ?? true);
+
+      if (profile.avatar_url) {
+        currentAvatarUrl = profile.avatar_url;
+        avatarPreview.src = profile.avatar_url;
+        avatarPreview.classList.remove("hidden");
+        avatarInitials.classList.add("hidden");
+        removeAvatarButton.classList.remove("hidden");
+      }
+      else {
+        avatarInitials.textContent = getInitials(profile.full_name || "");
+      }
+    }
+    else {
+      const meta = user.user_metadata;
+      fullNameInput.value = meta?.full_name || "";
+      phoneInput.value = meta?.phone || "";
+      avatarInitials.textContent = getInitials(meta?.full_name || "");
+    }
+  }
+
+  function showSuccess(message: string) {
+    successText.textContent = message;
+    successBanner.classList.remove("hidden");
+    errorBanner.classList.add("hidden");
+    successBanner.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function showError(message: string) {
+    errorText.textContent = message;
+    errorBanner.classList.remove("hidden");
+    successBanner.classList.add("hidden");
+    errorBanner.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function getInitials(name: string) {
+    return name.split(" ").map((name) => name[0]).join("").toUpperCase().slice(0, 2) || "U";
+  }
+
+  function getSwtichState(switchElement: HTMLButtonElement): boolean {
+    return switchElement?.getAttribute("aria-checked") === "true";
+  }
+
+  function setSwitchState(switchElement: HTMLButtonElement, checked: boolean) {
+    if (switchElement) {
+      switchElement.setAttribute("aria-checked", checked.toString());
+    }
+  }
+</script>
