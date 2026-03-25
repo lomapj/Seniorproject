@@ -17,6 +17,9 @@ import { Alert, AlertDescription } from "@/components/starwind/alert";
           <CardDescription>Sign in to your campus account</CardDescription>
         </CardHeader>
         <CardContent>
+          <Alert id="successBanner" variant="success" class="hidden mb-4">
+            <AlertDescription class="text-sm font-medium">Password updated! You can now sign in with your new password.</AlertDescription>
+          </Alert>
           <Alert id="errorBanner" variant="error" class="hidden mb-4">
             <AlertDescription id="errorText" class="text-sm font-medium"></AlertDescription>
           </Alert>
@@ -30,7 +33,7 @@ import { Alert, AlertDescription } from "@/components/starwind/alert";
             <div class="space-y-1.5 mb-4">
               <div class="flex justify-between items-center">
                 <Label for="password">Password</Label>
-                <a href="#" class="text-xs font-semibold text-primary hover:underline">Forgot?</a>
+                <a href="/auth/forgot-password" class="text-xs font-semibold text-primary hover:underline">Forgot?</a>
               </div>
               <div class="relative">
                 <Input id="password" type="password" placeholder="••••••••" autocomplete="current-password" class="pr-12" required />
@@ -97,6 +100,10 @@ import { Alert, AlertDescription } from "@/components/starwind/alert";
     if (eyeOpen) eyeOpen.style.display = showing ? "" : "none";
     if (eyeOff) eyeOff.style.display = showing ? "none" : "";
   });
+
+  if (new URLSearchParams(window.location.search).get("reset") === "success") {
+    document.getElementById("successBanner")?.classList.remove("hidden");
+  }
 
   // Check if already logged in
   supabase.auth.getSession().then(({ data: { session } }) => {
