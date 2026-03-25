@@ -98,3 +98,22 @@ model Review {
   @@map("reviews")
   @@schema("public")
 }
+
+// ── Profiles ─────────────────────────────────────────────────────────────────
+
+model Profile {
+  id                String   @id @db.Uuid
+  full_name         String   @default("")
+  phone             String?
+  bio               String   @default("")
+  major             String   @default("")
+  graduation_year   Int?
+  avatar_url        String?
+  notify_messages   Boolean  @default(true)
+  notify_listings   Boolean  @default(true)
+  created_at        DateTime @default(now()) @db.Timestamptz
+  updated_at        DateTime @default(now()) @updatedAt @db.Timestamptz
+
+  @@map("profiles")
+  @@schema("public")
+}
