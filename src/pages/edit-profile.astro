@@ -1,0 +1,193 @@
+---
+  import Layout from "../layouts/Layout.astro";
+  import { Card, CardContent, CardHeader, CardTitle, CardDescription} from "@/components/starwind/card";
+  import Button from "@/components/starwind/button/Button.astro";
+  import Label from "@/components/starwind/label/Label.astro";
+  import Input from "@/components/starwind/input/Input.astro";
+  import Textarea from "@/components/starwind/textarea/Textarea.astro";
+  import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-select";
+  import { Alert, AlertDescription } from "@/components/starwind/alert";
+  import Separator from "@/components/starwind/separator";
+  import Switch from "@/components/starwind/switch";
+  import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
+---
+
+<Layout title="Edit Profile">
+  <div class="bg-muted min-h-screen pb-16">
+    <!-- Header -->
+    <div class="h-40 bg-linear-to-br from-primary to-[#004d42] relative overflow-hidden">
+      <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+      <div class="absolute inset-0 bg-linear-to-b from-transparent to-black/20"></div>
+    </div>
+
+    <div class="mx-auto max-w-200 px-6 lg:px-8 -mt-12 relative z-10">
+      <!-- Success/Error Banners -->
+      <Alert id="successBanner" variant="success" class="hidden mb-4 items-start gap-3">
+        <AlertDescription id="successText" class="text-sm font-medium">Profile updated successfully!</AlertDescription>
+      </Alert>
+
+      <Alert id="errorBanner" variant="error" class="hidden mb-4">
+        <AlertDescription id="errprText" class="text-sm font-medium"></AlertDescription>
+      </Alert>
+
+      <!-- Page Title Row -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2x1 font-extrabold text-foreground tracking-tight">Edit Profile</h1>
+            <p class="text-sm text-muted-foreground mt-0.5">Update your personal information and preferences</p>
+        </div>
+        <Button variant="outline" size="sm" href="/profile" class="gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Profile
+        </Button>
+      </div>
+
+      <form id="editProfileForm" class="flex flex-col gap-6" novalidate>
+        <!-- Avatar & Personal Info -->
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-lg">Personal Information</CardTitle>
+            <CardDescription>This information is visible to other students on the marketplace.</CardDescription>
+          </CardHeader>
+          <CardContent class="flex flex-col gap-6">
+            <!-- Avatar Upload -->
+            <div class="flex items-center gap-6">
+              <div class="relative shrink-0 group cursor-pointer" id="avatarUploadZone">
+                <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/webp" hidden/>
+                <Avatar size="lg" variant="primary" class="w-24 h-24 text-3x1 border-4 border-card shadow-lg">
+                  <img id="avatarPreview" src="" alt="Avatar" class="hidden w-full h-full object-cover rounded-full">
+                  <AvatarFallback class="bg-primary text-primary-foreground" id="avatarInitials">...</AvatarFallback>
+                </Avatar>
+                <div class="absolute inset-0 rouned-full bg-black/40 flex items-center justify-center opacity-0 grouper-hover:opacity-100 transition-opacity">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2 2V8a2 2 0 0 1 2-2h412-3h612 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                </div>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-foreground">Profile Photo</p>
+                <p class="text-xs text-muted-foreground mt-0.5">Click to upload a new photo. PNG, JPEG, or WEBP</p>
+                <button type="button" id="removeAvatarButton" class="text-xs text-error font-semibold mt-1.5 hover:underline hiddne">Remove Photo</button>
+              </div>
+            </div>
+
+            <Separator />
+
+            <!-- Name & Phone Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <Label for="fullName">Full Name <span class="text-error">*</span></Label>
+                <Input id="fullName" type="text" placeholder="Full Name" autocomplete="name" required />
+              </div>
+              <div class="space-y-1.5">
+                <Label for="phone">Phone Number <span class="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+                <Input id="phone" type="tel" placeholder="(555)-000-0000" autocomplete="tel" />
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="space-y-1.5">
+              <Label for="email">Student Email</Label>
+              <Input id="email" type="email" disabled class="opacity-60 cursor-not-allowed" />
+              <span class="text-xs text-muted-foreground">Your student email cannot be changed.</span>
+            </div>
+
+            <!-- Bio -->
+            <div class="space-y-1.5">
+                <Label for="bio">Bio <span class="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+                <Textarea id="bio" rows={3} placeholder="Tell other students about yourself..." maxlength="300" />
+              <div class="flex justify-between text-xs text-muted-foreground">
+                <span>What you're studying, hobbies, etc.</span>
+                <span id="bioCount">0/300</span>
+              </div>
+            </div>
+
+            <!-- Major & Graduation Year -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <Label for="major">Major <span class="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+                <Input id="major" type="text" placeholder="e.g. Computer Science" />
+              </div>
+              <div class="space-y-1.5">
+                <Label for="graduationYear">Graduation Year <span class="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+                <NativeSelect id="graduationYear" class="w-full">
+                  <NativeSelectOption value="">Not specified</NativeSelectOption>
+                  <NativeSelectOption value="2026">2026</NativeSelectOption>
+                  <NativeSelectOption value="2027">2027</NativeSelectOption>
+                  <NativeSelectOption value="2028">2028</NativeSelectOption>
+                  <NativeSelectOption value="2029">2029</NativeSelectOption>
+                  <NativeSelectOption value="2030">2030</NativeSelectOption>
+                </NativeSelect>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Notification Preferences -->
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-lg">Notifications</CardTitle>
+            <CardDescription>Choose which email notifications you'd like to receive.</CardDescription>
+          </CardHeader>
+          <CardContent class="flex flex-col gap-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-semibold text-foreground">New Messages</p>
+                <p class="text-xs text-muted-foreground">Get notified when a buyer or seller messages you.</p>
+              </div>
+              <Switch id="notifyMessages" checked={true} variant="primary" />
+            </div>
+
+            <Separator />
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-semibold text-foreground">Listing Updates</p>
+                  <p class="text-xs text-muted-foreground"> Get notified when your listing status changes.</p>
+                </div>
+                <Switch id="notifyListings" checked={true} variant="primary" />
+              </div>
+          </CardContent>
+        </Card>
+
+        <!-- Change Password -->
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-lg">Change Password</CardTitle>
+            <CardDescription>Leave these fields blank if you don't want to change your password.</CardDescription>
+          </CardHeader>
+          <CardContent class="flex flex-col gap-4">
+            <div class="space-y-1.5">
+              <Label for="newPassowrd">New Password</Label>
+              <div class="relative">
+                <Input id="newPassowrd" type="password" placeholder="********" autocomplete="new-password" class="pr-12" />
+                <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1" id="toggleNewPassword" aria-label="Toggle password visibility">
+                  <svg id="eyeOpenNew" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg id="eyeOffNew" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              <Label for="confirmPassword">Confirm New Password</Label>
+              <Input id="confirmPassword" type="password" placeholder="Re-enter newpassword" autocomplete="new-password" class="pr-12" />
+            </div>
+         </CardContent>
+        </Card>
+
+        <div class="flex items-center justify-end gap-3">
+          <Button variant="outline" type="button" href="/profile">Cancel</Button>
+          <Button variant="primary" type="submit" id="saveButton" class="min-w-32">Save Changes</Button>
+        </div>
+      </form>
+    </div>
+  </div>
+</Layout>
