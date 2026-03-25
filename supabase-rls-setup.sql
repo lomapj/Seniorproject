@@ -96,3 +96,15 @@ ON reviews FOR INSERT
 WITH CHECK (auth.uid() = reviewer_id);
 
 -- NOTE: Listings policies already exist, skipped.
+
+-- ═══════════════════════════════════════════════════════════════
+-- EDIT LISTINGS
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE POLICY "Users can delete own listings"
+ON listings FOR DELETE
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own listings"
+ON listings FOR UPDATE
+USING (auth.uid() = user_id);

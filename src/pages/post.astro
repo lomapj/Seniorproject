@@ -27,6 +27,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                 <h2 class="text-lg font-extrabold text-foreground">Item Photos</h2>
                 <span class="text-sm text-muted-foreground">Up to 5 high-quality photos</span>
               </div>
+              <div class="grid grid-cols-5 gap-2 mb-4" id="existingPreviews"></div>
               <div class="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary hover:bg-primary/5" id="uploadZone">
                 <input type="file" id="fileInput" multiple accept="image/*" hidden />
                 <div class="w-15 h-15 bg-card border border-border rounded-full mx-auto mb-4 flex items-center justify-center text-primary shadow-sm">
@@ -184,7 +185,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
 
 <script>
   import { supabase } from "../lib/supabase";
-  import { uploadListingImage } from "../lib/api";
+  import { uploadListingImage, fetchListing, updateListing } from "../lib/api";
 
   const uploadZone = document.getElementById("uploadZone");
   const fileInput = document.getElementById("fileInput") as HTMLInputElement;
@@ -204,14 +205,31 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   const descCount = document.getElementById("descCount");
 
   let selectedFiles: File[] = [];
+  let keptImages: string[] = [];
+  const editId = new URLSearchParams(window.location.search).get("edit");
 
   function updatePreview() {
-    if (selectedFiles.length > 0) {
-      const url = URL.createObjectURL(selectedFiles[0]);
-      previewImg.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
+    if (keptImages.length > 0) {
+      previewImg.innerHTML = `<img src="${keptImages[0]}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
+    } else if (selectedFiles.length > 0) {
+      previewImg.innerHTML = `<img src="${URL.createObjectURL(selectedFiles[0])}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
     } else {
       previewImg.innerHTML = `<div class="text-center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><p class="text-xs font-semibold mt-1">Image preview</p></div>`;
     }
+  }
+
+  function renderExistingThumbs() {
+    const container = document.getElementById("existingPreviews")!;
+    container.innerHTML = keptImages.map((url, i) => `
+      <div class="preview-thumb"><img src="${url}" alt="existing" /><button type="button" class="thumb-remove existing-remove" data-index="${i}">&times;</button></div>
+    `).join("");
+    container.querySelectorAll<HTMLButtonElement>(".existing-remove").forEach(btn => {
+      btn.addEventListener("click", () => {
+        keptImages.splice(parseInt(btn.dataset.index ?? "0"), 1);
+        renderExistingThumbs();
+        updatePreview();
+      });
+    });
   }
 
   function renderThumbs() {
@@ -234,7 +252,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   }
 
   function addFiles(newFiles: File[]) {
-    const toAdd = newFiles.filter(f => f.type.startsWith("image/") && f.size <= 10 * 1024 * 1024).slice(0, 5 - selectedFiles.length);
+    const toAdd = newFiles.filter(f => f.type.startsWith("image/") && f.size <= 10 * 1024 * 1024).slice(0, 5 - keptImages.length - selectedFiles.length);
     selectedFiles = [...selectedFiles, ...toAdd];
     renderThumbs();
     updatePreview();
@@ -261,6 +279,35 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   const form = document.getElementById("listingForm") as HTMLFormElement;
   const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
 
+  // Edit Listing
+  if (editId) {
+    document.querySelector("h1")!.textContent = "Edit Listing";
+    submitBtn.textContent = "Save Changes";
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { window.location.href = "/login"; return; }
+      try {
+        const listing = await fetchListing(editId);
+        if (listing.user_id !== user.id) { window.location.href = "/profile"; return; }
+        titleInput.value = listing.title;
+        categoryInput.value = listing.category;
+        conditionInput.value = listing.condition;
+        priceInput.value = listing.price.toString();
+        (document.getElementById("status") as HTMLSelectElement).value = listing.status;
+        descriptionInput.value = listing.description;
+        titleCount!.textContent = `${listing.title.length}/80`;
+        descCount!.textContent = `${listing.description.length}/1000`;
+        previewTitle!.textContent = listing.title;
+        previewCat!.textContent = listing.category;
+        previewCondition!.textContent = listing.condition;
+        previewPrice!.textContent = `$${listing.price.toLocaleString()}`;
+        keptImages = listing.images ? [...listing.images] : [];
+        renderExistingThumbs();
+        updatePreview();
+      } catch { window.location.href = "/profile"; }
+    })();
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const title = titleInput.value.trim();
@@ -273,12 +320,10 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
     if (!title || !category || !condition || isNaN(price) || !description) { alert("Please fill in all required fields."); return; }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "Publishing...";
+    submitBtn.textContent = editId ? "Saving..." : "Publishing...";
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { alert("You must be logged in to post a listing."); submitBtn.disabled = false; submitBtn.textContent = "Publish Listing"; return; }
-
-    const sellerName = user.user_metadata?.full_name || user.email || "Seller";
+    if (!user) { alert("You must be logged in."); submitBtn.disabled = false; submitBtn.textContent = editId ? "Save Changes" : "Publish Listing"; return; }
 
     const imageUrls: string[] = [];
     for (const file of selectedFiles) {
@@ -288,14 +333,25 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       } catch (err: any) {
         alert(`Image upload failed: ${err.message}`);
         submitBtn.disabled = false;
-        submitBtn.textContent = "Publish Listing";
+        submitBtn.textContent = editId ? "Save Changes" : "Publish Listing";
         return;
       }
     }
 
-    const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName });
-    if (error) { alert(`Failed to publish: ${error.message}`); submitBtn.disabled = false; submitBtn.textContent = "Publish Listing"; return; }
-
-    window.location.href = "/marketplace";
+    if (editId) {
+      try {
+        await updateListing(editId, { title, category, condition, price, status, description, images: [...keptImages, ...imageUrls] });
+        window.location.href = `/item?id=${editId}`;
+      } catch (err: any) {
+        alert(`Failed to save: ${err.message}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Save Changes";
+      }
+    } else {
+      const sellerName = user.user_metadata?.full_name || user.email || "Seller";
+      const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName });
+      if (error) { alert(`Failed to publish: ${error.message}`); submitBtn.disabled = false; submitBtn.textContent = "Publish Listing"; return; }
+      window.location.href = "/marketplace";
+    }
   });
 </script>
