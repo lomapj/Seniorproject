@@ -109,7 +109,6 @@ model Profile {
   major             String   @default("")
   graduation_year   Int?
   avatar_url        String?
-  preferred_contact String   @default("messaging")
   notify_messages   Boolean  @default(true)
   notify_listings   Boolean  @default(true)
   created_at        DateTime @default(now()) @db.Timestamptz

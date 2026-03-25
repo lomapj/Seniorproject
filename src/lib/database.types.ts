@@ -166,7 +166,6 @@ export interface Database {
           major: string;
           graduation_year: number | null;
           avatar_url: string | null;
-          preferred_contact: "messaging"| "email" | "phone";
           notify_messages: boolean;
           notify_listings: boolean;
           created_at: string;
@@ -180,7 +179,6 @@ export interface Database {
           major?: string;
           graduation_year?: number | null;
           avatar_url?: string | null;
-          preferred_contact?: "messaging"| "email" | "phone";
           notify_messages?: boolean;
           notify_listings?: boolean;
           created_at?: string;
@@ -194,7 +192,6 @@ export interface Database {
           major?: string;
           graduation_year?: number | null;
           avatar_url?: string | null;
-          preferred_contact?: "messaging"| "email" | "phone";
           notify_messages?: boolean;
           notify_listings?: boolean;
           created_at?: string;
