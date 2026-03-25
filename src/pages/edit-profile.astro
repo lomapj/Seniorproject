@@ -210,8 +210,8 @@
   const majorInput = document.getElementById("major") as HTMLInputElement;
   const graduationYearSelect = document.getElementById("graduationYear") as HTMLSelectElement;
 
-  const notifyMessagesSwitch = document.querySelector("#notifyMessages button[role='switch']") as HTMLButtonElement;
-  const notifyListingsSwitch = document.querySelector("#notifyListings button[role='switch']") as HTMLButtonElement;
+  const notifyMessagesSwitch = document.getElementById("notifyMessages") as HTMLButtonElement;
+  const notifyListingsSwitch = document.getElementById("notifyListings") as HTMLButtonElement;
 
   const newPasswordInput = document.getElementById("newPassword") as HTMLInputElement;
   const confirmPasswordInput = document.getElementById("confirmPassword") as HTMLInputElement;
@@ -331,10 +331,10 @@
     }
 
     if (profile) {
-      fullNameInput.value = profile.name || "";
+      fullNameInput.value = profile.full_name || "";
       phoneInput.value = profile.phone || "";
       bioInput.value = profile.bio || "";
-      bioCount.textContent = `${profile.bio || ""}.length/300`;
+      bioCount.textContent = `${profile.bio.length || ""}/300`;
       majorInput.value = profile.major || "";
       graduationYearSelect.value = profile.graduation_year?.toString() || "";
 
