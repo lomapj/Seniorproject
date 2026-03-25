@@ -27,7 +27,7 @@
       </Alert>
 
       <Alert id="errorBanner" variant="error" class="hidden mb-4">
-        <AlertDescription id="errprText" class="text-sm font-medium"></AlertDescription>
+        <AlertDescription id="errorText" class="text-sm font-medium"></AlertDescription>
       </Alert>
 
       <!-- Page Title Row -->
@@ -78,8 +78,8 @@
             <!-- Name & Phone Row -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="space-y-1.5">
-                <Label for="fullName">Full Name <span class="text-error">*</span></Label>
-                <Input id="fullName" type="text" placeholder="Full Name" autocomplete="name" required />
+                <Label for="fullName">Full Name</Label>
+                <Input id="fullName" type="text" placeholder="Full Name" autocomplete="name" />
               </div>
               <div class="space-y-1.5">
                 <Label for="phone">Phone Number <span class="text-xs text-muted-foreground font-normal">(optional)</span></Label>
@@ -162,7 +162,7 @@
             <div class="space-y-1.5">
               <Label for="newPassowrd">New Password</Label>
               <div class="relative">
-                <Input id="newPassowrd" type="password" placeholder="********" autocomplete="new-password" class="pr-12" />
+                <Input id="newPassword" type="password" placeholder="********" autocomplete="new-password" class="pr-12" />
                 <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1" id="toggleNewPassword" aria-label="Toggle password visibility">
                   <svg id="eyeOpenNew" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -241,7 +241,6 @@
   let pendingAvatarFile: File | null = null;
   let removeAvatar = false;
 
-  // Avatar Handling
   avatarUploadZone.addEventListener("click", () => avatarInput.click());
 
   avatarInput.addEventListener("change", () => {
@@ -374,11 +373,6 @@
     const newPassword = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
 
-    if (!fullName) {
-      showError("Full name is required.");
-      return;
-    }
-
     if (newPassword) {
       if (newPassword.length < 8) {
         showError("Passwords must be at least 8 characters long.");
@@ -414,7 +408,7 @@
           phone: phone || null,
           bio: bio || null,
           major: major || null,
-          graduationYear: graduationYear || null,
+          graduation_year: graduationYear || null,
           avatar_url: avatarUrl,
           notify_messages: notifyMessages,
           notify_listings: notifyListings,
