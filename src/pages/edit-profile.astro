@@ -214,7 +214,7 @@
   const notifyListingsSwitch = document.querySelector("#notifyListings button[role='switch']") as HTMLButtonElement;
 
   const newPasswordInput = document.getElementById("newPassword") as HTMLInputElement;
-  const confirmPasswordText = document.getElementById("confirmPassword") as HTMLInputElement;
+  const confirmPasswordInput = document.getElementById("confirmPassword") as HTMLInputElement;
 
   const avatarInput = document.getElementById("avatar") as HTMLInputElement;
   const avatarUploadZone = document.getElementById("avatarUploadZone")!;
@@ -361,6 +361,104 @@
     }
   }
 
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const fullName = fullNameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const bio = bioInput.value.trim();
+    const major = majorInput.value.trim();
+    const graduationYear = graduationYearSelect.value ? parseInt(graduationYearSelect.value) : null;
+    const notifyMessages = getSwitchState(notifyMessagesSwitch);
+    const notifyListings = getSwitchState(notifyListingsSwitch);
+    const newPassword = newPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    if (!fullName) {
+      showError("Full name is required.");
+      return;
+    }
+
+    if (newPassword) {
+      if (newPassword.length < 8) {
+        showError("Passwords must be at least 8 characters long.");
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        showError("Passwords do not match.");
+        return;
+      }
+    }
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+
+    try {
+      let avatarUrl = currentAvatarUrl;
+
+      if (pendingAvatarFile && currentUserId) {
+        avatarUrl = await uploadAvatarToStorage(currentUserId, pendingAvatarFile);
+        pendingAvatarFile = null;
+      }
+      else if (removeAvatar && currentUserId) {
+        await deleteAvatarFromStorage(currentUserId);
+        avatarUrl = null;
+      }
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert({
+          id: currentUserId,
+          full_name: fullName,
+          phone: phone || null,
+          bio: bio || null,
+          major: major || null,
+          graduationYear: graduationYear || null,
+          avatar_url: avatarUrl,
+          notify_messages: notifyMessages,
+          notify_listings: notifyListings,
+        });
+
+      if (profileError) {
+        throw profileError;
+      }
+
+      const { error: metaError } = await supabase.auth.updateUser({
+        data: { full_name: fullName, phone: phone || undefined },
+      });
+
+      if (metaError) {
+        console.warn("Failed to sync auth metadata: ", metaError);
+      }
+
+      if (newPassword) {
+        const { error: passwordError } = await supabase.auth.updateUser({
+          password: newPassword,
+        });
+
+        if (passwordError) {
+          throw passwordError;
+        }
+
+        newPasswordInput.value = "";
+        confirmPasswordInput.value = "";
+      }
+
+      currentAvatarUrl = avatarUrl;
+      removeAvatar = false;
+
+      showSuccess("Profile successfully saved.");
+    }
+    catch (error: any) {
+      showError(error.message || "Something went wrong. Please try again.");
+    }
+    finally {
+      saveButton.disabled = false;
+      saveButton.textContent = "Save Changes";
+    }
+  });
+
   function showSuccess(message: string) {
     successText.textContent = message;
     successBanner.classList.remove("hidden");
@@ -379,7 +477,7 @@
     return name.split(" ").map((name) => name[0]).join("").toUpperCase().slice(0, 2) || "U";
   }
 
-  function getSwtichState(switchElement: HTMLButtonElement): boolean {
+  function getSwitchState(switchElement: HTMLButtonElement): boolean {
     return switchElement?.getAttribute("aria-checked") === "true";
   }
 
@@ -388,4 +486,6 @@
       switchElement.setAttribute("aria-checked", checked.toString());
     }
   }
+
+  loadProfile();
 </script>
