@@ -1,0 +1,293 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Card, CardContent } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/tabs";
+---
+
+<Layout title="User Reviews">
+	<div class="bg-muted min-h-screen pb-16">
+		<div class="mx-auto max-w-3xl px-6 lg:px-8 pt-8">
+			
+			<!-- Loading State -->
+			<div id="loadingState" class="animate-pulse space-y-6">
+				<div class="flex items-center gap-4">
+					<div class="w-20 h-20 rounded-full bg-muted border border-border"></div>
+					<div class="space-y-2">
+						<div class="h-6 w-48 bg-muted border border-border rounded"></div>
+						<div class="h-4 w-32 bg-muted border border-border rounded"></div>
+					</div>
+				</div>
+				<div class="h-24 bg-muted border border-border rounded-xl"></div>
+				<div class="h-48 bg-muted border border-border rounded-xl"></div>
+			</div>
+
+			<!-- Content (hidden until loaded) -->
+			<div id="pageContent" class="hidden space-y-8">
+
+				<!-- User Header -->
+				<div class="flex items-center gap-5">
+					<Avatar size="lg" variant="primary">
+						<AvatarFallback id="userInitials">?</AvatarFallback>
+					</Avatar>
+					<div>
+						<h1 class="text-2xl font-extrabold text-foreground" id="userName">User</h1>
+						<p class="text-sm text-muted-foreground mt-0.5" id="userSubtext">Member</p>
+					</div>
+				</div>
+
+				<!-- Rating Summary -->
+				<Card>
+					<CardContent class="py-6">
+						<div class="flex items-center gap-8 flex-wrap">
+							<!-- Overall Rating -->
+							<div class="flex items-center gap-3">
+								<span class="text-5xl font-extrabold text-foreground" id="overallRating">-</span>
+								<div>
+									<div class="flex items-center gap-0.5 text-amber-400 text-xl" id="overallStars"></div>
+									<p class="text-sm text-muted-foreground mt-0.5" id="overallCount">No reviews yet</p>
+								</div>
+							</div>
+
+							<div class="w-px h-14 bg-border hidden sm:block"></div>
+
+							<div class="flex gap-6">
+								<div class="text-center">
+									<p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">As Seller</p>
+									<p class="text-2xl font-extrabold text-foreground mt-1" id="sellerAverage">-</p>
+									<p class="text-xs text-muted-foreground" id="sellerCount">0 Reviews</p>
+								</div>
+								<div class="text-center">
+									<p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">As Buyer</p>
+									<p class="text-2xl font-extrabold text-foreground mt-1" id="buyerAverage">-</p>
+									<p class="text-xs text-muted-foreground" id="buyerCount">0 Reviews</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Rating Bars -->
+						<div class="mt-6 space-y-2" id="ratingBars"></div>
+					</CardContent>
+				</Card>
+
+				<!-- Tabs: All/As Seller/As Buyer -->
+				<Tabs defaultValue="all">
+					<TabsList>
+						<TabsTrigger value="all">All Reviews</TabsTrigger>
+						<TabsTrigger value="seller">As Seller</TabsTrigger>
+						<TabsTrigger value="buyer">As Buyer</TabsTrigger>
+					</TabsList>
+
+					<TabsContent value="all">
+						<div id="allReviewsList" class="space-y-4 mt-4"></div>
+						<p id="noAllReviews" class="hidden text-muted-foreground text-center py-8">No reviews yet</p>
+					</TabsContent>
+
+					<TabsContent value="seller">
+						<div id="sellerReviewsList" class="space-y-4 mt-4"></div>
+						<p id="noSellerReviews" class="hidden text-muted-foreground text-center py-8">No reviews as a seller yet</p>
+					</TabsContent>
+
+					<TabsContent value="buyer">
+						<div id="buyerReviewsList" class="space-y-4 mt-4"></div>
+						<p id="noBuyerReviews" class="hidden text-muted-foreground text-center py-8">No reviews as a buyer yet</p>
+					</TabsContent>
+				</Tabs>
+			</div>
+
+			<!-- Error State -->
+			<div id="errorState" class="hidden text-center py-20">
+				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-muted-foreground mb-4">
+					<circle cx="12" cy="12" r="10"></circle>
+					<line x1="15" y1="9" x2="9" y2="15"></line>
+					<line x1="9" y1="9" x2="15" y2="15"></line>
+				</svg>
+				<h2 class="text-xl font-bold text-foreground mb-2">User not found</h2>
+				<p class="text-muted-foreground mb-4">We couldn't load this user's reviews</p>
+				<Button variant="outline" href="/marketplace">Back to Marketplace</Button>
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<script>
+	import { supabase } from "@/lib/supabase.ts";
+	import { fetchUserReviews, fetchUserRating, fetchUserNames } from "../lib/api.ts";
+	import type { Review } from "@/lib/api";
+
+	function renderStars(rating: number):string {
+		const full = Math.floor(rating);
+		const half = rating - full >= 0.5 ? 1 : 0;
+		const empty = 5 - full - half;
+		return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
+	}
+
+	function timeAgo(dateString: string): string {
+		const now = Date.now();
+		const date = new Date(dateString).getTime();
+		const difference = now - date;
+		const minutes = Math.floor(difference / 60000);
+
+		if (minutes < 1) {
+			return "Just now";
+		}
+		if (minutes < 60) {
+			return `${minutes}m ago`;
+		}
+		const hours = Math.floor(minutes/60);
+		if (hours < 24) {
+			return `${hours}h ago`;
+		}
+		const days = Math.floor(hours / 24);
+		if (days < 30) {
+			return `${days}d ago`;
+		}
+		const months = Math.floor(days / 30);
+		if (months < 12) {
+			return `${months}mo ago`;
+		}
+
+		return `${Math.floor(months / 12)}y ago`;
+	}
+
+	function renderReviewCard(review: Review) {
+		const typeLabel = review.review_type === "buyer_to_seller"
+			? '<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-blue-500/10 text-blue-600 border border-blue-200">Buyer → Seller</span>'
+			: '<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 border border-emerald-200">Seller → Buyer</span>';
+
+		return `
+			<div class="p-5 rounded-xl border border-border bg-card hover:border-primary/20 transition-colors">
+				<div class="flex items-start justify-between gap-3 mb-3">
+					<div class="flex items-center gap-3">
+						<div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+							${(review.reviewer_name || "?").split(" ").map((word: string) => word[0]).join("").toUpperCase().slice(0, 2)}
+						</div>
+						<div>
+							<p class="text-sm font-bold text-foreground">${review.reviewer_name} || "Anonymous"</p>
+							<p class="text-xs text-muted-foreground">${timeAgo(review.created_at)}</p>
+						</div>
+					</div>
+					${typeLabel}
+				</div>
+				<div class="flex items-center gap-2 mb-2">
+					<span class="text-amber-400 text-base">${renderStars(review.rating)}</span>
+					<span class="text-sm font-bold text-foreground">${review.rating}/5</span>
+				</div>
+				${review.comment ? `<p class="text-sm text-muted-foreground leading-relaxed"></p>` : ""}
+			</div>
+		`;
+	}
+
+	function renderRatingBars(reviews: Review[]): string {
+		const counts = [0, 0, 0, 0, 0];
+		for (const review of reviews) {
+			const idx = Math.min(4, Math.max(0, review.rating - 1));
+			counts[idx]++;
+		}
+
+		const total = reviews.length || 1;
+
+		return [5, 4, 3, 2, 1]
+			.map((star) => {
+				const count = counts[star - 1];
+				const pct = Math.round((count / total) * 100);
+
+				return `
+					<div class="flex items-center gap-3 text-sm">
+						<span class="w-8 text-right font-bold text-foreground">${star}★</span>
+						<div class="flex-1 h-2.5 rounded-full bg-muted border border-border overflow-hiddne">
+							<div class="h-full rounded-full bg-amber-400 transition-all" style="width: ${pct}%"></div>
+						</div>
+					</div>
+				`;
+			})
+			.join("");
+	}
+
+	async function loadPage() {
+		const parameters = new URLSearchParams(window.location.search);
+		const userId = parameters.get("id");
+
+		if (!userId) {
+			showError();
+			return;
+		}
+
+		try {
+			const names = await fetchUserNames([userId]);
+			const userName = names[userId] || "User";
+			const initials = userName.split(" ").map((word) => word[0]).join("").toUpperCase().slice(0, 2) || "?";
+
+			const [rating, reviews] = await Promise.all([
+				fetchUserRating(userId),
+				fetchUserReviews(userId),
+			]);
+
+			document.getElementById("loadingState")!.classList.add("hidden");
+			document.getElementById("pageContent")!.classList.remove("hidden");
+
+			document.getElementById("userInitials")!.textContent = initials;
+			document.getElementById("userName")!.textContent = userName;
+			document.getElementById("userSubtext")!.textContent = rating.count > 0
+				? `${rating.average} out of 5 · ${rating.count} reviews${rating.count !== 1 ? "s" : ""}`
+				: "No reviews yet";
+
+			if (rating.count > 0) {
+				document.getElementById("overallRating")!.textContent = rating.average.toString();
+				document.getElementById("overallStars")!.innerHTML = renderStars(rating.average);
+				document.getElementById("overallCount")!.textContent = `${rating.count} review${rating.count !== 1 ? "s" : ""}`;
+			}
+
+			// Breakdown
+			if (rating.asSeller.count > 0) {
+				document.getElementById("sellerAvg")!.textContent = rating.asSeller.average.toString();
+				document.getElementById("sellerCount")!.textContent = `${rating.asSeller.count} review${rating.asSeller.count !== 1 ? "s" : ""}`;
+			}
+			if (rating.asBuyer.count > 0) {
+				document.getElementById("buyerAvg")!.textContent = rating.asBuyer.average.toString();
+				document.getElementById("buyerCount")!.textContent = `${rating.asBuyer.count} review${rating.asBuyer.count !== 1 ? "s" : ""}`;
+			}
+
+			document.getElementById("ratingBars")!.innerHTML = renderRatingBars(reviews);
+
+			const sellerReviews = reviews.filter((review) => review.review_type === "buyer_to_seller");
+			const buyerReviews = reviews.filter((review) => review.review_type === "seller_to_buyer");
+
+			const allList = document.getElementById("allReviewsList")!;
+			if (reviews.length === 0) {
+				document.getElementById("noAllReviews")!.classList.remove("hidden");
+			}
+			else {
+				allList.innerHTML = reviews.map(renderReviewCard).join("");
+			}
+
+			const sellerList = document.getElementById("sellerReviewsList")!;
+			if (sellerReviews.length === 0) {
+				document.getElementById("noSellerReviews")!.classList.remove("hidden");
+			}
+			else {
+				sellerList.innerHTML = sellerReviews.map(renderReviewCard).join("");
+			}
+
+			const buyerList = document.getElementById("buyerReviewsList")!;
+			if (buyerReviews.length === 0) {
+				document.getElementById("noBuyerReviews")!.classList.remove("hidden");
+			}
+			else {
+				buyerList.innerHTML = buyerReviews.map(renderReviewCard).join("");
+			}
+		}
+		catch (err) {
+			console.error("Failed to load reviews page:", err);
+			showError();
+		}
+	}
+
+	function showError() {
+		document.getElementById("loadingState")!.classList.add("hidden");
+		document.getElementById("errorState")!.classList.remove("hidden");
+	}
+
+	loadPage();
+</script>

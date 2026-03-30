@@ -84,17 +84,22 @@ model Report {
 // ── Reviews ─────────────────────────────────────────────────────────────────
 
 model Review {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  listing_id  String   @db.Uuid
-  reviewer_id String   @db.Uuid
-  seller_id   String   @db.Uuid
-  rating      Int
-  comment     String?
-  created_at  DateTime @default(now()) @db.Timestamptz
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  listing_id        String   @db.Uuid
+  reviewer_id       String   @db.Uuid
+  seller_id         String   @db.Uuid
+  reviewed_user_id  String @db.Uuid
+  review_type       String @default("buyer_to_seller") // 'buyer_to_seller' | 'seller_to_buyer'
+  reviewer_name     String @default("Anonymous")
+  rating            Int
+  comment           String?
+  created_at        DateTime @default(now()) @db.Timestamptz
 
   listing Listing @relation(fields: [listing_id], references: [id], onDelete: Cascade)
 
   @@unique([listing_id, reviewer_id])
+  @@index([reviewer_user_id])
+  @@index([reviewer_id])
   @@map("reviews")
   @@schema("public")
 }

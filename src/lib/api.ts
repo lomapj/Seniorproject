@@ -33,6 +33,13 @@ export interface SellerRating {
   count: number;
 }
 
+export interface UserRating {
+  average: number;
+  count: number;
+  asSeller: { average: number; count: number; };
+  asBuyer: { average: number; count: number; };
+}
+
 // ── Listings ───────────────────────────────────────────────────────────────────
 
 /** Fetch all available listings, newest first. Optional filters. */
@@ -372,8 +379,11 @@ export async function hasReported(
 export async function submitReview(
   listingId: string,
   reviewerId: string,
+  reviewedUserId: string,
   sellerId: string,
   rating: number,
+  reviewType: "buyer_to_seller" | "seller_to_buyer",
+  reviewerName: string,
   comment?: string,
 ): Promise<Review> {
   const { data, error } = await supabase
@@ -382,6 +392,9 @@ export async function submitReview(
       listing_id: listingId,
       reviewer_id: reviewerId,
       seller_id: sellerId,
+      reviewed_user_id: reviewedUserId,
+      review_type: reviewType,
+      reviewer_name: reviewerName,
       rating: Math.min(5, Math.max(1, Math.round(rating))),
       comment: comment || null,
     })
@@ -404,7 +417,50 @@ export async function fetchSellerReviews(
   const { data, error } = await supabase
     .from("reviews")
     .select("*")
-    .eq("seller_id", sellerId)
+    .eq("reviewed_user_id", sellerId)
+    .eq("review_type", "buyer_to_seller")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []) as Review[];
+}
+
+/** Fetch all reviews about a user (both as seller and as buyer). */
+export async function fetchUserReviews(
+  userId: string,
+): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("reviewed_user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []) as Review[];
+}
+
+/** Fetch all reviews a user has left. */
+export async function fetchReviewsByUser(
+  userId: string,
+): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("reviewer_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []) as Review[];
+}
+
+/** Fetch reviews for a specific listing. */
+export async function fetchListingReviews(
+  listingId: string,
+): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("listing_id", listingId)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -418,7 +474,8 @@ export async function fetchSellerRating(
   const { data, error } = await supabase
     .from("reviews")
     .select("rating")
-    .eq("seller_id", sellerId);
+    .eq("reviewed_user_id", sellerId)
+    .eq("review_type", "buyer_to_seller");
 
   if (error) throw error;
 
@@ -432,10 +489,69 @@ export async function fetchSellerRating(
   };
 }
 
+/** Get a user's full rating breakdown (as seller and as buyer). */
+export async function fetchUserRating(
+  userId: string,
+): Promise<UserRating> {
+  const { data, error } = await supabase
+  .from("reviews")
+    .select("rating, review_type")
+    .eq("reviewed_user_id", userId);
+
+  if (error) throw error;
+
+  const all = data ?? [];
+  if (all.length === 0) {
+    return {
+      average: 0,
+      count: 0,
+      asSeller: { average: 0, count: 0 },
+      asBuyer: { average: 0, count: 0 },
+    };
+  }
+
+  const sellerReviews = all.filter((review: any) => review.review_type === "buyer_to_seller");
+  const buyerReviews = all.filter((review: any) => review.review_type === "seller_to_buyer");
+
+  function average(arr: any[]) {
+    if (arr.length === 0) {
+      return { average: 0, count: 0 };
+    }
+
+    const sum = arr.reduce((acc: number, r: any) => acc + r.rating, 0);
+    return {
+      average: Math.round((sum / arr.length) * 10) / 10,
+      count: arr.length
+    };
+  }
+
+  const overall = average(all);
+  return {
+    ...overall,
+    asSeller: average(sellerReviews),
+    asBuyer: average(buyerReviews),
+  };
+}
+
+/** Check if a user has already reviewed a specific listing. */
+export async function hasReviewed(
+  listingId: string,
+  reviewerId: string,
+): Promise<boolean> {
+  const { count, error } = await supabase
+    .from("reviews")
+    .select("*", { count: "exact", head: true})
+    .eq("listing_id", listingId)
+    .eq("reviewer_id", reviewerId);
+
+  if (error) throw error;
+  return (count ?? 0) > 0;
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 /** Fetch display names for a list of user IDs via Supabase auth admin or profiles. */
-async function fetchUserNames(
+export async function fetchUserNames(
   userIds: string[],
 ): Promise<Record<string, string>> {
   // Since we can't call auth.admin from the client, we look up seller_name

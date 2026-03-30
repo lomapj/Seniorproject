@@ -134,6 +134,9 @@ export interface Database {
           listing_id: string;
           reviewer_id: string;
           seller_id: string;
+          reviewed_user_id: string;
+          review_type: "buyer_to_seller" | "seller_to_buyer";
+          reviewer_name: string;
           rating: number;
           comment: string | null;
           created_at: string;
@@ -143,6 +146,9 @@ export interface Database {
           listing_id: string;
           reviewer_id: string;
           seller_id: string;
+          reviewed_user_id: string;
+          review_type: "buyer_to_seller" | "seller_to_seller";
+          reviewer_name: string;
           rating: number;
           comment?: string | null;
           created_at?: string;
@@ -152,6 +158,9 @@ export interface Database {
           listing_id?: string;
           reviewer_id?: string;
           seller_id?: string;
+          reviewed_user_id: string;
+          review_type: "buyer_to_seller" | "seller_to_seller";
+          reviewer_name: string;
           rating?: number;
           comment?: string | null;
           created_at?: string;
