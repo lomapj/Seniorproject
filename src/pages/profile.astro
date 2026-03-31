@@ -71,6 +71,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             Sold Items
           </TabsTrigger>
+          <TabsTrigger value="reviews">Reviews</TabsTrigger>
         </TabsList>
 
       <!-- Listings Panel -->
@@ -130,6 +131,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
           </Table>
         </div>
       </TabsContent>
+      
+        <TabsContent value="reviews" class="flex flex-col gap-4">
+          <h2 class="text-2xl font-extrabold text-foreground mb-2">Reviews About Me</h2>
+          <div id="reviewsLoading" class="animate-pulse space-y-3">
+            <div class="h-20 bg-muted rounded-xl"></div>
+            <div class="h-20 bg-muted rounded-xl"></div>
+          </div>
+          <div id="reviewsEmpty" class="hidden text-center py-12">
+            <p class="text-muted-foreground">No reviews yet</p>
+          </div>
+          <div id="reviewsList" class="hidden space-y-4"></div>
+          <div id="reviewsViewAll" class="hidden text-center mt-2">
+            <a id="viewAllReviewsLink" href="/reviews" class="text-sm font-semibold text-primary hover:underline"> View all reviews</a>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   </div>
@@ -137,7 +153,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 <script>
   import { supabase } from "../lib/supabase";
-  import { fetchUserListings, deleteListing, updateListing, fetchSellerRating, type Listing } from "../lib/api";
+  import { fetchUserListings, deleteListing, updateListing, fetchUserRating, fetchUserReviews, timeAgo, type Listing, type Review } from "../lib/api";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
     Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
@@ -169,15 +185,64 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
     // Fetch and display seller rating
     try {
-      const { average, count } = await fetchSellerRating(user.id);
+      const rating = await fetchUserRating(user.id);
       const ratingEl = document.getElementById("ratingValue");
       if (ratingEl) {
-        ratingEl.innerHTML = count > 0
-          ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${average}`
-          : '—';
+        ratingEl.innerHTML = rating.count > 0
+          ? `<a href="/reviews?id=${user.id}" class="inline-flex items-center gap-1 hover:underline"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${rating.average} <span class="text-muted-foreground text-xs">(${rating.count})</span></a>`
+          : `<span class="text-muted-foreground">&mdash;</span>`;
+      }
+    }
+    catch (err) {
+      console.error("Failed to load user rating:", err);
+    }
+    
+    // Load reviews for the Reviews tab
+    try {
+      const reviews = await fetchUserReviews(user.id);
+      document.getElementById("reviewsLoading")!.classList.add("hidden");
+      
+      if (reviews.length === 0) {
+        document.getElementById("reviewsEmpty")!.classList.remove("hidden");
+      }
+      else {
+        const reviewsList = document.getElementById("reviewsList")!;
+        reviewsList.classList.remove("hidden");
+        reviewsList.innerHTML = reviews.slice(0, 5).map((r: Review) => {
+          const typeLabel = r.review_type === "buyer_to_seller"
+            ? `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-blue-500/10 text-blue-600 border border-blue-200">Buyer \u2192 Seller</span>`
+            : `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 border border-emerald-200">Seller \u2192 Buyer</span>`;
+          const stars = "\u2605".repeat(Math.floor(r.rating)) + "\u2606".repeat(5 - Math.floor(r.rating));
+          const reviewerInitials = (r.reviewer_name || "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+          const timeAgoStr = timeAgo(r.created_at);
+          
+          return `
+            <div class="p-4 rounded-xl border border-border bg-card">
+              <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">${reviewerInitials}</div>
+                  <div>
+                    <span class="text-sm font-bold text-foreground">${r.reviewer_name || "Anonymous"}</span>
+                    <span class="text-xs text-muted-foreground ml-2">${timeAgoStr}</span>
+                  </div>
+                </div>
+                ${typeLabel}
+              </div>
+              <div class="text-amber-400 text-sm mb-1">${stars}</div>
+              ${r.comment ? `<p class="text-sm text-muted-foreground">${r.comment}</p>` : ""}
+            </div>
+          `;
+        }).join("");
+        
+        if (reviews.length > 5) {
+          const viewAll = document.getElementById("reviewsViewAll")!;
+          viewAll.classList.remove("hidden");
+          document.getElementById("viewAllReviewsLink")!.setAttribute("href", `/reviews?id=${user.id}`);
+        }
       }
     } catch (err) {
-      console.error("Failed to load seller rating:", err);
+      console.error("Failed to load reviews:", err);
+      document.getElementById("reviewsLoading")!.classList.add("hidden");
     }
 
     try {
