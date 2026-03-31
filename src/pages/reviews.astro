@@ -112,9 +112,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/
 </Layout>
 
 <script>
-	import { supabase } from "@/lib/supabase.ts";
+	import { supabase } from "../lib/supabase.ts";
 	import { fetchUserReviews, fetchUserRating, fetchUserNames, timeAgo } from "../lib/api.ts";
-	import type { Review } from "@/lib/api";
+	import type { Review } from "../lib/api";
 	
 	function escapeHtml(string: string):string {
 		const div = document.createElement("div");
@@ -124,9 +124,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/
 
 	function renderStars(rating: number):string {
 		const full = Math.floor(rating);
-		const half = rating - full >= 0.5 ? 1 : 0;
-		const empty = 5 - full - half;
-		return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
+		const empty = 5 - full;
+		return "★".repeat(full) + "☆".repeat(empty);
 	}
 
 	function renderReviewCard(review: Review) {
@@ -175,10 +174,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/
 				return `
 					<div class="flex items-center gap-3 text-sm">
 						<span class="w-8 text-right font-bold text-foreground">${star}★</span>
-						<div class="flex-1 h-2.5 rounded-full bg-muted border border-border overflow-hiddne">
+						<div class="flex-1 h-2.5 rounded-full bg-muted border border-border overflow-hidden">
 							<div class="h-full rounded-full bg-amber-400 transition-all" style="width: ${pct}%"></div>
 						</div>
-						<span class="w-8 text-muted foreground text-xs">${count}</span>
+						<span class="w-8 text-muted-foreground text-xs">${count}</span>
 					</div>
 				`;
 			})
@@ -210,7 +209,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/
 			document.getElementById("userInitials")!.textContent = initials;
 			document.getElementById("userName")!.textContent = userName;
 			document.getElementById("userSubtext")!.textContent = rating.count > 0
-				? `${rating.average} out of 5 · ${rating.count} reviews${rating.count !== 1 ? "s" : ""}`
+				? `${rating.average} out of 5 · ${rating.count} review${rating.count !== 1 ? "s" : ""}`
 				: "No reviews yet";
 
 			if (rating.count > 0) {
@@ -220,11 +219,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/
 			}
 			
 			if (rating.asSeller.count > 0) {
-				document.getElementById("sellerAvg")!.textContent = rating.asSeller.average.toString();
+				document.getElementById("sellerAverage")!.textContent = rating.asSeller.average.toString();
 				document.getElementById("sellerCount")!.textContent = `${rating.asSeller.count} review${rating.asSeller.count !== 1 ? "s" : ""}`;
 			}
 			if (rating.asBuyer.count > 0) {
-				document.getElementById("buyerAvg")!.textContent = rating.asBuyer.average.toString();
+				document.getElementById("buyerAverage")!.textContent = rating.asBuyer.average.toString();
 				document.getElementById("buyerCount")!.textContent = `${rating.asBuyer.count} review${rating.asBuyer.count !== 1 ? "s" : ""}`;
 			}
 
