@@ -195,8 +195,16 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
 </Layout>
 
 <script>
-  import { fetchListing, fetchSellerRating, fetchSellerReviews, submitReport, submitReview } from "../lib/api";
   import { supabase } from "../lib/supabase";
+  import {
+    fetchListing,
+    fetchSellerRating,
+    fetchListingReviews,
+    submitReview,
+    submitReport,
+    hasReported,
+    hasReviewed,
+  } from "../lib/api";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
     Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
@@ -215,30 +223,26 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
   };
 
   function timeAgo(dateStr: string): string {
-    const now = new Date();
-    const date = new Date(dateStr);
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins} min ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 30) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-    return date.toLocaleDateString();
+    const now = Date.now();
+    const then = new Date(dateStr).getTime();
+    const diff = now - then;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 30) return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    return months < 12 ? `${months}mo ago` : `${Math.floor(months / 12)}y ago`;
   }
 
   function renderStars(rating: number): string {
-    const full = Math.floor(rating);
-    const half = rating - full >= 0.5 ? 1 : 0;
-    const empty = 5 - full - half;
-    return '<span class="text-amber-400">' +
-      "\u2605".repeat(full) +
-      (half ? "\u2605" : "") +
-      '</span>' +
-      '<span class="text-muted-foreground">' +
-      "\u2606".repeat(empty - (half ? 0 : 0)) +
-      '</span>';
+    return Array.from({ length: 5 }, (_, i) =>
+      `<span class="${i < Math.round(rating) ? 'text-amber-400' : 'text-muted-foreground'}" style="font-size:1rem;">` +
+      (i < Math.floor(rating) ? '\u2605' : (i < rating ? '\u2605' : '\u2606')) +
+      '</span>'
+    ).join('');
   }
 
   function renderStarsPlain(rating: number): string {
@@ -298,20 +302,19 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       const initials = sellerName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
       document.getElementById("sellerInitials")!.textContent = initials || "?";
 
-      // Seller rating
+      // ── Seller rating (links to /reviews page) ───────────
       try {
         const rating = await fetchSellerRating(item.user_id);
         const sellerRatingEl = document.getElementById("sellerRating");
         if (sellerRatingEl && rating.count > 0) {
-          sellerRatingEl.innerHTML = `<span class="text-amber-400">${renderStarsPlain(rating.average)}</span> ${rating.average} <span class="text-muted-foreground">(${rating.count} review${rating.count !== 1 ? "s" : ""})</span>`;
+          sellerRatingEl.innerHTML = `<a href="/reviews?id=${item.user_id}" class="inline-flex items-center gap-1 hover:underline transition-colors"><span class="text-amber-400">${renderStarsPlain(rating.average)}</span> <span class="font-bold">${rating.average}</span> <span class="text-muted-foreground">(${rating.count} review${rating.count !== 1 ? "s" : ""})</span></a>`;
         } else if (sellerRatingEl) {
-          sellerRatingEl.textContent = "No ratings yet";
+          sellerRatingEl.innerHTML = `<a href="/reviews?id=${item.user_id}" class="text-muted-foreground hover:underline">No ratings yet</a>`;
         }
       } catch (e) {
         console.error("Failed to load seller rating:", e);
       }
 
-      // Message Seller links - update hrefs with seller/listing context
       const msgHref = `/messages?to=${item.user_id}&listing=${item.id}`;
       const sellerCardMsgBtn = document.getElementById("sellerCardMsgBtn");
       const actionMsgBtn = document.getElementById("actionMsgBtn");
@@ -339,64 +342,58 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
         mainImage.innerHTML = `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover" />`;
 
         thumbStrip.innerHTML = item.images.map((img: string, i: number) => `
-          <button type="button" class="thumb-btn flex-1 aspect-square rounded-lg overflow-hidden transition-all ${i === 0 ? "border-2 border-primary opacity-100 shadow-sm" : "border-2 border-transparent opacity-60 hover:opacity-100"}" data-img="${img}">
-            <img src="${img}" alt="Thumbnail ${i + 1}" class="w-full h-full object-cover" />
+          <button type="button" class="thumb-btn flex-1 aspect-square rounded-lg overflow-hidden transition-all ${i === 0 ? "ring-2 ring-primary" : "opacity-60 hover:opacity-100"} border border-border">
+            <img src="${img}" alt="Thumb ${i + 1}" class="w-full h-full object-cover" />
           </button>
         `).join("");
+
+        thumbStrip.querySelectorAll(".thumb-btn").forEach((btn, i) => {
+          btn.addEventListener("click", () => {
+            mainImage.innerHTML = `<img src="${item.images[i]}" alt="${item.title}" class="w-full h-full object-cover" />`;
+            thumbStrip.querySelectorAll(".thumb-btn").forEach((b, j) => {
+              if (j === i) {
+                b.classList.add("ring-2", "ring-primary");
+                b.classList.remove("opacity-60");
+              } else {
+                b.classList.remove("ring-2", "ring-primary");
+                b.classList.add("opacity-60");
+              }
+            });
+          });
+        });
       } else {
         mainImage.style.background = gradient;
-        mainImage.innerHTML = `<span class="text-[8rem] drop-shadow-lg">${icon}</span>`;
-        thumbStrip.innerHTML = "";
+        mainImage.innerHTML = `<span class="text-7xl">${icon}</span>`;
       }
 
-      // Show content
       document.getElementById("loadingState")!.classList.add("hidden");
       document.getElementById("itemContent")!.classList.remove("hidden");
 
-      // Thumbnail click handler
-      thumbStrip.querySelectorAll<HTMLButtonElement>(".thumb-btn").forEach((thumb) => {
-        thumb.addEventListener("click", () => {
-          thumbStrip.querySelectorAll(".thumb-btn").forEach((t) => {
-            t.classList.remove("border-primary", "opacity-100", "shadow-sm");
-            t.classList.add("border-transparent", "opacity-60");
-          });
-          thumb.classList.add("border-primary", "opacity-100", "shadow-sm");
-          thumb.classList.remove("border-transparent", "opacity-60");
-          const imgSrc = thumb.getAttribute("data-img");
-          if (imgSrc) {
-            mainImage.innerHTML = `<img src="${imgSrc}" alt="${item.title}" class="w-full h-full object-cover" />`;
-          }
-        });
-      });
-
-      // ── Report Dialog Handler ──────────────────────────────────────────
-      const reportSubmitBtn = document.getElementById("reportSubmitBtn");
-      if (reportSubmitBtn) {
-        reportSubmitBtn.addEventListener("click", async () => {
-          const reportStatus = document.getElementById("reportStatus")!;
-          if (!currentUserId) {
-            reportStatus.innerHTML = `<p class="text-sm text-error">You must be logged in to report a listing.</p>`;
-            return;
-          }
+      // ── Report Section ─────────────────────────────────────────────────
+      if (currentUserId && currentUserId !== item.user_id) {
+        const reportSubmitBtn = document.getElementById("reportSubmitBtn");
+        reportSubmitBtn?.addEventListener("click", async () => {
           const reason = (document.getElementById("reportReason") as HTMLSelectElement)?.value;
           const details = (document.getElementById("reportDetails") as HTMLTextAreaElement)?.value;
+          const reportStatus = document.getElementById("reportStatus")!;
+
           try {
-            reportSubmitBtn.setAttribute("disabled", "true");
-            reportSubmitBtn.textContent = "Submitting...";
+            (reportSubmitBtn as HTMLButtonElement).disabled = true;
+            reportSubmitBtn!.textContent = "Submitting...";
             await submitReport(id, currentUserId, reason, details || undefined);
             reportStatus.innerHTML = `<p class="text-sm text-success font-semibold">Report submitted. Thank you for helping keep our community safe.</p>`;
             (reportSubmitBtn as HTMLButtonElement).disabled = true;
-            reportSubmitBtn.textContent = "Report Submitted";
+            reportSubmitBtn!.textContent = "Report Submitted";
           } catch (err: any) {
             const msg = err?.message || "Failed to submit report.";
             reportStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
             (reportSubmitBtn as HTMLButtonElement).disabled = false;
-            reportSubmitBtn.textContent = "Submit Report";
+            reportSubmitBtn!.textContent = "Submit Report";
           }
         });
       }
 
-      // ── Review Section (sold items only) ───────────────────────────────
+      // ── Review Section ────────────────────
       if (item.status === "sold") {
         const reviewSection = document.getElementById("reviewSection")!;
         reviewSection.classList.remove("hidden");
@@ -405,21 +402,36 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
           const reviewsList = document.getElementById("reviewsList")!;
           const noReviews = document.getElementById("noReviews")!;
           try {
-            const reviews = await fetchSellerReviews(item.user_id);
+            const reviews = await fetchListingReviews(item.user_id);
             if (reviews.length === 0) {
               reviewsList.innerHTML = "";
               noReviews.classList.remove("hidden");
             } else {
               noReviews.classList.add("hidden");
-              reviewsList.innerHTML = reviews.map(r => `
-                <div class="p-4 rounded-lg border border-border bg-card">
-                  <div class="flex items-center gap-2 mb-2">
-                    <span class="text-amber-400">${renderStarsPlain(r.rating)}</span>
-                    <span class="text-sm text-muted-foreground">${timeAgo(r.created_at)}</span>
+              reviewsList.innerHTML = reviews.map(r => {
+                const typeLabel = r.review_type === "buyer_to_seller"
+                  ? `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-blue-500/10 text-blue-600 border border-blue-200">Buyer \u2192 Seller</span>`
+                  : `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 border border-emerald-200">Seller \u2192 Buyer</span>`;
+                const reviewerInitials = (r.reviewer_name || "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+                return `
+                  <div class="p-4 rounded-lg border border-border bg-card">
+                    <div class="flex items-start justify-between mb-2">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">${reviewerInitials}</div>
+                        <div>
+                          <span class="text-sm font-bold text-foreground">${r.reviewer_name || "Anonymous"}</span>
+                          <span class="text-xs text-muted-foreground ml-2">${timeAgo(r.created_at)}</span>
+                        </div>
+                      </div>
+                      ${typeLabel}
+                    </div>
+                    <div class="flex items-center gap-1 mb-1">
+                      <span class="text-amber-400">${renderStarsPlain(r.rating)}</span>
+                    </div>
+                    ${r.comment ? `<p class="text-sm text-muted-foreground">${r.comment}</p>` : ""}
                   </div>
-                  ${r.comment ? `<p class="text-sm text-foreground">${r.comment}</p>` : ""}
-                </div>
-              `).join("");
+                `;
+              }).join("");
             }
             return reviews;
           } catch (e) {
@@ -428,59 +440,104 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
           }
         }
 
-        const reviews = await loadReviews();
+        await loadReviews();
 
-        // Show review form if current user is NOT the seller and hasn't reviewed yet
-        if (currentUserId && currentUserId !== item.user_id) {
-          const alreadyReviewed = reviews.some(r => r.reviewer_id === currentUserId);
+        if (currentUserId) {
+          const alreadyReviewed = await hasReviewed(id, currentUserId);
+
           if (!alreadyReviewed) {
-            const reviewForm = document.getElementById("reviewForm")!;
-            reviewForm.classList.remove("hidden");
+            const isSeller = currentUserId === item.user_id;
+            let canReview = false;
+            let reviewType: "buyer_to_seller" | "seller_to_buyer" = "buyer_to_seller";
+            let reviewedUserId = "";
+            let reviewLabel = "Leave a Review";
 
-            let selectedRating = 0;
-            const starBtns = document.querySelectorAll<HTMLButtonElement>("#starSelector .star-btn");
-            const starLabel = document.getElementById("starLabel")!;
+            if (!isSeller) {
+              canReview = true;
+              reviewType = "buyer_to_seller";
+              reviewedUserId = item.user_id;
+              reviewLabel = "Rate the Seller";
+            } else {
+              try {
+                const { data: convos } = await supabase
+                  .from("conversations")
+                  .select("buyer_id")
+                  .eq("listing_id", id)
+                  .eq("seller_id", currentUserId);
 
-            starBtns.forEach((btn) => {
-              btn.addEventListener("click", () => {
-                selectedRating = parseInt(btn.getAttribute("data-star") || "0");
-                starLabel.textContent = `${selectedRating} of 5`;
-                starBtns.forEach((b) => {
-                  const val = parseInt(b.getAttribute("data-star") || "0");
-                  if (val <= selectedRating) {
-                    b.classList.remove("text-muted-foreground");
-                    b.classList.add("text-amber-400");
-                  } else {
-                    b.classList.add("text-muted-foreground");
-                    b.classList.remove("text-amber-400");
-                  }
+                if (convos && convos.length > 0) {
+                  reviewedUserId = convos[0].buyer_id;
+                  canReview = true;
+                  reviewType = "seller_to_buyer";
+                  reviewLabel = "Rate the Buyer";
+                }
+              } catch (e) {
+                console.error("Failed to find buyer for review:", e);
+              }
+            }
+
+            if (canReview) {
+              const reviewForm = document.getElementById("reviewForm")!;
+              reviewForm.classList.remove("hidden");
+
+              const formHeading = reviewForm.querySelector("h3");
+              if (formHeading) formHeading.textContent = reviewLabel;
+
+              let selectedRating = 0;
+              const starBtns = document.querySelectorAll<HTMLButtonElement>("#starSelector .star-btn");
+              const starLabel = document.getElementById("starLabel")!;
+
+              starBtns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                  selectedRating = parseInt(btn.getAttribute("data-star") || "0");
+                  starLabel.textContent = `${selectedRating} of 5`;
+                  starBtns.forEach((b) => {
+                    const val = parseInt(b.getAttribute("data-star") || "0");
+                    if (val <= selectedRating) {
+                      b.classList.remove("text-muted-foreground");
+                      b.classList.add("text-amber-400");
+                    } else {
+                      b.classList.add("text-muted-foreground");
+                      b.classList.remove("text-amber-400");
+                    }
+                  });
                 });
               });
-            });
 
-            const reviewSubmitBtn = document.getElementById("reviewSubmitBtn")!;
-            reviewSubmitBtn.addEventListener("click", async () => {
-              const reviewStatus = document.getElementById("reviewStatus")!;
-              if (selectedRating === 0) {
-                reviewStatus.innerHTML = `<p class="text-sm text-error">Please select a star rating.</p>`;
-                return;
-              }
-              const comment = (document.getElementById("reviewComment") as HTMLTextAreaElement)?.value;
-              try {
-                (reviewSubmitBtn as HTMLButtonElement).disabled = true;
-                reviewSubmitBtn.textContent = "Submitting...";
-                await submitReview(id, currentUserId, item.user_id, selectedRating, comment || undefined);
-                reviewStatus.innerHTML = `<p class="text-sm text-success font-semibold">Review submitted!</p>`;
-                reviewSubmitBtn.textContent = "Review Submitted";
-                // Refresh reviews list
-                await loadReviews();
-              } catch (err: any) {
-                const msg = err?.message || "Failed to submit review.";
-                reviewStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
-                (reviewSubmitBtn as HTMLButtonElement).disabled = false;
-                reviewSubmitBtn.textContent = "Submit Review";
-              }
-            });
+              const reviewSubmitBtn = document.getElementById("reviewSubmitBtn")!;
+              reviewSubmitBtn.addEventListener("click", async () => {
+                const reviewStatus = document.getElementById("reviewStatus")!;
+                if (selectedRating === 0) {
+                  reviewStatus.innerHTML = `<p class="text-sm text-error">Please select a star rating.</p>`;
+                  return;
+                }
+                const comment = (document.getElementById("reviewComment") as HTMLTextAreaElement)?.value;
+                const reviewerName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Anonymous";
+
+                try {
+                  (reviewSubmitBtn as HTMLButtonElement).disabled = true;
+                  reviewSubmitBtn.textContent = "Submitting...";
+                  await submitReview(
+                    id,
+                    currentUserId,
+                    reviewedUserId,
+                    item.user_id,
+                    selectedRating,
+                    reviewType,
+                    reviewerName,
+                    comment || undefined
+                  );
+                  reviewStatus.innerHTML = `<p class="text-sm text-success font-semibold">Review submitted! Thank you.</p>`;
+                  reviewSubmitBtn.textContent = "Review Submitted \u2713";
+                  await loadReviews();
+                } catch (err: any) {
+                  const msg = err?.message || "Failed to submit review.";
+                  reviewStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
+                  (reviewSubmitBtn as HTMLButtonElement).disabled = false;
+                  reviewSubmitBtn.textContent = "Submit Review";
+                }
+              });
+            }
           }
         }
       }

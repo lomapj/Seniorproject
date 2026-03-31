@@ -113,7 +113,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/
 
 <script>
 	import { supabase } from "@/lib/supabase.ts";
-	import { fetchUserReviews, fetchUserRating, fetchUserNames } from "../lib/api.ts";
+	import { fetchUserReviews, fetchUserRating, fetchUserNames, timeAgo } from "../lib/api.ts";
 	import type { Review } from "@/lib/api";
 
 	function renderStars(rating: number):string {
@@ -121,34 +121,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/
 		const half = rating - full >= 0.5 ? 1 : 0;
 		const empty = 5 - full - half;
 		return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
-	}
-
-	function timeAgo(dateString: string): string {
-		const now = Date.now();
-		const date = new Date(dateString).getTime();
-		const difference = now - date;
-		const minutes = Math.floor(difference / 60000);
-
-		if (minutes < 1) {
-			return "Just now";
-		}
-		if (minutes < 60) {
-			return `${minutes}m ago`;
-		}
-		const hours = Math.floor(minutes/60);
-		if (hours < 24) {
-			return `${hours}h ago`;
-		}
-		const days = Math.floor(hours / 24);
-		if (days < 30) {
-			return `${days}d ago`;
-		}
-		const months = Math.floor(days / 30);
-		if (months < 12) {
-			return `${months}mo ago`;
-		}
-
-		return `${Math.floor(months / 12)}y ago`;
 	}
 
 	function renderReviewCard(review: Review) {

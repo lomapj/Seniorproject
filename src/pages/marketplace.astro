@@ -106,7 +106,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
 </style>
 
 <script>
-  import { fetchListings, type Listing } from "../lib/api";
+  import { fetchListings, fetchSellerRating, type Listing } from "../lib/api";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
     Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
@@ -187,6 +187,9 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
           <h3 class="text-base font-bold text-foreground leading-tight line-clamp-2">${item.title}</h3>
           <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
             <span class="text-xl font-extrabold text-primary">$${item.price}</span>
+            <div class="seller-rating text-xs text-muted-foreground" data-seller-id="${item.user_id}">
+              <span class="text-amber-400/50">★★★★★</span>
+            </div>
             <span class="text-sm font-semibold text-muted-foreground">${sellerName.split(" ")[0]}</span>
           </div>
         </div>
@@ -207,6 +210,39 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     emptyState.classList.add("hidden");
     listingGrid.classList.remove("hidden");
     listingGrid.innerHTML = listings.map(renderCard).join("");
+    
+    async function loadCardRatings() {
+      const ratingElements = document.querySelectorAll<HTMLElement>(".seller-rating[data-seller-id]");
+      const sellerIds = [...new Set(Array.from(ratingElements).map(element => element.dataset.sellerId!))];
+      
+      const ratingMap: Record<string, { average: number; count: number }> = {};
+      await Promise.all(
+        sellerIds.map(async (sellerId) => {
+          try {
+            ratingMap[sellerId] = await fetchSellerRating(sellerId);
+          }
+          catch (_) {
+            ratingMap[sellerId] = { average: 0, count: 0 };
+          }
+        })
+      );
+      
+      ratingElements.forEach(element => {
+        const sellerId = element.dataset.sellerId!;
+        const rating = ratingMap[sellerId];
+        if (rating && rating.count > 0) {
+          const full = Math.floor(rating.average);
+          const empty = 5 - full;
+          element.innerHTML = `<span class="text-amber-400">${"\u2605".repeat(full)}${"\u2606".repeat(empty)}</span> <span>${rating.average}</span>`;
+        }
+        else {
+          element.innerHTML = `<span class="text-muted-foreground">No ratings</span>`;
+        }
+      });
+    }
+    
+    loadCardRatings();
+    
     resultsCount.textContent = listings.length.toString();
 
     // Animate cards in
