@@ -1,0 +1,335 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Card, CardContent } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import Badge from "@/components/starwind/badge/Badge.astro";
+import Separator from "@/components/starwind/separator/Separator.astro";
+import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/tabs";
+---
+
+<Layout title="User Profile">
+	<div class="bg-muted min-h-screen pb-16">
+		<!-- Cover -->
+		<div class="relative pb-8">
+				<div class="h-60 bg-linear-to-br from-primary to-[#004d42] relative overflow-hidden">
+						<div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+						<div class="absolute inset-0 bg-linear-to-b from-transparent to-black/20"></div>
+				</div>
+			<div class="mx-auto max-w-7xl px-6 lg:px-8">
+				<Card class="shadow-xl -mt-20 relative z-10">
+					<CardContent class="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start pt-6">
+						<!-- Avatar -->
+						<div class="relative shrink-0">
+							<Avatar size="lg" variant="primary" class="w-35 h-35 text-5xl border-6 border-card shadow-lg"><AvatarFallback class="bg-primary text-primary-foreground" id="profileInitials">...</AvatarFallback></Avatar>
+							<img id="profileAvatarImage" src="" alt="" class="hidden absolute inset-0 w-35 h-35 rounded-full object-cover border-6 border-card shadow-lg" />
+						</div>
+
+						<div class="flex-1 text-center md:text-left">
+							<div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-2 mb-2">
+								<h1 class="text-3xl font-extrabold text-foreground tracking-tight" id="profileName">Loading...</h1>
+								<Button variant="primary" size="sm" class="gap-1.5" href="/messages" id="messageButton">
+									<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+									Message
+								</Button>
+							</div>
+
+							<!-- Badges row -->
+							<div class="flex items-center gap-3 flex-wrap justify-center md:justify-start mb-3">
+								<Badge variant="ghost" size="sm" class="text-primary bg-primary/10">Student @ FSC</Badge>
+								<span id="profileMajorBadge" class="hidden">
+									<Badge variant="ghost" size="sm" class="text-foreground bg-muted-foreground/10" id="profileMajorText"></Badge>
+								</span>
+								<span id="profileGraduationBadge" class="hidden">
+									<Badge variant="ghost" size="sm" class="text-foreground bg-muted-foreground/10" id="profileGraduationText"></Badge>
+								</span>
+							</div>
+
+								<!-- Bio -->
+								<p class="text-sm text-muted-foreground leading-relaxed max-w-150 mb-4 hidden" id="profileBio"></p>
+
+								<div class="flex items-center gap-6 justify-center md:justify-start">
+									<div class="flex flex-col"><span class="text-xl font-extrabold text-foreground" id="listingCount">0</span><span class="text-xs font-semibold text-muted-foreground uppercase">Listings</span></div>
+									<Separator orientation="vertical" class="h-8" />
+									<div class="flex flex-col">
+										<span class="text-xl font-extrabold text-foreground flex items-center gap-1" id="ratingValue">
+											<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+										</span>
+										<span class="text-xs font-semibold text-muted-foreground uppercase">Rating</span>
+									</div>
+								</div>
+							</div>
+					</CardContent>
+				</Card>
+			</div>
+		</div>
+
+		<!-- Loading state -->
+		<div id="loadingState" class="mx-auto max-w-7xl px-6 lg:px-8 mt-8">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				{Array.from({ length: 4 }).map(() => (
+					<div class="bg-card rounded-xl border border-border overflow-hidden animate-pulse">
+						<div class="h-40 bg-muted"></div>
+						<div class="p-4 space-y-2">
+							<div class="h-4 w-16 bg-muted rounded"></div>
+							<div class="h-5 w-3/4 bg-muted rounded"></div>
+							<div class="h-6 w-20 bg-muted rounded"></div>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+
+		<!-- Error state -->
+		<div id="errorState" class="hidden text-center py-20 mx-auto max-w-7xl px-6 lg:px-8">
+			<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-muted-foreground mb-4">
+				<circle cx="12" cy="12" r="10"></circle>
+				<line x1="15" y1="9" x2="9" y2="15"></line>
+				<line x1="9" y1="9" x2="15" y2="15"></line>
+			</svg>
+			<h2 class="text-xl font-bold text-foreground mb-2">User not found</h2>
+			<p class="text-muted-foreground mb-4">We couldn't find this user's profile.</p>
+			<Button variant="outline" href="/marketplace">Back to Marketplace</Button>
+		</div>
+
+		<!-- Tabs Content (hidden until loaded) -->
+		<div id="tabsSection" class="hidden mx-auto max-w-7xl px-6 lg:px-8 mt-8">
+			<Tabs defaultValue="listings">
+				<TabsList class="w-full justify-start bg-transparent border-b-2 border-border rounded-none mb-8 p-0">
+					<TabsTrigger value="listings" class="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+						Listings
+					</TabsTrigger>
+					<TabsTrigger value="reviews" class="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+						Reviews
+					</TabsTrigger>
+				</TabsList>
+
+				<!-- Listings Panel -->
+				<TabsContent value="listings" class="flex flex-col gap-6">
+					<h2 class="text-2xl font-extrabold text-foreground">Listings</h2>
+					<div id="listingsEmpty" class="hidden text-center py-12">
+						<p class="text-muted-foreground">This user hasn't posted any listings yet.</p>
+					</div>
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="listingsGrid"></div>
+				</TabsContent>
+
+				<!-- Reviews Panel -->
+				<TabsContent value="reviews" class="flex flex-col gap-4">
+					<div class="flex items-center justify-between">
+						<h2 class="text-2xl font-extrabold text-foreground">Reviews</h2>
+						<a id="viewAllReviewsLink" href="/reviews" class="text-sm font-semibold text-primary hover:underline hidden">View all reviews →</a>
+					</div>
+					<div id="reviewsEmpty" class="hidden text-center py-12">
+						<p class="text-muted-foreground">No reviews yet.</p>
+					</div>
+					<div id="reviewsList" class="space-y-4"></div>
+				</TabsContent>
+			</Tabs>
+		</div>
+	</div>
+</Layout>
+
+<script>
+	import { supabase } from "../lib/supabase";
+	import { fetchUserListings, fetchUserRating, fetchUserReviews, timeAgo, type Listing, type Review } from "../lib/api";
+	
+	const CATEGORY_GRADIENTS: Record<string, string> = {
+		Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
+		Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
+		Furniture: "linear-gradient(135deg,#a0522d,#cd853f)",
+		Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
+		Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
+	};
+	
+	const CATEGORY_ICONS: Record<string, string> = {
+		Books: "\u{1F4D7}",
+		Electronics: "\u{1F4BB}",
+		Furniture: "\u{1FA91}",
+		Clothing: "\u{1F9E5}",
+		Misc: "\u{1F4E6}",
+	};
+	
+	async function loadUserProfile() {
+		const parameters = new URLSearchParams(window.location.search);
+		const userId = parameters.get("id");
+		
+		if (!userId) {
+			showError();
+			return;
+		}
+		
+		const { data: { user } } = await supabase.auth.getUser();
+		if (user && user.id === userId) {
+			window.location.href = "/profile";
+			return;
+		}
+		
+		try {
+			const { data: profile, error } = await supabase
+				.from("profiles")
+				.select("*")
+				.eq("id", userId)
+				.single();
+			
+			if (error || !profile) {
+				showError();
+				return;
+			}
+			
+			const fullName = profile.full_name || "User";
+			const initials = fullName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2) || "U";
+			
+			document.getElementById("profileName")!.textContent = fullName;
+			document.getElementById("profileInitials")!.textContent = initials;
+			
+			if (profile.avatar_url) {
+				const avatarImg = document.getElementById("profileAvatarImage") as HTMLImageElement;
+				avatarImg.src = profile.avatar_url;
+				avatarImg.alt = fullName;
+				avatarImg.classList.remove("hidden");
+				document.getElementById("profileInitials")!.classList.add("hidden");
+			}
+			
+			if (profile.bio && profile.bio.trim()) {
+				const bioEl = document.getElementById("profileBio")!;
+				bioEl.textContent = profile.bio;
+				bioEl.classList.remove("hidden");
+			}
+			
+			if (profile.major && profile.major.trim()) {
+				document.getElementById("profileMajorText")!.textContent = profile.major;
+				document.getElementById("profileMajorBadge")!.classList.remove("hidden");
+			}
+			
+			if (profile.graduation_year) {
+				document.getElementById("profileGraduationText")!.textContent = `Class of ${profile.graduation_year}`;
+				document.getElementById("profileGraduationBadge")!.classList.remove("hidden");
+			}
+			
+			// Message button
+			const messageButton = document.getElementById("messageButton");
+			if (messageButton) {
+				messageButton.setAttribute("href", `/messages?to=${userId}`);
+			}
+			
+			// Fetch rating
+			try {
+				const rating = await fetchUserRating(userId);
+				const ratingElement = document.getElementById("ratingValue");
+				if (ratingElement) {
+					ratingElement.innerHTML = rating.count > 0
+						? `<a href="/reviews?id=${userId}" class="inline-flex items-center gap-1 hover:underline"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${rating.average} <span class="text-muted-foreground text-xs">(${rating.count})</span></a>`
+						: `<span class="text-muted-foreground">&mdash;</span>`;
+				}
+			}
+			catch (err) {
+				console.error("Failed to load rating:", err);
+			}
+			
+			// Fetch listings (only available ones for public view)
+			try {
+				const allListings = await fetchUserListings(userId);
+				const available = allListings.filter((l) => l.status === "available");
+				
+				document.getElementById("listingCount")!.textContent = available.length.toString();
+				
+				if (available.length === 0) {
+					document.getElementById("listingsEmpty")!.classList.remove("hidden");
+				}
+				else {
+					const grid = document.getElementById("listingsGrid")!;
+					grid.innerHTML = available.map((item) => renderListingCard(item)).join("");
+				}
+			}
+			catch (err) {
+				console.error("Failed to load listings:", err);
+			}
+			
+			// Fetch reviews
+			try {
+				const reviews = await fetchUserReviews(userId);
+				
+				if (reviews.length === 0) {
+					document.getElementById("reviewsEmpty")!.classList.remove("hidden");
+				}
+				else {
+					const reviewsList = document.getElementById("reviewsList")!;
+					const displayReviews = reviews.slice(0, 10);
+					reviewsList.innerHTML = displayReviews.map((review: Review) => {
+						const typeLabel = review.review_type === "buyer_to_seller"
+							? `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-blue-500/10 text-blue-600 border border-blue-200">Buyer \u2192 Seller</span>`
+							: `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 border border-emerald-200">Seller \u2192 Buyer</span>`;
+						const stars = "\u2605".repeat(Math.floor(review.rating)) + "\u2606".repeat(5 - Math.floor(review.rating));
+						const reviewerInitials = (review.reviewer_name || "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+						
+						return `
+              <div class="p-4 rounded-xl border border-border bg-card">
+                <div class="flex items-start justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">${reviewerInitials}</div>
+                    <div>
+                      <span class="text-sm font-bold text-foreground">${review.reviewer_name || "Anonymous"}</span>
+                      <span class="text-xs text-muted-foreground ml-2">${timeAgo(review.created_at)}</span>
+                    </div>
+                  </div>
+                  ${typeLabel}
+                </div>
+                <div class="text-amber-400 text-sm mb-1">${stars}</div>
+                ${review.comment ? `<p class="text-sm text-muted-foreground">${review.comment}</p>` : ""}
+              </div>
+            `;
+					}).join("");
+					
+					if (reviews.length > 10) {
+						const viewAllLink = document.getElementById("viewAllReviewsLink")!;
+						viewAllLink.setAttribute("href", `/reviews?id=${userId}`);
+						viewAllLink.classList.remove("hidden");
+					}
+				}
+			}
+			catch (err) {
+				console.error("Failed to load reviews:", err);
+			}
+			
+			// Show content, hide loading
+			document.getElementById("loadingState")!.classList.add("hidden");
+			document.getElementById("tabsSection")!.classList.remove("hidden");
+			
+		}
+		catch (err) {
+			console.error("Failed to load user profile:", err);
+			showError();
+		}
+	}
+	
+	function renderListingCard(item: Listing): string {
+		const gradient = CATEGORY_GRADIENTS[item.category] || "linear-gradient(135deg,#6b7280,#9ca3af)";
+		const icon = CATEGORY_ICONS[item.category] || "\u{1F4E6}";
+		const hasImage = item.images && item.images.length > 0;
+		
+		return `
+      <a href="/item?id=${item.id}" class="bg-card rounded-xl border border-border overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all block no-underline text-inherit">
+        <div class="h-40 flex items-center justify-center relative" style="background: ${gradient}">
+          ${hasImage
+			? `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover" />`
+			: `<span class="text-5xl drop-shadow-md">${icon}</span>`
+		}
+        </div>
+        <div class="p-4 flex flex-col gap-0.5">
+          <span class="text-xs font-bold text-muted-foreground uppercase">${item.category}</span>
+          <h3 class="text-base font-extrabold text-foreground">${item.title}</h3>
+          <p class="text-lg font-extrabold text-primary">$${item.price}</p>
+        </div>
+      </a>
+    `;
+	}
+	
+	function showError() {
+		document.getElementById("loadingState")!.classList.add("hidden");
+		document.getElementById("errorState")!.classList.remove("hidden");
+	}
+	
+	loadUserProfile();
+</script>

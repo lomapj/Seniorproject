@@ -103,13 +103,13 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
           <!-- Seller Card -->
           <Card size="sm" class="shadow-md">
             <CardContent class="flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3">
+              <a id="sellerProfileLink" href="/user" class="flex items-center gap-3 no-underline text-inherit hover:opacity-80 transition-opacity">
                 <Avatar size="lg" variant="primary" class="w-14 h-14 text-xl shadow-md"><AvatarFallback class="bg-primary text-primary-foreground font-extrabold" id="sellerInitials">?</AvatarFallback></Avatar>
                 <div class="flex flex-col gap-0.5">
-                  <span class="text-base font-extrabold text-foreground" id="sellerName">Seller</span>
+                  <span class="text-base font-extrabold text-foreground hover:text-primary transition-colors" id="sellerName">Seller</span>
                   <span class="text-sm text-muted-foreground" id="sellerRating"></span>
                 </div>
-              </div>
+              </a>
               <Button variant="outline" size="sm" href="/messages" id="sellerCardMsgBtn">Message</Button>
             </CardContent>
           </Card>
@@ -301,6 +301,10 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       document.getElementById("sellerName")!.textContent = sellerName;
       const initials = sellerName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
       document.getElementById("sellerInitials")!.textContent = initials || "?";
+      const sellerProfileLink = document.getElementById("sellerProfileLink");
+      if (sellerProfileLink) {
+        sellerProfileLink.setAttribute("href", `/user?id=${item.user_id}`);
+      }
 
       // ── Seller rating (links to /reviews page) ───────────
       try {
