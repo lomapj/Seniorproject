@@ -558,19 +558,35 @@ export async function fetchUserNames(
   // from listings created by these users as a fallback.
   const nameMap: Record<string, string> = {};
 
-  if (userIds.length === 0) return nameMap;
+  if (userIds.length === 0) {
+    return nameMap;
+  }
 
-  const { data, error } = await supabase
-    .from("listings")
-    .select("user_id, seller_name")
-    .in("user_id", userIds)
-    .not("seller_name", "is", null);
+  const { data: profiles, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, full_name")
+    .in("id", userIds);
 
-  if (error) return nameMap;
+  if (!profileError && profiles) {
+    for (const profile of profiles) {
+      if (profile.full_name) {
+        nameMap[profile.id] = profile.full_name;
+      }
+    }
+  }
 
-  for (const row of data ?? []) {
-    if (row.seller_name && !nameMap[row.user_id]) {
-      nameMap[row.user_id] = row.seller_name;
+  const missing = userIds.filter((id) => !nameMap[id]);
+  if (missing.length > 0) {
+    const { data: listings } = await supabase
+      .from("listings")
+      .select("user_id, seller_name")
+      .in("user_id", userIds)
+      .not("seller_name", "is", null);
+
+    for (const row of listings ?? []) {
+      if (row.seller_name && !nameMap[row.user_id]) {
+        nameMap[row.user_id] = row.seller_name;
+      }
     }
   }
 
