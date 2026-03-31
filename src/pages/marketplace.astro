@@ -107,6 +107,8 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
 
 <script>
   import { fetchListings, fetchSellerRating, type Listing } from "../lib/api";
+  import { supabase } from "@/lib/supabase.ts";
+  import { fetchSavedListingIds, toggleSaveListing } from "@/lib/api.ts";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
     Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
@@ -258,13 +260,24 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     listingGrid.querySelectorAll(".listing-card").forEach((card) => observer.observe(card));
   }
 
-  function applyClientFilters() {
+  async function applyClientFilters() {
     const min = parseFloat(priceMin.value || "0");
     const max = parseFloat(priceMax.value || "Infinity") || Infinity;
     const params = new URLSearchParams(window.location.search);
     const query = (params.get("q") || params.get("search"))?.toLowerCase() || "";
     const savedOnly = params.get("saved") === "true";
-    const savedIds = new Set(JSON.parse(localStorage.getItem("fsc_marketplace_saved") || "[]").map((id: any) => id.toString()));
+    const { data: { user } } = await supabase.auth.getUser();
+    let savedIds: Set<String> = new Set();
+    
+    if (user) {
+      const { data } = await supabase
+        .from("saved_listings")
+        .select("listing_id")
+        .eq("user_id", user.id);
+      
+      savedIds = new Set((data ?? []).map((row: any) => row.listing_id.toString()));
+    }
+    
 
     let filtered = allListings;
 

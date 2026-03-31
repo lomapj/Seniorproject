@@ -593,6 +593,35 @@ export async function fetchUserNames(
   return nameMap;
 }
 
+/** Calculate how long ago a date string was from now. */
+export function timeAgo(dateString: string): string {
+  const now = Date.now();
+  const date = new Date(dateString).getTime();
+  const difference = now - date;
+  const minutes = Math.floor(difference / 60000);
+  
+  if (minutes < 1) {
+    return "Just now";
+  }
+  if (minutes < 60) {
+    return `${minutes}m ago`;
+  }
+  const hours = Math.floor(minutes/60);
+  if (hours < 24) {
+    return `${hours}h ago`;
+  }
+  const days = Math.floor(hours / 24);
+  if (days < 30) {
+    return `${days}d ago`;
+  }
+  const months = Math.floor(days / 30);
+  if (months < 12) {
+    return `${months}mo ago`;
+  }
+  
+  return `${Math.floor(months / 12)}y ago`;
+}
+
 // ── Storage ───────────────────────────────────────────────────────────────────
 
 const BUCKET = "listing-images";
@@ -633,30 +662,60 @@ export async function deleteListingImages(urls: string[]): Promise<void> {
   if (error) throw error;
 }
 
-export function timeAgo(dateString: string): string {
-  const now = Date.now();
-  const date = new Date(dateString).getTime();
-  const difference = now - date;
-  const minutes = Math.floor(difference / 60000);
+// ── Saved Listings ─────────────────────────────────────────────────────────────
+
+/** Get all saved listing IDs for the current user. */
+export async function fetchSavedListingIds(userId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("saved_listings")
+    .select("listing_id")
+    .eq("user_id", userId);
   
-  if (minutes < 1) {
-    return "Just now";
-  }
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-  const hours = Math.floor(minutes/60);
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
-  const days = Math.floor(hours / 24);
-  if (days < 30) {
-    return `${days}d ago`;
-  }
-  const months = Math.floor(days / 30);
-  if (months < 12) {
-    return `${months}mo ago`;
+  if (error) {
+    throw error;
   }
   
-  return `${Math.floor(months / 12)}y ago`;
+  return (data ?? []).map((row: any) => row.listing_id);
+}
+
+/** Toggle save/unsave a listing. */
+export async function toggleSaveListing(
+  userId: string,
+  listingId: string,
+): Promise<boolean> {
+  const { data: existing, error: checkError } = await supabase
+    .from("saved_listings")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("listing_id", listingId)
+    .maybeSingle();
+  
+  if (checkError) {
+    throw checkError;
+  }
+  
+  if (existing) {
+    const { error } = await supabase
+    .from("saved_listings")
+      .delete()
+      .eq("user_id", userId)
+      .eq("listing_id", listingId);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return false;
+  }
+  else {
+    const { error } = await supabase
+      .from("saved_listings")
+      .insert({ user_id: userId, listing_id: listingId });
+    
+    if (error) {
+      throw error;
+    }
+    
+    return true;
+  }
 }

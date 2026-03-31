@@ -256,22 +256,27 @@ const {
         }
       });
 
-      (function () {
-        const STORAGE_KEY = "fsc_marketplace_saved";
-
-        function getSavedIds(): string[] {
-          try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").map(
-              (id: any) => id.toString(),
-            );
-          } catch (e) {
-            return [];
+      (async function () {
+        const { data: { user } } = await supabase.auth.getUser();
+        let savedIds: string[] = [];
+        
+        async function loadSavedIds() {
+          if (!user) {
+            return;
+          }
+          
+          const { data, error } = await supabase
+            .from("saved_listings")
+            .select("listing_id")
+            .eq("user_id", user.id);
+          
+          if (!error && data) {
+            savedIds = data.map((row: any) => row.listing_id.toString());
           }
         }
-
+        
         function updateUI() {
-          const ids = getSavedIds();
-          const idSet = new Set(ids);
+          const idSet = new Set(savedIds);
 
           // Update all hearts
           document.querySelectorAll(".save-btn").forEach((btn) => {
@@ -288,35 +293,47 @@ const {
 
           // Update all badges
           document.querySelectorAll(".nav-icon-badge").forEach((badge) => {
-            badge.textContent = ids.length.toString();
+            badge.textContent = savedIds.length.toString();
           });
         }
 
         // Global Click Handler for Saves
-        document.addEventListener("click", (e) => {
+        document.addEventListener("click", async (e) => {
           const btn = (e.target as HTMLElement).closest(".save-btn");
           if (btn) {
             e.preventDefault();
             e.stopPropagation();
+            
+            if (!user) {
+              window.location.href = "/login";
+              return;
+            }
+            
             const id = btn.getAttribute("data-id");
             if (!id) return;
-
-            let ids = getSavedIds();
+            
             const idStr = id.toString();
-            const index = ids.indexOf(idStr);
+            const index = savedIds.indexOf(idStr);
 
             if (index > -1) {
-              ids.splice(index, 1);
+              savedIds.splice(index, 1);
+              await supabase
+                .from("saved_listings")
+                .delete()
+                .eq("user_id", user.id)
+                .eq("listing_id", id);
             } else {
-              ids.push(idStr);
+              savedIds.push(idStr);
+              await supabase
+                .from("saved_listings")
+                .insert({ user_id: user.id, listing_id: id });
             }
-
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+            
             updateUI();
 
             // Notify marketplace page
             window.dispatchEvent(
-              new CustomEvent("saved-changed", { detail: { ids } }),
+              new CustomEvent("saved-changed", { detail: { ids: savedIds } }),
             );
           }
         });
@@ -348,6 +365,7 @@ const {
         });
 
         // Initial sync
+        await loadSavedIds();
         updateUI();
 
         // Polling sync (fallback for cross-tab or complex race conditions)
