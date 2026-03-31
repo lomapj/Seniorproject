@@ -26,16 +26,6 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
       </div>
     </aside>
     
-    <div id="reviewBanner" class="hidden mx-4 mt-3 mb-1 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30">
-      <div class="flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400 shrink-0"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          <p class="text-sm font-semibold text-foreground">This item has been sold. How was your experience?</p>
-        </div>
-        <a id="reviewBannerLink" href="#" class="shrink-0 text-sm font-bold text-primary hover:underline">Leave a review →</a>
-      </div>
-    </div>
-    
     <!-- Right: Chat -->
     <main class="flex flex-col bg-card">
       <header id="chatHeader" class="px-5 py-3 border-b border-border flex justify-between items-center shadow-sm">
@@ -59,6 +49,16 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </a>
       </header>
+      
+      <div id="reviewBanner" class="hidden mx-4 mt-3 mb-1 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 shrink-0 self-start w-[calc(100%-2rem)]">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400 shrink-0"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <p class="text-sm font-semibold text-foreground">This item has been sold. How was your experience?</p>
+          </div>
+          <a id="reviewBannerLink" href="#" class="shrink-0 text-sm font-bold text-primary hover:underline">Leave a review →</a>
+        </div>
+      </div>
 
       <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 bg-muted/30" id="chatHistory">
         <!-- Empty state shown when no conversation selected -->
