@@ -22,11 +22,11 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
         </div>
       </div>
     </div>
-
+    
     <!-- Category Filter Bar -->
     <div class="bg-card border-b border-border sticky top-18 z-50 shadow-sm">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 py-3">
+        <div class="flex items-center justify-between gap-4 py-3">
           <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5" id="catChips">
             {["All", "Books", "Electronics", "Furniture", "Clothing", "Misc"].map((cat, i) => (
               <button class={`cat-chip whitespace-nowrap px-4 py-2 rounded-full border text-sm font-semibold transition-all ${i === 0 ? "bg-primary border-primary text-primary-foreground shadow-sm" : "bg-card border-border text-muted-foreground hover:border-primary hover:text-primary"}`} data-cat={cat}>
@@ -34,38 +34,161 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
               </button>
             ))}
           </div>
-          <div class="flex items-center gap-3 shrink-0">
-            <span class="text-sm font-semibold text-muted-foreground">Sort by</span>
-            <NativeSelect size="sm" class="min-w-44" id="sortSelect">
-              <NativeSelectOption value="newest">Newest First</NativeSelectOption>
-              <NativeSelectOption value="price_asc">Price: Low to High</NativeSelectOption>
-              <NativeSelectOption value="price_desc">Price: High to Low</NativeSelectOption>
-            </NativeSelect>
-          </div>
+          <button type="button" id="advancedSearchToggle" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card text-sm font-semibold text-muted-foreground hover:border-primary hover:text-primary transition-all shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            Filters
+            <span id="activeFilterCount" class="hidden min-w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">0</span>
+          </button>
         </div>
       </div>
     </div>
-
+    
+    <!-- Advanced Search Panel (hidden by default) -->
+    <div id="advancedSearchPanel" class="hidden bg-card border-b border-border shadow-inner">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8 py-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-bold text-foreground flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+            Advanced Search
+          </h3>
+          <div class="flex items-center gap-2">
+            <button type="button" id="clearAllFilters" class="text-sm font-semibold text-muted-foreground hover:text-error transition-colors">
+              Clear All
+            </button>
+            <button type="button" id="closeAdvancedSearch" class="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          
+          <!-- Sort By -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Sort By</label>
+            <select id="sortSelect" class="w-full px-3 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none font-medium">
+              <option value="newest">Newest First</option>
+              <option value="price_asc">Price: Low → High</option>
+              <option value="price_desc">Price: High → Low</option>
+              <option value="rating_desc">Seller Rating</option>
+            </select>
+          </div>
+          
+          <!-- Price Range -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Price Range</label>
+            <div class="flex items-center gap-2">
+              <div class="relative flex items-center flex-1">
+                <span class="absolute left-2.5 text-xs text-muted-foreground font-bold">$</span>
+                <input type="number" id="priceMin" class="w-full pl-6 pr-2 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Min" min="0" />
+              </div>
+              <span class="text-muted-foreground text-xs font-bold">&ndash;</span>
+              <div class="relative flex items-center flex-1">
+                <span class="absolute left-2.5 text-xs text-muted-foreground font-bold">$</span>
+                <input type="number" id="priceMax" class="w-full pl-6 pr-2 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Max" min="0" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Condition -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Condition</label>
+            <div class="flex flex-wrap gap-1.5" id="conditionChips">
+              {["Any", "New", "Like New", "Good", "Fair", "Poor"].map((cond, i) => (
+                <button
+                  type="button"
+                  class={`cond-chip px-2.5 py-1 rounded-md border text-xs font-semibold transition-all ${i === 0 ? "bg-primary/10 border-primary/30 text-primary" : "bg-muted border-border text-muted-foreground hover:border-primary/30 hover:text-primary"}`}
+                  data-condition={cond}
+                >
+                  {cond}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <!-- Date Posted -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Date Posted</label>
+            <select id="datePostedSelect" class="w-full px-3 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none font-medium">
+              <option value="any">Any Time</option>
+              <option value="today">Today</option>
+              <option value="3days">Last 3 Days</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="3months">Last 3 Months</option>
+            </select>
+          </div>
+          
+          <!-- Seller Rating -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Seller Rating</label>
+            <div class="flex flex-col gap-1" id="ratingFilter">
+              {[
+                { value: "any", label: "Any Rating" },
+                { value: "4", label: "4★ & Up" },
+                { value: "3", label: "3★ & Up" },
+                { value: "2", label: "2★ & Up" },
+              ].map((opt, i) => (
+                <label class="flex items-center gap-2 cursor-pointer text-sm group">
+                  <input
+                    type="radio"
+                    name="minRating"
+                    value={opt.value}
+                    checked={i === 0}
+                    class="accent-primary w-3.5 h-3.5"
+                  />
+                  <span class={`font-medium ${i === 0 ? "text-foreground" : "text-muted-foreground"} group-hover:text-foreground transition-colors`}>
+                    {opt.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+          
+          <!-- Listing Ownership -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">My Listings</label>
+            <div class="flex flex-col gap-2 mt-0.5">
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <div class="relative">
+                  <input type="checkbox" id="hideOwnListings" class="sr-only peer" />
+                  <div class="w-9 h-5 rounded-full bg-muted border border-border peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
+                  <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></div>
+                </div>
+                <span class="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Hide my listings</span>
+              </label>
+              <label class="flex items-center gap-2.5 cursor-pointer group">
+                <div class="relative">
+                  <input type="checkbox" id="showOnlyOwn" class="sr-only peer" />
+                  <div class="w-9 h-5 rounded-full bg-muted border border-border peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
+                  <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></div>
+                </div>
+                <span class="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Only my listings</span>
+              </label>
+            </div>
+          </div>
+        
+        </div>
+        
+        <!-- Apply button row -->
+        <div class="flex items-center justify-end mt-4 pt-3 border-t border-border">
+          <button type="button" id="applyFiltersBtn" class="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20">
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+    
     <!-- Main Content -->
     <div class="mx-auto max-w-7xl px-6 lg:px-8 pt-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 class="text-lg text-muted-foreground font-medium">
           <strong class="font-extrabold text-primary" id="resultsCount">0</strong> Results Found
         </h2>
-        <div class="flex items-center gap-3 bg-card p-2 rounded-lg border border-border">
-          <div class="relative flex items-center">
-            <span class="absolute left-3 text-sm text-muted-foreground font-semibold">$</span>
-            <input type="number" class="w-22 pl-7 pr-2 py-1.5 border border-border rounded-md text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Min" id="priceMin" />
-          </div>
-          <span class="text-muted-foreground">&mdash;</span>
-          <div class="relative flex items-center">
-            <span class="absolute left-3 text-sm text-muted-foreground font-semibold">$</span>
-            <input type="number" class="w-22 pl-7 pr-2 py-1.5 border border-border rounded-md text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Max" id="priceMax" />
-          </div>
-          <button class="px-3 py-1.5 bg-primary/10 text-primary rounded-md text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-colors" id="applyPriceBtn">Apply</button>
-        </div>
+        <!-- Active filter pills -->
+        <div class="flex items-center gap-2 flex-wrap" id="activeFiltersBar"></div>
       </div>
-
+      
       <!-- Loading skeleton -->
       <div id="loadingSkeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {Array.from({ length: 8 }).map(() => (
@@ -85,14 +208,14 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
           </div>
         ))}
       </div>
-
+      
       <!-- Empty state -->
       <div id="emptyState" class="hidden text-center py-20">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-muted-foreground mb-4"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
         <h3 class="text-xl font-bold text-foreground mb-2">No listings found</h3>
         <p class="text-muted-foreground">Try adjusting your filters or search terms.</p>
       </div>
-
+      
       <!-- Listings grid (populated by JS) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden" id="listingGrid"></div>
     </div>
@@ -109,7 +232,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   import { fetchListings, fetchSellerRating, type Listing } from "../lib/api";
   import { supabase } from "@/lib/supabase.ts";
   import { fetchSavedListingIds, toggleSaveListing } from "@/lib/api.ts";
-
+  
   const CATEGORY_GRADIENTS: Record<string, string> = {
     Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
     Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
@@ -117,7 +240,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
     Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
   };
-
+  
   const CATEGORY_ICONS: Record<string, string> = {
     Books: "\u{1F4D7}",
     Electronics: "\u{1F4BB}",
@@ -125,7 +248,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     Clothing: "\u{1F9E5}",
     Misc: "\u{1F4E6}",
   };
-
+  
   const listingGrid = document.getElementById("listingGrid")!;
   const loadingSkeleton = document.getElementById("loadingSkeleton")!;
   const emptyState = document.getElementById("emptyState")!;
@@ -134,18 +257,31 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   const sortSelect = document.getElementById("sortSelect") as HTMLSelectElement;
   const priceMin = document.getElementById("priceMin") as HTMLInputElement;
   const priceMax = document.getElementById("priceMax") as HTMLInputElement;
-  const applyPriceBtn = document.getElementById("applyPriceBtn");
-
+  
+  const advancedSearchToggle = document.getElementById("advancedSearchToggle")!;
+  const advancedSearchPanel = document.getElementById("advancedSearchPanel")!;
+  const closeAdvancedSearch = document.getElementById("closeAdvancedSearch")!;
+  const clearAllFilters = document.getElementById("clearAllFilters")!;
+  const applyFiltersBtn = document.getElementById("applyFiltersBtn")!;
+  const activeFilterCount = document.getElementById("activeFilterCount")!;
+  const activeFiltersBar = document.getElementById("activeFiltersBar")!;
+  const condChips = document.querySelectorAll(".cond-chip");
+  const datePostedSelect = document.getElementById("datePostedSelect") as HTMLSelectElement;
+  const ratingRadios = document.querySelectorAll<HTMLInputElement>('input[name="minRating"]');
+  const hideOwnListings = document.getElementById("hideOwnListings") as HTMLInputElement;
+  const showOnlyOwn = document.getElementById("showOnlyOwn") as HTMLInputElement;
+  
   let currentCat = "All";
   let allListings: Listing[] = [];
-
+  let selectedCondition = "Any";
+  let sellerRatingsCache: Record<string, { average: number; count: number }> = {};
+  
   const initParams = new URLSearchParams(window.location.search);
   const urlCat = initParams.get("cat");
   if (urlCat) {
     currentCat = urlCat;
     catChips.forEach((cat) => {
       const chipCat = cat.getAttribute("data-cat");
-
       if (chipCat === urlCat) {
         cat.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
         cat.classList.remove("bg-card", "border-border", "text-muted-foreground");
@@ -156,21 +292,237 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       }
     });
   }
-
+  
+  advancedSearchToggle.addEventListener("click", () => {
+    const isHidden = advancedSearchPanel.classList.contains("hidden");
+    if (isHidden) {
+      advancedSearchPanel.classList.remove("hidden");
+      advancedSearchToggle.classList.add("border-primary", "text-primary", "bg-primary/5");
+      advancedSearchToggle.classList.remove("border-border", "text-muted-foreground", "bg-card");
+    }
+    else {
+      advancedSearchPanel.classList.add("hidden");
+      if (countActiveFilters() === 0) {
+        advancedSearchToggle.classList.remove("border-primary", "text-primary", "bg-primary/5");
+        advancedSearchToggle.classList.add("border-border", "text-muted-foreground", "bg-card");
+      }
+    }
+  });
+  
+  closeAdvancedSearch.addEventListener("click", () => {
+    advancedSearchPanel.classList.add("hidden");
+    if (countActiveFilters() === 0) {
+      advancedSearchToggle.classList.remove("border-primary", "text-primary", "bg-primary/5");
+      advancedSearchToggle.classList.add("border-border", "text-muted-foreground", "bg-card");
+    }
+  });
+  
+  condChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      condChips.forEach((c) => {
+        c.classList.remove("bg-primary/10", "border-primary/30", "text-primary");
+        c.classList.add("bg-muted", "border-border", "text-muted-foreground");
+      });
+      chip.classList.add("bg-primary/10", "border-primary/30", "text-primary");
+      chip.classList.remove("bg-muted", "border-border", "text-muted-foreground");
+      selectedCondition = chip.getAttribute("data-condition") || "Any";
+    });
+  });
+  
+  hideOwnListings.addEventListener("change", () => {
+    if (hideOwnListings.checked) showOnlyOwn.checked = false;
+  });
+  showOnlyOwn.addEventListener("change", () => {
+    if (showOnlyOwn.checked) hideOwnListings.checked = false;
+  });
+  
+  function countActiveFilters(): number {
+    let count = 0;
+    if (sortSelect.value !== "newest") count++;
+    if (priceMin.value && parseFloat(priceMin.value) > 0) count++;
+    if (priceMax.value && parseFloat(priceMax.value) > 0) count++;
+    if (selectedCondition !== "Any") count++;
+    if (datePostedSelect.value !== "any") count++;
+    const selectedRating = document.querySelector<HTMLInputElement>('input[name="minRating"]:checked')?.value || "any";
+    if (selectedRating !== "any") count++;
+    if (hideOwnListings.checked) count++;
+    if (showOnlyOwn.checked) count++;
+    return count;
+  }
+  
+  function updateFilterBadge() {
+    const count = countActiveFilters();
+    if (count > 0) {
+      activeFilterCount.classList.remove("hidden");
+      activeFilterCount.classList.add("flex");
+      activeFilterCount.textContent = count.toString();
+      advancedSearchToggle.classList.add("border-primary", "text-primary", "bg-primary/5");
+      advancedSearchToggle.classList.remove("border-border", "text-muted-foreground", "bg-card");
+    } else {
+      activeFilterCount.classList.add("hidden");
+      activeFilterCount.classList.remove("flex");
+      if (advancedSearchPanel.classList.contains("hidden")) {
+        advancedSearchToggle.classList.remove("border-primary", "text-primary", "bg-primary/5");
+        advancedSearchToggle.classList.add("border-border", "text-muted-foreground", "bg-card");
+      }
+    }
+  }
+  
+  function renderActiveFilterPills() {
+    const pills: string[] = [];
+    
+    if (selectedCondition !== "Any") {
+      pills.push(makeFilterPill("Condition: " + selectedCondition, "condition"));
+    }
+    if (datePostedSelect.value !== "any") {
+      const label = datePostedSelect.options[datePostedSelect.selectedIndex].text;
+      pills.push(makeFilterPill(label, "date"));
+    }
+    const minVal = priceMin.value ? parseFloat(priceMin.value) : 0;
+    const maxVal = priceMax.value ? parseFloat(priceMax.value) : 0;
+    if (minVal > 0 || maxVal > 0) {
+      
+      let priceLabel = "";
+      if (minVal > 0 && maxVal > 0) {
+        priceLabel = `$${minVal} – $${maxVal}`;
+      }
+      else if (minVal > 0) {
+        priceLabel = `$${minVal}+`;
+      }
+      else {
+        priceLabel = `Up to $${maxVal}`;
+      }
+      
+      pills.push(makeFilterPill(priceLabel, "price"));
+    }
+    const selectedRating = document.querySelector<HTMLInputElement>('input[name="minRating"]:checked')?.value || "any";
+    if (selectedRating !== "any") {
+      pills.push(makeFilterPill(selectedRating + "★ & Up", "rating"));
+    }
+    if (hideOwnListings.checked) {
+      pills.push(makeFilterPill("Hiding my listings", "hideOwn"));
+    }
+    if (showOnlyOwn.checked) {
+      pills.push(makeFilterPill("Only my listings", "showOwn"));
+    }
+    if (sortSelect.value !== "newest") {
+      const label = sortSelect.options[sortSelect.selectedIndex].text;
+      pills.push(makeFilterPill("Sort: " + label, "sort"));
+    }
+    
+    activeFiltersBar.innerHTML = pills.join("");
+    
+    activeFiltersBar.querySelectorAll("[data-remove-filter]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const target = (e.currentTarget as HTMLElement).getAttribute("data-remove-filter");
+        removeFilter(target!);
+      });
+    });
+  }
+  
+  function makeFilterPill(label: string, filterKey: string): string {
+    return `<button data-remove-filter="${filterKey}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors">
+      ${label}
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>`;
+  }
+  
+  function removeFilter(key: string) {
+    switch (key) {
+      case "condition":
+        selectedCondition = "Any";
+        condChips.forEach((c, i) => {
+          if (i === 0) {
+            c.classList.add("bg-primary/10", "border-primary/30", "text-primary");
+            c.classList.remove("bg-muted", "border-border", "text-muted-foreground");
+          } else {
+            c.classList.remove("bg-primary/10", "border-primary/30", "text-primary");
+            c.classList.add("bg-muted", "border-border", "text-muted-foreground");
+          }
+        });
+        break;
+      case "date":
+        datePostedSelect.value = "any";
+        break;
+      case "price":
+        priceMin.value = "";
+        priceMax.value = "";
+        break;
+      case "rating":
+        ratingRadios.forEach((r, i) => { r.checked = i === 0; });
+        break;
+      case "hideOwn":
+        hideOwnListings.checked = false;
+        break;
+      case "showOwn":
+        showOnlyOwn.checked = false;
+        break;
+      case "sort":
+        sortSelect.value = "newest";
+        break;
+    }
+    
+    applyClientFilters();
+  }
+  
+  clearAllFilters.addEventListener("click", () => {
+    sortSelect.value = "newest";
+    priceMin.value = "";
+    priceMax.value = "";
+    selectedCondition = "Any";
+    condChips.forEach((c, i) => {
+      if (i === 0) {
+        c.classList.add("bg-primary/10", "border-primary/30", "text-primary");
+        c.classList.remove("bg-muted", "border-border", "text-muted-foreground");
+      }
+      else {
+        c.classList.remove("bg-primary/10", "border-primary/30", "text-primary");
+        c.classList.add("bg-muted", "border-border", "text-muted-foreground");
+      }
+    });
+    datePostedSelect.value = "any";
+    ratingRadios.forEach((r, i) => { r.checked = i === 0; });
+    hideOwnListings.checked = false;
+    showOnlyOwn.checked = false;
+    applyClientFilters();
+  });
+  
+  applyFiltersBtn.addEventListener("click", () => {
+    applyClientFilters();
+  });
+  
+  function getDateCutoff(value: string): Date | null {
+    const now = new Date();
+    switch (value) {
+      case "today":
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      case "3days":
+        return new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+      case "week":
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case "month":
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      case "3months":
+        return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      default:
+        return null;
+    }
+  }
+  
   function renderCard(item: Listing): string {
     const gradient = CATEGORY_GRADIENTS[item.category] || "linear-gradient(135deg,#6b7280,#9ca3af)";
     const icon = CATEGORY_ICONS[item.category] || "\u{1F4E6}";
     const hasImage = item.images && item.images.length > 0;
     const sellerName = item.seller_name || "Seller";
-
+    
     const imageHtml = hasImage
       ? `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />`
       : `<span class="text-5xl">${icon}</span>`;
-
+    
     const statusOverlay = item.status !== "available"
       ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10"><span class="px-4 py-1.5 rounded-full font-extrabold uppercase tracking-widest text-sm text-white border-2 border-white">${item.status}</span></div>`
       : "";
-
+    
     return `
       <a href="/item?id=${item.id}" class="listing-card group bg-card rounded-xl border border-border overflow-hidden no-underline text-inherit flex flex-col shadow-sm hover:-translate-y-2 hover:shadow-xl hover:border-primary/20 transition-all duration-300 fade-in-shimmer" data-category="${item.category}" data-price="${item.price}" data-id="${item.id}">
         <div class="h-55 relative flex items-center justify-center overflow-hidden" style="background: ${gradient}">
@@ -198,17 +550,17 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       </a>
     `;
   }
-
+  
   function renderListings(listings: Listing[]) {
     loadingSkeleton.classList.add("hidden");
-
+    
     if (listings.length === 0) {
       listingGrid.classList.add("hidden");
       emptyState.classList.remove("hidden");
       resultsCount.textContent = "0";
       return;
     }
-
+    
     emptyState.classList.add("hidden");
     listingGrid.classList.remove("hidden");
     listingGrid.innerHTML = listings.map(renderCard).join("");
@@ -217,21 +569,22 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       const ratingElements = document.querySelectorAll<HTMLElement>(".seller-rating[data-seller-id]");
       const sellerIds = [...new Set(Array.from(ratingElements).map(element => element.dataset.sellerId!))];
       
-      const ratingMap: Record<string, { average: number; count: number }> = {};
+      const uncachedIds = sellerIds.filter(id => !(id in sellerRatingsCache));
+      
       await Promise.all(
-        sellerIds.map(async (sellerId) => {
+        uncachedIds.map(async (sellerId) => {
           try {
-            ratingMap[sellerId] = await fetchSellerRating(sellerId);
+            sellerRatingsCache[sellerId] = await fetchSellerRating(sellerId);
           }
           catch (_) {
-            ratingMap[sellerId] = { average: 0, count: 0 };
+            sellerRatingsCache[sellerId] = { average: 0, count: 0 };
           }
         })
       );
       
       ratingElements.forEach(element => {
         const sellerId = element.dataset.sellerId!;
-        const rating = ratingMap[sellerId];
+        const rating = sellerRatingsCache[sellerId];
         if (rating && rating.count > 0) {
           const full = Math.floor(rating.average);
           const empty = 5 - full;
@@ -246,8 +599,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     loadCardRatings();
     
     resultsCount.textContent = listings.length.toString();
-
-    // Animate cards in
+    
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -256,10 +608,10 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
         }
       });
     }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-
+    
     listingGrid.querySelectorAll(".listing-card").forEach((card) => observer.observe(card));
   }
-
+  
   async function applyClientFilters() {
     const min = parseFloat(priceMin.value || "0");
     const max = parseFloat(priceMax.value || "Infinity") || Infinity;
@@ -278,37 +630,90 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       savedIds = new Set((data ?? []).map((row: any) => row.listing_id.toString()));
     }
     
-
     let filtered = allListings;
-
+    
     if (currentCat !== "All") {
       filtered = filtered.filter((l) => l.category === currentCat);
     }
+    
     if (min > 0) {
       filtered = filtered.filter((l) => l.price >= min);
     }
     if (max < Infinity) {
       filtered = filtered.filter((l) => l.price <= max);
     }
+    
     if (query) {
       filtered = filtered.filter((l) => l.title.toLowerCase().includes(query));
     }
+    
     if (savedOnly) {
       filtered = filtered.filter((l) => savedIds.has(l.id.toString()));
     }
-
-    // Sort
+    
+    if (selectedCondition !== "Any") {
+      filtered = filtered.filter((l) => l.condition === selectedCondition);
+    }
+    
+    const dateCutoff = getDateCutoff(datePostedSelect.value);
+    if (dateCutoff) {
+      filtered = filtered.filter((l) => new Date(l.created_at) >= dateCutoff);
+    }
+    
+    if (user) {
+      if (hideOwnListings.checked) {
+        filtered = filtered.filter((l) => l.user_id !== user.id);
+      }
+      if (showOnlyOwn.checked) {
+        filtered = filtered.filter((l) => l.user_id === user.id);
+      }
+    }
+    
+    const selectedRating = document.querySelector<HTMLInputElement>('input[name="minRating"]:checked')?.value || "any";
+    if (selectedRating !== "any") {
+      const minRating = parseFloat(selectedRating);
+      
+      const sellerIds = [...new Set(filtered.map((l) => l.user_id))];
+      const uncachedIds = sellerIds.filter((id) => !(id in sellerRatingsCache));
+      
+      if (uncachedIds.length > 0) {
+        await Promise.all(
+          uncachedIds.map(async (sellerId) => {
+            try {
+              sellerRatingsCache[sellerId] = await fetchSellerRating(sellerId);
+            } catch (_) {
+              sellerRatingsCache[sellerId] = { average: 0, count: 0 };
+            }
+          })
+        );
+      }
+      
+      filtered = filtered.filter((l) => {
+        const rating = sellerRatingsCache[l.user_id];
+        return rating && rating.count > 0 && rating.average >= minRating;
+      });
+    }
+    
     const sort = sortSelect.value;
     if (sort === "price_asc") {
       filtered = [...filtered].sort((a, b) => a.price - b.price);
-    } else if (sort === "price_desc") {
+    }
+    else if (sort === "price_desc") {
       filtered = [...filtered].sort((a, b) => b.price - a.price);
     }
-
+    else if (sort === "rating_desc") {
+      filtered = [...filtered].sort((a, b) => {
+        const rA = sellerRatingsCache[a.user_id]?.average || 0;
+        const rB = sellerRatingsCache[b.user_id]?.average || 0;
+        return rB - rA;
+      });
+    }
+    
     renderListings(filtered);
+    updateFilterBadge();
+    renderActiveFilterPills();
   }
-
-  // Load listings from Supabase
+  
   async function loadListings() {
     try {
       allListings = await fetchListings();
@@ -323,8 +728,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       if (p) p.textContent = "Please try refreshing the page.";
     }
   }
-
-  // Category chip click
+  
   catChips.forEach((chip) => {
     chip.addEventListener("click", () => {
       catChips.forEach((c) => {
@@ -337,11 +741,13 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       applyClientFilters();
     });
   });
-
-  sortSelect.addEventListener("change", applyClientFilters);
-  applyPriceBtn?.addEventListener("click", applyClientFilters);
+  
+  sortSelect.addEventListener("change", () => {
+    applyClientFilters();
+  });
+  
   window.addEventListener("saved-changed", applyClientFilters);
-
+  
   loadListings();
 </script>
 
