@@ -1,5 +1,6 @@
 ---
 import "@/styles/starwind.css";
+import Toaster from "@/components/starwind/toast/Toaster.astro";
 interface Props {
   title?: string;
   showNav?: boolean;
@@ -105,6 +106,13 @@ const {
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </>
+                  </svg>
+                </a>
+                <a href="/moderation" id="navModLink"
+                   class="nav-icon-btn w-10 h-10 rounded-full border-[1.5px] border-border bg-card text-muted-foreground flex items-center justify-center no-underline transition-all relative hover:border-primary hover:text-primary hover:bg-primary/5"
+                   title="Moderation" style="display:none;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                   </svg>
                 </a>
                 <button
@@ -386,7 +394,7 @@ const {
     <script>
       import { supabase } from "../lib/supabase";
 
-      const PROTECTED_PATHS = ["/profile", "/post", "/messages"];
+      const PROTECTED_PATHS = ["/profile", "/post", "/messages", "/moderation"];
       const AUTH_PATHS = ["/login", "/signup"];
       const currentPath = window.location.pathname;
 
@@ -429,6 +437,17 @@ const {
           if (profileBtn) {
             profileBtn.innerHTML = `<span style="font-weight:700;font-size:0.75rem;color:var(--primary);">${initials}</span>`;
           }
+
+          // Show moderation link for admins
+          const { data: adminProfile } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', session.user.id)
+            .single();
+          if (adminProfile?.is_admin) {
+            const modLink = document.getElementById('navModLink');
+            if (modLink) modLink.style.display = 'flex';
+          }
         }
       }
 
@@ -444,5 +463,7 @@ const {
 
       initAuth();
     </script>
+
+    <Toaster />
   </body>
 </html>

@@ -5,6 +5,7 @@ export type {
   Message,
   Report,
   Review,
+  Profile,
 } from "./database.types";
 
 import type {
@@ -13,6 +14,7 @@ import type {
   Message,
   Report,
   Review,
+  Profile,
 } from "./database.types";
 
 // ── Extended types ─────────────────────────────────────────────────────────────
@@ -711,11 +713,105 @@ export async function toggleSaveListing(
     const { error } = await supabase
       .from("saved_listings")
       .insert({ user_id: userId, listing_id: listingId });
-    
+
     if (error) {
       throw error;
     }
-    
+
     return true;
   }
+}
+
+// ── Admin / Moderation ────────────────────────────────────────────────────────
+
+export interface ReportWithDetails extends Report {
+  listing_title: string;
+  listing_images: string[];
+  listing_status: string;
+  reporter_name: string;
+  seller_name: string | null;
+}
+
+/** Check if the current user is an admin. */
+export async function checkIsAdmin(userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", userId)
+    .single();
+  if (error) return false;
+  return data?.is_admin === true;
+}
+
+/** Fetch all reports with listing details and reporter names. Admin only (RLS enforced). */
+export async function fetchAllReports(
+  statusFilter?: string,
+): Promise<ReportWithDetails[]> {
+  let query = supabase
+    .from("reports")
+    .select("*, listings(title, images, status, seller_name, user_id)")
+    .order("created_at", { ascending: false });
+
+  if (statusFilter && statusFilter !== "all") {
+    query = query.eq("status", statusFilter);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const reporterIds = [...new Set((data ?? []).map((r: any) => r.reporter_id))];
+  const names = await fetchUserNames(reporterIds);
+
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    listing_id: r.listing_id,
+    reporter_id: r.reporter_id,
+    reason: r.reason,
+    details: r.details,
+    status: r.status,
+    created_at: r.created_at,
+    listing_title: r.listings?.title ?? "Deleted listing",
+    listing_images: r.listings?.images ?? [],
+    listing_status: r.listings?.status ?? "unknown",
+    seller_name: r.listings?.seller_name ?? null,
+    reporter_name: names[r.reporter_id] ?? "Unknown",
+  })) as ReportWithDetails[];
+}
+
+/** Resolve or dismiss a report. Admin only (RLS enforced). */
+export async function updateReportStatus(
+  reportId: string,
+  status: "resolved" | "dismissed",
+): Promise<void> {
+  const { error } = await supabase
+    .from("reports")
+    .update({ status })
+    .eq("id", reportId);
+  if (error) throw error;
+}
+
+/** Admin: delete any listing by ID (RLS allows admins). */
+export async function adminDeleteListing(id: string): Promise<void> {
+  const { error } = await supabase.from("listings").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/** Fetch all listings for admin view. */
+export async function fetchAllListings(): Promise<Listing[]> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Listing[];
+}
+
+/** Fetch all user profiles. Admin only (RLS enforced). */
+export async function fetchAllProfiles(): Promise<Profile[]> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Profile[];
 }

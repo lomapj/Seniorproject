@@ -196,6 +196,7 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
 
 <script>
   import { supabase } from "../lib/supabase";
+  import { toast } from "@/components/starwind/toast";
   import {
     fetchListing,
     fetchSellerRating,
@@ -374,28 +375,41 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       document.getElementById("itemContent")!.classList.remove("hidden");
 
       // ── Report Section ─────────────────────────────────────────────────
-      if (currentUserId && currentUserId !== item.user_id) {
-        const reportSubmitBtn = document.getElementById("reportSubmitBtn");
-        reportSubmitBtn?.addEventListener("click", async () => {
-          const reason = (document.getElementById("reportReason") as HTMLSelectElement)?.value;
-          const details = (document.getElementById("reportDetails") as HTMLTextAreaElement)?.value;
-          const reportStatus = document.getElementById("reportStatus")!;
+      const reportSubmitBtn = document.getElementById("reportSubmitBtn");
+      reportSubmitBtn?.addEventListener("click", async () => {
+        const reason = (document.getElementById("reportReason") as HTMLSelectElement)?.value;
+        const details = (document.getElementById("reportDetails") as HTMLTextAreaElement)?.value;
+        const reportStatus = document.getElementById("reportStatus")!;
 
-          try {
-            (reportSubmitBtn as HTMLButtonElement).disabled = true;
-            reportSubmitBtn!.textContent = "Submitting...";
-            await submitReport(id, currentUserId, reason, details || undefined);
-            reportStatus.innerHTML = `<p class="text-sm text-success font-semibold">Report submitted. Thank you for helping keep our community safe.</p>`;
-            (reportSubmitBtn as HTMLButtonElement).disabled = true;
-            reportSubmitBtn!.textContent = "Report Submitted";
-          } catch (err: any) {
-            const msg = err?.message || "Failed to submit report.";
-            reportStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
-            (reportSubmitBtn as HTMLButtonElement).disabled = false;
-            reportSubmitBtn!.textContent = "Submit Report";
-          }
-        });
-      }
+        if (!currentUserId) {
+          window.location.href = "/login";
+          return;
+        }
+
+        if (currentUserId === item.user_id) {
+          reportStatus.innerHTML = `<p class="text-sm text-error font-semibold">You cannot report your own listing.</p>`;
+          return;
+        }
+
+        try {
+          (reportSubmitBtn as HTMLButtonElement).disabled = true;
+          reportSubmitBtn!.textContent = "Submitting...";
+          await submitReport(id, currentUserId, reason, details || undefined);
+
+          reportStatus.innerHTML = `<p class="text-sm text-success font-semibold">Report submitted. Thank you for helping keep our community safe.</p>`;
+          reportSubmitBtn!.textContent = "Report Submitted";
+
+          // Also show a toast notification
+          try { toast.success("Report submitted. Thank you for helping keep our community safe."); } catch (_) {}
+        } catch (err: any) {
+          const msg = err?.message || "Failed to submit report.";
+          reportStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
+          (reportSubmitBtn as HTMLButtonElement).disabled = false;
+          reportSubmitBtn!.textContent = "Submit Report";
+
+          try { toast.error(msg); } catch (_) {}
+        }
+      });
 
       // ── Review Section ────────────────────
       if (item.status === "sold") {

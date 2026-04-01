@@ -177,6 +177,7 @@ export interface Database {
           avatar_url: string | null;
           notify_messages: boolean;
           notify_listings: boolean;
+          is_admin: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -190,6 +191,7 @@ export interface Database {
           avatar_url?: string | null;
           notify_messages?: boolean;
           notify_listings?: boolean;
+          is_admin?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -203,6 +205,7 @@ export interface Database {
           avatar_url?: string | null;
           notify_messages?: boolean;
           notify_listings?: boolean;
+          is_admin?: boolean;
           created_at?: string;
           updated_at?: string;
         }

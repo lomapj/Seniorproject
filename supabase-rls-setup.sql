@@ -108,3 +108,65 @@ USING (auth.uid() = user_id);
 CREATE POLICY "Users can update own listings"
 ON listings FOR UPDATE
 USING (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════════════════════
+-- ADMIN HELPER FUNCTION (bypasses RLS to avoid infinite recursion)
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+  SELECT COALESCE(
+    (SELECT is_admin FROM public.profiles WHERE id = auth.uid()),
+    false
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+-- ═══════════════════════════════════════════════════════════════
+-- ADMIN MODERATION POLICIES
+-- ═══════════════════════════════════════════════════════════════
+
+-- Admin: view all reports
+CREATE POLICY "Admins view all reports"
+ON reports FOR SELECT
+USING (public.is_admin());
+
+-- Admin: update report status (resolve/dismiss)
+CREATE POLICY "Admins update reports"
+ON reports FOR UPDATE
+USING (public.is_admin());
+
+-- Admin: delete any listing
+CREATE POLICY "Admins delete any listing"
+ON listings FOR DELETE
+USING (public.is_admin());
+
+-- Admin: update any listing
+CREATE POLICY "Admins update any listing"
+ON listings FOR UPDATE
+USING (public.is_admin());
+
+-- Admin: view all profiles
+CREATE POLICY "Admins view all profiles"
+ON profiles FOR SELECT
+USING (public.is_admin());
+
+-- ═══════════════════════════════════════════════════════════════
+-- SECURITY: Prevent non-admins from promoting themselves
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE OR REPLACE FUNCTION prevent_admin_self_promotion()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.is_admin IS DISTINCT FROM OLD.is_admin THEN
+    IF NOT public.is_admin() THEN
+      RAISE EXCEPTION 'Cannot modify admin status';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER check_admin_promotion
+BEFORE UPDATE ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION prevent_admin_self_promotion();

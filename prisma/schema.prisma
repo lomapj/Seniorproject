@@ -116,6 +116,7 @@ model Profile {
   avatar_url        String?
   notify_messages   Boolean  @default(true)
   notify_listings   Boolean  @default(true)
+  is_admin          Boolean  @default(false)
   created_at        DateTime @default(now()) @db.Timestamptz
   updated_at        DateTime @default(now()) @updatedAt @db.Timestamptz
 
