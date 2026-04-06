@@ -6,6 +6,7 @@ export type {
   Report,
   Review,
   Profile,
+  Transaction,
 } from "./database.types";
 
 import type {
@@ -15,6 +16,7 @@ import type {
   Report,
   Review,
   Profile,
+  Transaction,
 } from "./database.types";
 
 // ── Extended types ─────────────────────────────────────────────────────────────
@@ -40,6 +42,11 @@ export interface UserRating {
   count: number;
   asSeller: { average: number; count: number; };
   asBuyer: { average: number; count: number; };
+}
+
+export interface TransactionWithNames extends Transaction {
+  seller_name: string;
+  buyer_name: string | null;
 }
 
 // ── Listings ───────────────────────────────────────────────────────────────────
@@ -548,6 +555,90 @@ export async function hasReviewed(
 
   if (error) throw error;
   return (count ?? 0) > 0;
+}
+
+// ── Transactions ────────────────────────────────────────────────────────────────────
+export async function fetchUserTransactions(
+  userId: string,
+): Promise<TransactionWithNames[]> {
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .or(`seller_id.eq.${userId}, buyer_id.eq.${userId}`)
+    .order("completed_at", { ascending: false });
+  
+  if (error) {
+    throw error;
+  }
+  if (!data || data.length === 0) {
+    return [];
+  }
+  
+  const userIds = new Set<string>();
+  for (const transaction of data) {
+    userIds.add(transaction.seller_id);
+    
+    if (transaction.buyer_id) {
+      userIds.add(transaction.buyer_id);
+    }
+  }
+  
+  const names = await fetchUserNames([...userIds]);
+  
+  return data.map((transaction: any) => ({
+    ...transaction,
+    seller_name: names[transaction.seller_id] || "Unknown",
+    buyer_name: transaction.buyer_id ? names[transaction.buyer_id] || "Unknown" : null,
+  })) as TransactionWithNames[];
+}
+
+export async function createTransaction(fields: {
+  listing_id: string;
+  seller_id: string;
+  buyer_id?: string | null;
+  price: number;
+  title: string;
+  category?: string;
+  images?: string[];
+}): Promise<Transaction> {
+  const { data, error } = await supabase
+    .from("transactions")
+    .insert(fields)
+    .select()
+    .single();
+  
+  if (error) {
+    throw error;
+  }
+  
+  return data as Transaction;
+}
+
+export async function cancelTransaction(
+  transactionId: string
+) {
+  const { error } = await supabase
+    .from("transactions")
+    .update({ status: "cancelled" })
+    .eq("id", transactionId);
+  
+  if (error) {
+    throw error;
+  }
+}
+
+export async function assignTransactionBuyer(
+  transactionId: string,
+  buyerId: string,
+) {
+  const { error } = await supabase
+    .from("transactions")
+    .update({ buyer_id: buyerId })
+    .eq("id", transactionId);
+  
+  if (error) {
+    throw error;
+  }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────

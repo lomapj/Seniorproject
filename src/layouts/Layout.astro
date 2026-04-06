@@ -100,6 +100,12 @@ const {
                   </svg>
                   <span id="msgBadge" class="hidden absolute -top-0.5 -right-0.5 bg-amber-400 text-foreground text-[0.65rem] font-extrabold min-w-4.5 h-4.5 px-1 rounded-full flex items-center justify-center border-2 border-card">0</span>
                 </a>
+                <a href="/transactions" class="nav-icon-btn w-10 h-10 rounded-full border-[1.5px] border-border bg-card text-muted-foreground flex items-center justify-center no-underline transition-all relative hover:border-primary hover:text-primary hover:bg-primary/5" title="Transaction History">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                  </svg>
+                </a>
                 <a href="/profile" class="nav-icon-btn w-10 h-10 rounded-full border-[1.5px] border-border bg-card text-muted-foreground flex items-center justify-center no-underline transition-all relative hover:border-primary hover:text-primary hover:bg-primary/5" title="Profile">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <>
@@ -394,7 +400,7 @@ const {
     <script>
       import { supabase } from "../lib/supabase";
 
-      const PROTECTED_PATHS = ["/profile", "/post", "/messages", "/moderation"];
+      const PROTECTED_PATHS = ["/profile", "/post", "/messages", "/transactions", "/moderation"];
       const AUTH_PATHS = ["/login", "/signup"];
       const currentPath = window.location.pathname;
 

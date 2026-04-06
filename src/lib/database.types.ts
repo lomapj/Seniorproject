@@ -210,6 +210,47 @@ export interface Database {
           updated_at?: string;
         }
       };
+      transactions: {
+        Row: {
+          id: string;
+          listing_id: string;
+          seller_id: string;
+          buyer_id: string | null;
+          price: number;
+          title: string;
+          category: string;
+          images: string[];
+          status: string;
+          completed_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id?: string;
+          seller_id: string;
+          buyer_id: string | null;
+          price: number;
+          title: string;
+          category?: string;
+          images?: string[];
+          status?: string;
+          completed_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          listing_id?: string;
+          seller_id?: string;
+          buyer_id?: string | null;
+          price?: number;
+          title?: string;
+          category?: string;
+          images?: string[];
+          status?: string;
+          completed_at?: string;
+          created_at?: string;
+        }
+      }
     };
   };
 }
@@ -234,3 +275,7 @@ export type ReviewInsert = Database["public"]["Tables"]["reviews"]["Insert"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
 export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+
+export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
+export type TransactionInsert = Database["public"]["Tables"]["transactions"]["Insert"];
+export type TransactionUpdate = Database["public"]["Tables"]["transactions"]["Update"];
