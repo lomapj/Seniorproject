@@ -100,6 +100,13 @@ const {
                   </svg>
                   <span id="msgBadge" class="hidden absolute -top-0.5 -right-0.5 bg-amber-400 text-foreground text-[0.65rem] font-extrabold min-w-4.5 h-4.5 px-1 rounded-full flex items-center justify-center border-2 border-card">0</span>
                 </a>
+                <a href="/notifications" class="nav-icon-btn w-10 h-10 rounded-full border-[1.5px] border-border bg-card text-muted-foreground flex items-center justify-center no-underline transition-all relative hover:border-primary hover:text-primary hover:bg-primary/5" title="Notifications" id="navNotifBtn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 bg-primary text-white text-[0.65rem] font-extrabold min-w-4.5 h-4.5 px-1 rounded-full flex items-center justify-center border-2 border-card">0</span>
+                </a>
                 <a href="/transactions" class="nav-icon-btn w-10 h-10 rounded-full border-[1.5px] border-border bg-card text-muted-foreground flex items-center justify-center no-underline transition-all relative hover:border-primary hover:text-primary hover:bg-primary/5" title="Transaction History">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -400,7 +407,7 @@ const {
     <script>
       import { supabase } from "../lib/supabase";
 
-      const PROTECTED_PATHS = ["/profile", "/post", "/messages", "/transactions", "/moderation"];
+      const PROTECTED_PATHS = ["/profile", "/post", "/messages", "/transactions", "/moderation", "/notifications"];
       const AUTH_PATHS = ["/login", "/signup"];
       const currentPath = window.location.pathname;
 
@@ -469,7 +476,196 @@ const {
 
       initAuth();
     </script>
-
+    
+    <script>
+      import { supabase } from "../lib/supabase";
+      import { getUnreadNotifications } from "../lib/api";
+      
+      function updateNotifBadge(count: number) {
+        const badge = document.getElementById("notifBadge");
+        
+        if (!badge) {
+          return;
+        }
+        
+        if (count > 0) {
+          badge.textContent = count > 99 ? "99+" : count.toString();
+          badge.classList.remove("hidden");
+        }
+        else {
+          badge.classList.add("hidden");
+        }
+      }
+      
+      const TOAST_ICONS: Record<string, string> = {
+        message: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+        listing_sold: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+        listing_pending: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+        review: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+        report_resolved: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>`,
+      };
+      
+      const TOAST_COLORS: Record<string, string> = {
+        message: "border-blue-400/40 bg-blue-500/10",
+        listing_sold: "border-green-400/40 bg-green-500/10",
+        listing_pending: "border-amber-400/40 bg-amber-500/10",
+        review: "border-amber-300/40 bg-amber-400/10",
+        report_resolved: "border-purple-400/40 bg-purple-500/10",
+      };
+      
+      const TOAST_ICON_COLORS: Record<string, string> = {
+        message: "text-blue-500",
+        listing_sold: "text-green-500",
+        listing_pending: "text-amber-500",
+        review: "text-amber-400",
+        report_resolved: "text-purple-500",
+      };
+      
+      function showNotifToast(
+        notification: { type: string; title: string; body: string; link: string | null }
+      ) {
+        const container = document.getElementById("notifToastContainer");
+        
+        if (!container) {
+          return;
+        }
+        
+        if (window.location.pathname === "/notifications") {
+          return;
+        }
+        
+        if (notification.type === "message" && window.location.pathname === "/messages") {
+          return;
+        }
+        
+        const icon = TOAST_ICONS[notification.type] || TOAST_ICONS.message;
+        const colorClass = TOAST_COLORS[notification.type] || "border-border bg-card";
+        const iconColor = TOAST_ICON_COLORS[notification.type] || "text-muted-foreground";
+        
+        const toast = document.createElement("div");
+        toast.className = `pointer-events-auto flex items-start gap-3 p-4 rounded-xl border ${colorClass} backdrop-blur-xl shadow-lg transform translate-x-full opacity-0 transition-all duration-300 cursor-pointer`;
+        toast.innerHTML = `
+          <div class="shrink-0 ${iconColor} mt-0.5">${icon}</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-foreground leading-snug">${escapeHtmlToast(notification.title)}</p>
+            ${notification.body ? `<p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">${escapeHtmlToast(notification.body)}</p>` : ""}
+          </div>
+          <button class="shrink-0 text-muted-foreground hover:text-foreground transition-colors toast-close" style="background:none;border:none;cursor:pointer;padding:2px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        `;
+        
+        container.appendChild(toast);
+        
+        requestAnimationFrame(() => {
+          toast.classList.remove("translate-x-full", "opacity-0");
+          toast.classList.add("translate-x-0", "opacity-100");
+        });
+        
+        toast.addEventListener("click", (e) => {
+          if ((e.target as HTMLElement).closest(".toast-close")) {
+            return;
+          }
+          
+          if (notification.link) {
+            window.location.href = notification.link;
+          }
+          else {
+            window.location.href = "/notifications";
+          }
+        });
+        
+        toast.querySelector(".toast-close")?.addEventListener("click", (event) => {
+          event.stopPropagation();
+          dismissToast(toast);
+        });
+        
+        setTimeout(() => dismissToast(toast), 5000);
+      }
+      
+      function dismissToast(
+        toast: HTMLElement
+      ) {
+        toast.classList.add("translate-x-full", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }
+      
+      function escapeHtmlToast(
+        str: string
+      ): string {
+        const div = document.createElement("div");
+        div.textContent = str;
+        
+        return div.innerHTML;
+      }
+      
+      async function initNotifications() {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.user) {
+          return;
+        }
+        
+        const userId = session.user.id;
+        
+        try {
+          const count = await getUnreadNotifications(userId);
+          updateNotifBadge(count);
+        }
+        catch (err) {
+          console.error("Failed to fetch notification count:", err);
+        }
+        
+        supabase
+          .channel("layout-notifications")
+          .on(
+            "postgres_changes",
+            {
+              event: "INSERT",
+              schema: "public",
+              table: "notifications",
+              filter: `user_id=eq.${userId}`,
+            },
+            (payload) => {
+              const notification = payload.new as any;
+              
+              const badge = document.getElementById("notifBadge");
+              if (badge) {
+                const current = parseInt(badge.textContent || "0") || 0;
+                updateNotifBadge(current + 1);
+              }
+              
+              showNotifToast({
+                type: notification.type || "message",
+                title: notification.title || "New notification",
+                body: notification.body || "",
+                link: notification.link || null,
+              });
+            },
+          )
+          .on(
+            "postgres_changes",
+            {
+              event: "UPDATE",
+              schema: "public",
+              table: "notifications",
+              filter: `user_id=eq.${userId}`,
+            },
+            async () => {
+              try {
+                const count = await getUnreadNotifications(userId);
+                updateNotifBadge(count);
+              }
+              catch (_) {}
+            },
+          )
+          .subscribe();
+      }
+      
+      initNotifications();
+    </script>
+    
+    <div id="notifToastContainer" class="fixed top-20 right-4 z-[300] flex flex-col gap-2 pointer-events-none" style="max-width: 380px;"></div>
     <Toaster />
   </body>
 </html>

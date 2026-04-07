@@ -1,0 +1,273 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Card, CardContent } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+---
+
+<Layout title="Notifications">
+    <div class="bg-muted min-h-screen pb-16">
+        <div class="mx-auto max-w-3xl px-6 lg:px-8 pt-8">
+
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-foreground tracking-tight">Notifications</h1>
+                    <p class="text-sm text-muted-foreground mt-1" id="notifSubtext">Loading...</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="markAllReadBtn" class="hidden text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0">
+                        Mark all as read
+                    </button>
+                    <button id="clearReadBtn" class="hidden text-sm font-semibold text-muted-foreground hover:text-foreground cursor-pointer bg-transparent border-0">
+                        Clear read
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="space-y-3">
+                <div class="h-20 bg-card border border-border rounded-xl animate-pulse"></div>
+                <div class="h-20 bg-card border border-border rounded-xl animate-pulse"></div>
+                <div class="h-20 bg-card border border-border rounded-xl animate-pulse"></div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-20">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-muted-foreground/50 mb-4">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                <h2 class="text-xl font-bold text-foreground mb-2">All caught up!</h2>
+                <p class="text-muted-foreground mb-6">You have no notifications right now.</p>
+                <Button variant="primary" href="/marketplace">Browse Marketplace</Button>
+            </div>
+
+            <!-- Notification List -->
+            <div id="notifList" class="hidden space-y-2"></div>
+
+        </div>
+    </div>
+</Layout>
+
+<script>
+	import { supabase } from "../lib/supabase";
+	import { fetchNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification, clearReadNotifications, timeAgo } from "../lib/api";
+	import type { Notification } from "../lib/database.types";
+	
+	const NOTIF_ICONS: Record<string, string> = {
+		message: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+		listing_sold: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+		listing_pending: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+		review: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+		report_resolved: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>`,
+	};
+	
+	const NOTIF_COLORS: Record<string, string> = {
+		message: "text-blue-500 bg-blue-500/10",
+		listing_sold: "text-green-500 bg-green-500/10",
+		listing_pending: "text-amber-500 bg-amber-500/10",
+		review: "text-amber-400 bg-amber-400/10",
+		report_resolved: "text-purple-500 bg-purple-500/10",
+	};
+	
+	function escapeHtml(str: string): string {
+		const div = document.createElement("div");
+		div.textContent = str;
+		return div.innerHTML;
+	}
+	
+	function renderNotification(notification: Notification): string {
+		const icon = NOTIF_ICONS[notification.type] || NOTIF_ICONS.message;
+		const colorClass = NOTIF_COLORS[notification.type] || "text-muted-foreground bg-muted";
+		const unreadDot = !notification.read
+			? `<span class="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-primary"></span>`
+			: "";
+		const unreadBackground = !notification.read ? "bg-primary/[0.03] border-primary/20" : "bg-card border-border";
+		
+		return `
+      <div class="relative rounded-xl border ${unreadBackground} overflow-hidden transition-colors hover:border-primary/30 group" data-notif-id="${notification.id}" data-read="${notification.read}">
+        ${unreadDot}
+        <a href="${notification.link || '#'}" class="flex items-start gap-4 p-4 no-underline text-inherit notif-link" data-notif-id="${notification.id}">
+          <div class="shrink-0 w-10 h-10 rounded-full ${colorClass} flex items-center justify-center mt-0.5">
+            ${icon}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-foreground leading-snug">${escapeHtml(notification.title)}</p>
+            ${notification.body ? `<p class="text-sm text-muted-foreground mt-0.5 line-clamp-2">${escapeHtml(notification.body)}</p>` : ""}
+            <p class="text-xs text-muted-foreground mt-1.5">${timeAgo(notification.created_at)}</p>
+          </div>
+        </a>
+        <button class="notif-delete-btn absolute top-3 right-10 w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-300 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer" data-notif-id="${notification.id}" title="Delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    `;
+	}
+	
+	let currentUserId: string | null = null;
+	let allNotifications: Notification[] = [];
+	
+	function updateUI() {
+		const listElement = document.getElementById("notifList")!;
+		const emptyElement = document.getElementById("emptyState")!;
+		const loadingElement = document.getElementById("loadingState")!;
+		const subtextElement = document.getElementById("notifSubtext")!;
+		const markAllButton = document.getElementById("markAllReadBtn")!;
+		const clearButton = document.getElementById("clearReadBtn")!;
+		
+		loadingElement.classList.add("hidden");
+		
+		if (allNotifications.length === 0) {
+			emptyElement.classList.remove("hidden");
+			listElement.classList.add("hidden");
+			subtextElement.textContent = "No notifications";
+			markAllButton.classList.add("hidden");
+			clearButton.classList.add("hidden");
+			return;
+		}
+		
+		emptyElement.classList.add("hidden");
+		listElement.classList.remove("hidden");
+		listElement.innerHTML = allNotifications.map(renderNotification).join("");
+		
+		const unreadCount = allNotifications.filter((notification) => !notification.read).length;
+		const readCount = allNotifications.filter((notification) => notification.read).length;
+		
+		subtextElement.textContent = unreadCount > 0
+			? `${unreadCount} unread notification${unreadCount !== 1 ? "s" : ""}`
+			: `${allNotifications.length} notification${allNotifications.length !== 1 ? "s" : ""}`;
+		
+		if (unreadCount > 0) {
+			markAllButton.classList.remove("hidden");
+		}
+		else {
+			markAllButton.classList.add("hidden");
+		}
+		
+		if (readCount > 0) {
+			clearButton.classList.remove("hidden");
+		}
+		else {
+			clearButton.classList.add("hidden");
+		}
+		
+		attachHandlers();
+	}
+	
+	function attachHandlers() {
+		document.querySelectorAll<HTMLAnchorElement>(".notif-link").forEach((link) => {
+			link.addEventListener("click", async (e) => {
+				const id = link.dataset.notificationId;
+				
+				if (!id) {
+					return;
+				}
+				
+				const notification = allNotifications.find((notification) => notification.id === id);
+				if (notification && !notification.read) {
+					notification.read = true;
+					try {
+						await markNotificationRead(id);
+					}
+					catch (_) {}
+				}
+			});
+		});
+		
+		document.querySelectorAll<HTMLButtonElement>(".notif-delete-btn").forEach((button) => {
+			button.addEventListener("click", async (element) => {
+				element.preventDefault();
+				element.stopPropagation();
+				const id = button.dataset.notificationId;
+				
+				if (!id) {
+					return;
+				}
+				
+				const card = button.closest("[data-notif-id]");
+				if (card) {
+					card.classList.add("opacity-0", "scale-95", "transition-all", "duration-200");
+					setTimeout(() => {
+						allNotifications = allNotifications.filter((notification) => notification.id !== id);
+						updateUI();
+					}, 200);
+				}
+				
+				try {
+					await deleteNotification(id);
+				}
+				catch (_) {}
+			});
+		});
+	}
+	
+	async function init() {
+		const { data: { user } } = await supabase.auth.getUser();
+		
+		if (!user) {
+			window.location.href = "/login";
+			return;
+		}
+		
+		currentUserId = user.id;
+		
+		try {
+			allNotifications = await fetchNotifications(user.id);
+			updateUI();
+		}
+		catch (err) {
+			console.error("Failed to load notifications:", err);
+			document.getElementById("loadingState")!.classList.add("hidden");
+			document.getElementById("emptyState")!.classList.remove("hidden");
+		}
+		
+		supabase
+			.channel("user-notifications")
+			.on(
+				"postgres_changes",
+				{
+					event: "INSERT",
+					schema: "public",
+					table: "notifications",
+					filter: `user_id=eq.${user.id}`,
+				},
+				(payload) => {
+					const newNotification = payload.new as Notification;
+					if (!allNotifications.find((notification) => notification.id === newNotification.id)) {
+						allNotifications.unshift(newNotification);
+						updateUI();
+					}
+				},
+			)
+			.subscribe();
+		
+		document.getElementById("markAllReadBtn")!.addEventListener("click", async () => {
+			if (!currentUserId) {
+				return;
+			}
+			
+			allNotifications.forEach((n) => (n.read = true));
+			updateUI();
+			
+			try {
+				await markAllNotificationsRead(currentUserId);
+			}
+			catch (_) {}
+		});
+		
+		document.getElementById("clearReadBtn")!.addEventListener("click", async () => {
+			if (!currentUserId) {
+				return;
+			}
+			
+			allNotifications = allNotifications.filter((n) => !n.read);
+			updateUI();
+			try {
+				await clearReadNotifications(currentUserId);
+			}
+			catch (_) {}
+		});
+	}
+	
+	document.addEventListener("DOMContentLoaded", init);
+</script>

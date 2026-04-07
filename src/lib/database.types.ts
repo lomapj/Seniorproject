@@ -251,6 +251,41 @@ export interface Database {
           created_at?: string;
         }
       }
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: string;
+          title: string;
+          body: string;
+          link: string | null;
+          read: boolean;
+          data: Record<string, any>;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: string;
+          title: string;
+          body?: string;
+          link?: string | null;
+          read?: boolean;
+          data?: Record<string, any>;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: string;
+          title?: string;
+          body?: string;
+          link?: string | null;
+          read?: boolean;
+          data?: Record<string, any>;
+          created_at?: string;
+        }
+      }
     };
   };
 }
@@ -279,3 +314,6 @@ export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
 export type TransactionInsert = Database["public"]["Tables"]["transactions"]["Insert"];
 export type TransactionUpdate = Database["public"]["Tables"]["transactions"]["Update"];
+
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
+export type NotificationInsert = Database["public"]["Tables"]["notifications"]["Insert"];
