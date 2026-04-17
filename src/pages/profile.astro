@@ -348,6 +348,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
               ? `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover" />`
               : `<span class="text-5xl drop-shadow-md">${icon}</span>`
             }
+            ${item.price === 0 && item.status === "available" ? `<span class="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide bg-teal-500 text-white shadow-sm">🎁 Free</span>` : ""}
             ${item.status === "pending" ? `<div class="absolute inset-0 bg-foreground/40 flex items-center justify-center text-white font-extrabold text-lg tracking-widest">PENDING</div>` : ""}
           </div>
         </a>
@@ -355,7 +356,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
           <a href="/item?id=${item.id}" class="flex flex-col gap-0.5 no-underline text-inherit">
             <span class="text-xs font-bold text-muted-foreground uppercase">${item.category}</span>
             <h3 class="text-base font-extrabold text-foreground">${item.title}</h3>
-            <p class="text-lg font-extrabold text-primary">$${item.price}</p>
+            <span class="text-base font-extrabold ${item.price === 0 ? 'text-teal-600' : 'text-primary'}">${item.price === 0 ? 'FREE' : '$' + item.price.toFixed(2)}</span>
           </a>
           <div class="flex gap-1.5">
             <a href="/post?edit=${item.id}" class="w-10 h-10 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors" title="Edit">

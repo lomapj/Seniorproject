@@ -28,8 +28,14 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="flex items-center justify-between gap-4 py-3">
           <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5" id="catChips">
-            {["All", "Books", "Electronics", "Furniture", "Clothing", "Misc"].map((cat, i) => (
-              <button class={`cat-chip whitespace-nowrap px-4 py-2 rounded-full border text-sm font-semibold transition-all ${i === 0 ? "bg-primary border-primary text-primary-foreground shadow-sm" : "bg-card border-border text-muted-foreground hover:border-primary hover:text-primary"}`} data-cat={cat}>
+            {["All", "Books", "Electronics", "Furniture", "Clothing", "Misc", "Free Stuff"].map((cat, i) => (
+              <button class={`cat-chip whitespace-nowrap px-4 py-2 rounded-full border text-sm font-semibold transition-all ${i === 0 ?
+                "active bg-primary border-primary text-primary-foreground shadow-sm" :
+                cat === "Free Stuff" ?
+                  "bg-teal-500/10 border-teal-300 text-teal-700 hover:bg-teal-500/20" :
+                  "bg-card border-border text-muted-foreground hover:border-primary hover:text-primary"
+              }`} data-cat={cat === "Free Stuff" ? "Free" : cat}>
+                {cat === "Free Stuff" && <span class="mr-1">🎁</span>}
                 {cat}
               </button>
             ))}
@@ -283,12 +289,23 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     catChips.forEach((cat) => {
       const chipCat = cat.getAttribute("data-cat");
       if (chipCat === urlCat) {
-        cat.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
-        cat.classList.remove("bg-card", "border-border", "text-muted-foreground");
+        if (urlCat === "Free") {
+          cat.classList.add("active", "bg-teal-500", "border-teal-500", "text-primary-foreground", "shadow-sm");
+          cat.classList.remove("bg-teal-500/10", "border-teal-300", "text-teal-700");
+        }
+        else {
+          cat.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
+          cat.classList.remove("bg-card", "border-border", "text-muted-foreground");
+        }
       }
       else {
-        cat.classList.remove("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
-        cat.classList.add("bg-card", "border-border", "text-muted-foreground");
+        cat.classList.remove("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm", "bg-teal-500", "border-teal-500");
+        if (chipCat === "Free") {
+          cat.classList.add("bg-teal-500/10", "border-teal-300", "text-teal-700");
+        }
+        else {
+          cat.classList.add("bg-card", "border-border", "text-muted-foreground");
+        }
       }
     });
   }
@@ -523,6 +540,10 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10"><span class="px-4 py-1.5 rounded-full font-extrabold uppercase tracking-widest text-sm text-white border-2 border-white">${item.status}</span></div>`
       : "";
     
+    const freeBadge = item.price === 0 && item.status === "available"
+      ? `<span class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide bg-teal-500 text-white shadow-lg">🎁 Free</span>`
+      : "";
+    
     return `
       <a href="/item?id=${item.id}" class="listing-card group bg-card rounded-xl border border-border overflow-hidden no-underline text-inherit flex flex-col shadow-sm hover:-translate-y-2 hover:shadow-xl hover:border-primary/20 transition-all duration-300 fade-in-shimmer" data-category="${item.category}" data-price="${item.price}" data-id="${item.id}">
         <div class="h-55 relative flex items-center justify-center overflow-hidden" style="background: ${gradient}">
@@ -533,6 +554,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
             </svg>
           </button>
           ${statusOverlay}
+          ${freeBadge}
         </div>
         <div class="p-4 flex-1 flex flex-col gap-2">
           <div class="flex items-center justify-between">
@@ -540,7 +562,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
           </div>
           <h3 class="text-base font-bold text-foreground leading-tight line-clamp-2">${item.title}</h3>
           <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
-            <span class="text-xl font-extrabold text-primary">$${item.price}</span>
+            <span class="text-xl font-extrabold ${item.price === 0 ? 'text-teal-600' : 'text-primary'}">${item.price === 0 ? 'FREE' : '$' + item.price}</span>
             <div class="seller-rating text-xs text-muted-foreground" data-seller-id="${item.user_id}">
               <span class="text-amber-400/50">★★★★★</span>
             </div>
@@ -632,7 +654,10 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     
     let filtered = allListings;
     
-    if (currentCat !== "All") {
+    if (currentCat === "Free") {
+      filtered = filtered.filter((listing) => listing.price === 0);
+    }
+    else if (currentCat !== "All") {
       filtered = filtered.filter((l) => l.category === currentCat);
     }
     
@@ -732,12 +757,25 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   catChips.forEach((chip) => {
     chip.addEventListener("click", () => {
       catChips.forEach((c) => {
-        c.classList.remove("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
-        c.classList.add("bg-card", "border-border", "text-muted-foreground");
+        c.classList.remove("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm", "bg-teal-500", "border-teal-500");
+        const chipCat = c.getAttribute("data-cat");
+        if (chipCat === "Free") {
+          c.classList.add("bg-teal-500/10", "border-teal-300", "text-teal-700");
+        }
+        else {
+          c.classList.add("bg-card", "border-border", "text-muted-foreground");
+        }
       });
-      chip.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
-      chip.classList.remove("bg-card", "border-border", "text-muted-foreground");
-      currentCat = chip.getAttribute("data-cat") || "All";
+      const selectedCat = chip.getAttribute("data-cat");
+      if (selectedCat === "Free") {
+        chip.classList.remove("bg-teal-500/10", "border-teal-300", "text-teal-700");
+        chip.classList.add("active", "bg-teal-500", "border-teal-500", "text-primary-foreground", "shadow-sm");
+      }
+      else {
+        chip.classList.remove("bg-card", "border-border", "text-muted-foreground");
+        chip.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
+      }
+      currentCat = selectedCat || "All";
       applyClientFilters();
     });
   });

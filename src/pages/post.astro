@@ -77,12 +77,28 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                     <NativeSelectOption>Poor</NativeSelectOption>
                   </NativeSelect>
                 </div>
-
+                
+                <div class="sm:col-span-2">
+                  <label for="giveawayToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="giveawayLabel">
+                    <input type="checkbox" id="giveawayToggle" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-muted-foreground/20 rounded-full relative transition-colors peer-checked:bg-primary shrink-0">
+                      <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5"></div>
+                    </div>
+                    <div>
+                      <span class="text-sm font-bold text-foreground flex items-center gap-2">
+                        Give it away for free
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-teal-500/10 text-teal-600 border border-teal-200">Giveaway</span>
+                      </span>
+                      <span class="text-xs text-muted-foreground">List this item at $0 — help a fellow student out!</span>
+                    </div>
+                  </label>
+                </div>
+                
                 <div class="space-y-1.5">
                   <Label for="price">Price <span class="text-error">*</span></Label>
                   <div class="relative flex items-center">
                     <span class="absolute left-3 font-bold text-muted-foreground">$</span>
-                    <Input id="price" type="number" placeholder="0.00" step="0.01" min="0" class="pl-7" required />
+                    <Input id="price" type="number" placeholder="0.00" step="0.01" min="0" class="pl-7" />
                   </div>
                 </div>
 
@@ -194,6 +210,10 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   const conditionInput = document.getElementById("condition") as HTMLSelectElement;
   const priceInput = document.getElementById("price") as HTMLInputElement;
   const descriptionInput = document.getElementById("description") as HTMLTextAreaElement;
+  
+  const giveawayToggle = document.getElementById("giveawayToggle") as HTMLInputElement;
+  const giveawayLabel = document.getElementById("giveawayLabel")!;
+  const priceField = priceInput.closest(".space-y-1\\.5") as HTMLElement;
 
   const previewTitle = document.getElementById("previewTitle");
   const previewPrice = document.getElementById("previewPrice");
@@ -271,10 +291,52 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   categoryInput?.addEventListener("change", () => { if (previewCat) previewCat.textContent = categoryInput.value || "Category"; });
   conditionInput?.addEventListener("change", () => { if (previewCondition) previewCondition.textContent = conditionInput.value || "Condition"; });
   priceInput?.addEventListener("input", () => {
-    const val = parseFloat(priceInput.value);
-    if (previewPrice) previewPrice.textContent = isNaN(val) ? "$0" : `$${val.toLocaleString()}`;
+    const value = parseFloat(priceInput.value) || 0;
+    if (previewPrice) {
+      if (value === 0 && giveawayToggle.checked) {
+        previewPrice.textContent = "FREE";
+        previewPrice.classList.remove("text-primary");
+        previewPrice.classList.add("text-teal-600");
+      }
+      else {
+        previewPrice.textContent = value === 0 ? "$0" : `$${value.toLocaleString()}`;
+        previewPrice.classList.add("text-primary");
+        previewPrice.classList.remove("text-teal-600");
+      }
+    }
   });
   descriptionInput?.addEventListener("input", () => { if (descCount) descCount.textContent = `${descriptionInput.value.length}/1000`; });
+  
+  giveawayToggle.addEventListener("change", () => {
+    if (giveawayToggle.checked) {
+      priceInput.value = "0";
+      priceInput.disabled = true;
+      priceInput.classList.add("opacity-50");
+      giveawayLabel.classList.remove("border-border", "bg-muted/50");
+      giveawayLabel.classList.add("border-teal-400", "bg-teal-500/5");
+      if (previewPrice) {
+        previewPrice.textContent = "FREE";
+      }
+      if (previewPrice) {
+        previewPrice.classList.remove("text-primary");
+        previewPrice.classList.add("text-teal-600");
+      }
+    }
+    else {
+      priceInput.value = "";
+      priceInput.disabled = false;
+      priceInput.classList.remove("opacity-50");
+      giveawayLabel.classList.add("border-border", "bg-muted/50");
+      giveawayLabel.classList.remove("border-teal-400", "bg-teal-500/5");
+      if (previewPrice) {
+        previewPrice.textContent = "$0";
+      }
+      if (previewPrice) {
+        previewPrice.classList.add("text-primary");
+        previewPrice.classList.remove("text-teal-600");
+      }
+    }
+  });
 
   const form = document.getElementById("listingForm") as HTMLFormElement;
   const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
@@ -293,6 +355,10 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
         categoryInput.value = listing.category;
         conditionInput.value = listing.condition;
         priceInput.value = listing.price.toString();
+        if (listing.price === 0) {
+          giveawayToggle.checked = true;
+          giveawayToggle.dispatchEvent(new Event("change"));
+        }
         (document.getElementById("status") as HTMLSelectElement).value = listing.status;
         descriptionInput.value = listing.description;
         titleCount!.textContent = `${listing.title.length}/80`;
@@ -316,8 +382,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
     const price = parseFloat(priceInput.value);
     const status = (document.getElementById("status") as HTMLSelectElement).value;
     const description = descriptionInput.value.trim();
-
-    if (!title || !category || !condition || isNaN(price) || !description) { alert("Please fill in all required fields."); return; }
+    
+    if (!title || !category || !condition || isNaN(price) || price < 0 || !description) { alert("Please fill in all required fields."); return; }
 
     submitBtn.disabled = true;
     submitBtn.textContent = editId ? "Saving..." : "Publishing...";

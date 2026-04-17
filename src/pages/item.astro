@@ -279,7 +279,15 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
 
       // Title & price
       document.getElementById("itemTitle")!.textContent = item.title;
-      document.getElementById("itemPrice")!.textContent = `$${item.price}`;
+      const itemPriceElement = document.getElementById("itemPrice")!;
+      if (item.price === 0) {
+        itemPriceElement.textContent = "FREE";
+        itemPriceElement.classList.remove("text-primary");
+        itemPriceElement.classList.add("text-teal-600");
+      }
+      else {
+        itemPriceElement.textContent = `$${item.price.toFixed(2)}`;
+      }
       document.getElementById("itemCondition")!.textContent = item.condition;
       document.getElementById("itemDate")!.textContent = timeAgo(item.created_at);
       document.getElementById("itemCategory")!.textContent = item.category;
@@ -289,6 +297,13 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       const statusBadge = document.getElementById("itemStatusBadge")!;
       const statusColor = item.status === "available" ? "success" : item.status === "sold" ? "error" : "warning";
       statusBadge.innerHTML = `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border border-${statusColor} text-${statusColor} capitalize">${item.status}</span>`;
+      
+      if (item.price === 0) {
+        const giveawayBadge = document.createElement("span");
+        giveawayBadge.className = "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-teal-500/10 text-teal-600 border border-teal-200";
+        giveawayBadge.innerHTML = "🎁 Giveaway";
+        document.getElementById("itemStatusBadge")!.parentElement!.appendChild(giveawayBadge);
+      }
 
       // Badges row
       const badgeRow = document.getElementById("badgeRow")!;
