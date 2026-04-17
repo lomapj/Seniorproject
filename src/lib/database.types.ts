@@ -19,6 +19,7 @@ export interface Database {
           created_at: string;
           seller_name: string | null;
           images: string[];
+          open_to_offers: boolean;
         };
         Insert: {
           id?: string;
@@ -32,6 +33,7 @@ export interface Database {
           created_at?: string;
           seller_name?: string | null;
           images?: string[];
+          open_to_offers?: boolean;
         };
         Update: {
           id?: string;
@@ -45,6 +47,7 @@ export interface Database {
           created_at?: string;
           seller_name?: string | null;
           images?: string[];
+          open_to_offers?: boolean;
         };
       };
       conversations: {

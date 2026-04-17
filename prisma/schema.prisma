@@ -22,6 +22,7 @@ model Listing {
   images      Json     @default("[]")
   seller_name String?
   created_at  DateTime @default(now()) @db.Timestamptz
+  open_to_offers  Boolean @default(false)
 
   conversations Conversation[]
   reports       Report[]

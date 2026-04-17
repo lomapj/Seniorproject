@@ -94,6 +94,22 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                   </label>
                 </div>
                 
+                <div class="sm:col-span-2" id="offersToggleWrapper">
+                  <label for="offersToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="offersLabel">
+                    <input type="checkbox" id="offersToggle" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-muted-foreground/20 rounded-full relative transition-colors peer-checked:bg-violet-500 shrink-0">
+                      <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5"></div>
+                    </div>
+                    <div>
+                      <span class="text-sm font-bold text-foreground flex items-center gap-2">
+                        Open to offers
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200">Negotiable</span>
+                      </span>
+                      <span class="text-xs text-muted-foreground">Let buyers suggest their own price — you can accept or decline.</span>
+                    </div>
+                  </label>
+                </div>
+                
                 <div class="space-y-1.5">
                   <Label for="price">Price <span class="text-error">*</span></Label>
                   <div class="relative flex items-center">
@@ -151,6 +167,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                   <div class="flex justify-between items-center">
                     <span class="text-xs font-bold text-muted-foreground uppercase" id="previewCat">Category</span>
                     <span class="text-base font-extrabold text-primary" id="previewPrice">$0</span>
+                    <span id="previewOffersBadge" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200">Offers</span>
                   </div>
                   <h3 class="text-base font-extrabold text-foreground truncate" id="previewTitle">Your listing title here</h3>
                   <div class="flex justify-between items-center">
@@ -214,6 +231,10 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   const giveawayToggle = document.getElementById("giveawayToggle") as HTMLInputElement;
   const giveawayLabel = document.getElementById("giveawayLabel")!;
   const priceField = priceInput.closest(".space-y-1\\.5") as HTMLElement;
+  
+  const offersToggle = document.getElementById("offersToggle") as HTMLInputElement;
+  const offersLabel = document.getElementById("offersLabel")!;
+  const offersWrapper = document.getElementById("offersToggleWrapper")!;
 
   const previewTitle = document.getElementById("previewTitle");
   const previewPrice = document.getElementById("previewPrice");
@@ -307,6 +328,27 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   });
   descriptionInput?.addEventListener("input", () => { if (descCount) descCount.textContent = `${descriptionInput.value.length}/1000`; });
   
+  offersToggle.addEventListener("change", () => {
+    const previewBadge = document.getElementById("previewOffersBadge");
+    
+    if (offersToggle.checked) {
+      offersLabel.classList.remove("border-border", "bg-muted/50");
+      offersLabel.classList.add("border-violet-400", "bg-violet-500/5");
+      
+      if (previewBadge) {
+        previewBadge.classList.remove("hidden");
+      }
+    }
+    else {
+      offersLabel.classList.add("border-border", "bg-muted/50");
+      offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
+      
+      if (previewBadge) {
+        previewBadge.classList.add("hidden");
+      }
+    }
+  });
+  
   giveawayToggle.addEventListener("change", () => {
     if (giveawayToggle.checked) {
       priceInput.value = "0";
@@ -314,6 +356,12 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       priceInput.classList.add("opacity-50");
       giveawayLabel.classList.remove("border-border", "bg-muted/50");
       giveawayLabel.classList.add("border-teal-400", "bg-teal-500/5");
+      
+      offersToggle.checked = false;
+      offersToggle.disabled = true;
+      offersWrapper.classList.add("opacity-50", "pointer-events-none");
+      offersLabel.classList.add("border-border", "bg-muted/50");
+      offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
       if (previewPrice) {
         previewPrice.textContent = "FREE";
       }
@@ -328,6 +376,9 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       priceInput.classList.remove("opacity-50");
       giveawayLabel.classList.add("border-border", "bg-muted/50");
       giveawayLabel.classList.remove("border-teal-400", "bg-teal-500/5");
+      
+      offersToggle.disabled = false;
+      offersWrapper.classList.remove("opacity-50", "pointer-events-none");
       if (previewPrice) {
         previewPrice.textContent = "$0";
       }
@@ -358,6 +409,10 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
         if (listing.price === 0) {
           giveawayToggle.checked = true;
           giveawayToggle.dispatchEvent(new Event("change"));
+        }
+        if (listing.open_to_offers) {
+          offersToggle.checked = true;
+          offersToggle.dispatchEvent(new Event("change"));
         }
         (document.getElementById("status") as HTMLSelectElement).value = listing.status;
         descriptionInput.value = listing.description;
@@ -406,7 +461,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
 
     if (editId) {
       try {
-        await updateListing(editId, { title, category, condition, price, status, description, images: [...keptImages, ...imageUrls] });
+        await updateListing(editId, { title, category, condition, price, status, description, images: [...keptImages, ...imageUrls], open_to_offers: offersToggle.checked });
         window.location.href = `/item?id=${editId}`;
       } catch (err: any) {
         alert(`Failed to save: ${err.message}`);
@@ -415,7 +470,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       }
     } else {
       const sellerName = user.user_metadata?.full_name || user.email || "Seller";
-      const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName });
+      const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName, open_to_offers: offersToggle.checked });
       if (error) { alert(`Failed to publish: ${error.message}`); submitBtn.disabled = false; submitBtn.textContent = "Publish Listing"; return; }
       window.location.href = "/marketplace";
     }

@@ -340,6 +340,34 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       const actionMsgBtn = document.getElementById("actionMsgBtn");
       if (sellerCardMsgBtn) sellerCardMsgBtn.setAttribute("href", msgHref);
       if (actionMsgBtn) actionMsgBtn.setAttribute("href", msgHref);
+      
+      if (item.open_to_offers && item.status === "available") {
+        if (sellerCardMsgBtn) {
+          sellerCardMsgBtn.textContent = "Make an Offer";
+          sellerCardMsgBtn.classList.add("border-violet-300", "text-violet-600", "hover:bg-violet-50", "hover:border-violet-400");
+          sellerCardMsgBtn.classList.remove("border-border");
+        }
+        
+        if (actionMsgBtn) {
+          actionMsgBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Make an Offer
+          `;
+          
+          actionMsgBtn.classList.remove("bg-primary", "hover:bg-primary-accent");
+          actionMsgBtn.classList.add("bg-violet-600", "hover:bg-violet-700");
+        }
+        
+        const priceRow = document.getElementById("itemPrice")!.parentElement!;
+        const offersBadge = document.createElement("span");
+        offersBadge.className = "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200";
+        offersBadge.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Open to Offers
+        `;
+        
+        priceRow.appendChild(offersBadge);
+      }
 
       // Hide Message Seller buttons if current user IS the seller
       if (currentUserId && currentUserId === item.user_id) {
