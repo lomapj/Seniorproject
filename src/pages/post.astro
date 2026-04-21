@@ -103,7 +103,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                     <div>
                       <span class="text-sm font-bold text-foreground flex items-center gap-2">
                         Open to offers
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200">Negotiable</span>
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200">Open to Offers</span>
                       </span>
                       <span class="text-xs text-muted-foreground">Let buyers suggest their own price — you can accept or decline.</span>
                     </div>
@@ -163,19 +163,16 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                     <p class="text-xs font-semibold mt-1">Image preview</p>
                   </div>
                 </div>
-                <div class="p-4 space-y-2">
-                  <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-muted-foreground uppercase" id="previewCat">Category</span>
-                    <span class="text-base font-extrabold text-primary" id="previewPrice">$0</span>
-                    <span id="previewOffersBadge" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200">Offers</span>
+                <div class="p-4 flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <span id="previewCondition" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-primary bg-primary/10">Condition</span>
+                    <span id="previewOffersBadge" class="hidden items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200">Open to Offers</span>
                   </div>
-                  <h3 class="text-base font-extrabold text-foreground truncate" id="previewTitle">Your listing title here</h3>
-                  <div class="flex justify-between items-center">
-                    <span class="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                      <span class="w-2 h-2 bg-primary/20 rounded-full"></span>
-                      <span id="previewCondition">Condition</span>
-                    </span>
-                    <span class="text-xs font-semibold text-muted-foreground">Campus Center</span>
+                  <h3 class="text-base font-bold text-foreground leading-tight line-clamp-2" id="previewTitle">Your listing title here</h3>
+                  <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
+                    <span class="text-xl font-extrabold text-primary" id="previewPrice">$0</span>
+                    <span class="text-xs text-muted-foreground">No ratings</span>
+                    <span class="text-xs font-semibold text-muted-foreground" id="previewSellerName">You</span>
                   </div>
                 </div>
               </div>
@@ -235,12 +232,28 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   const offersToggle = document.getElementById("offersToggle") as HTMLInputElement;
   const offersLabel = document.getElementById("offersLabel")!;
   const offersWrapper = document.getElementById("offersToggleWrapper")!;
-
+  
   const previewTitle = document.getElementById("previewTitle");
   const previewPrice = document.getElementById("previewPrice");
-  const previewCat = document.getElementById("previewCat");
   const previewCondition = document.getElementById("previewCondition");
   const previewImg = document.getElementById("previewImg")!;
+  const previewSellerName = document.getElementById("previewSellerName");
+  
+  (async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && previewSellerName) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+        if (profile?.full_name) {
+          previewSellerName.textContent = profile.full_name.split(" ")[0];
+        }
+      }
+    } catch (_) {}
+  })();
 
   const titleCount = document.getElementById("titleCount");
   const descCount = document.getElementById("descCount");
@@ -248,13 +261,42 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   let selectedFiles: File[] = [];
   let keptImages: string[] = [];
   const editId = new URLSearchParams(window.location.search).get("edit");
-
+  
+  const PREVIEW_GRADIENTS: Record<string, string> = {
+    Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
+    Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
+    Furniture: "linear-gradient(135deg,#a0522d,#cd853f)",
+    Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
+    Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
+  };
+  
+  const PREVIEW_ICONS: Record<string, string> = {
+    Books: "\u{1F4D7}",
+    Electronics: "\u{1F4BB}",
+    Furniture: "\u{1FA91}",
+    Clothing: "\u{1F9E5}",
+    Misc: "\u{1F4E6}",
+  };
+  
   function updatePreview() {
+    const category = categoryInput?.value || "";
+    const gradient = PREVIEW_GRADIENTS[category] || "";
+    const icon = PREVIEW_ICONS[category] || "";
+    
     if (keptImages.length > 0) {
+      previewImg.style.background = "";
       previewImg.innerHTML = `<img src="${keptImages[0]}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
-    } else if (selectedFiles.length > 0) {
+    }
+    else if (selectedFiles.length > 0) {
+      previewImg.style.background = "";
       previewImg.innerHTML = `<img src="${URL.createObjectURL(selectedFiles[0])}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
-    } else {
+    }
+    else if (gradient) {
+      previewImg.style.background = gradient;
+      previewImg.innerHTML = `<span class="text-5xl">${icon}</span>`;
+    }
+    else {
+      previewImg.style.background = "";
       previewImg.innerHTML = `<div class="text-center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><p class="text-xs font-semibold mt-1">Image preview</p></div>`;
     }
   }
@@ -309,8 +351,12 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
     if (previewTitle) previewTitle.textContent = titleInput.value || "Your listing title here";
     if (titleCount) titleCount.textContent = `${titleInput.value.length}/80`;
   });
-  categoryInput?.addEventListener("change", () => { if (previewCat) previewCat.textContent = categoryInput.value || "Category"; });
-  conditionInput?.addEventListener("change", () => { if (previewCondition) previewCondition.textContent = conditionInput.value || "Condition"; });
+  categoryInput?.addEventListener("change", () => { updatePreview(); });
+  conditionInput?.addEventListener("change", () => {
+    if (previewCondition) {
+      previewCondition.textContent = conditionInput.value || "Condition";
+    }
+  });
   priceInput?.addEventListener("input", () => {
     const value = parseFloat(priceInput.value) || 0;
     if (previewPrice) {
@@ -352,9 +398,12 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   });
   
   giveawayToggle.addEventListener("change", () => {
+    const previewBadge = document.getElementById("previewOffersBadge");
+    
     if (giveawayToggle.checked) {
       document.getElementById("giveawayToggleButton")?.classList.add("translate-x-5");
       document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
+      previewBadge?.classList.add("hidden");
       priceInput.value = "0";
       priceInput.disabled = true;
       priceInput.classList.add("opacity-50");
@@ -424,7 +473,6 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
         titleCount!.textContent = `${listing.title.length}/80`;
         descCount!.textContent = `${listing.description.length}/1000`;
         previewTitle!.textContent = listing.title;
-        previewCat!.textContent = listing.category;
         previewCondition!.textContent = listing.condition;
         previewPrice!.textContent = `$${listing.price.toLocaleString()}`;
         keptImages = listing.images ? [...listing.images] : [];
