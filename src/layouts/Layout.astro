@@ -1,6 +1,7 @@
 ---
 import "@/styles/starwind.css";
 import Toaster from "@/components/starwind/toast/Toaster.astro";
+import ThemeToggle from "@/components/starwind/theme-toggle/ThemeToggle.astro";
 interface Props {
   title?: string;
   showNav?: boolean;
@@ -33,6 +34,36 @@ const {
         font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
       }
     </style>
+    <script is:inline>
+      function initTheme() {
+        const colorTheme = localStorage.getItem("colorTheme");
+        if (!colorTheme) {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add("dark");
+            localStorage.setItem("colorTheme", "dark");
+          }
+          else {
+            document.documentElement.classList.remove("dark");
+            localStorage.setItem("colorTheme", "light");
+          }
+        }
+        else {
+          if (colorTheme === "dark") {
+            document.documentElement.classList.add("dark");
+          }
+          else if (colorTheme === "light") {
+            document.documentElement.classList.remove("dark");
+          }
+          else if (colorTheme === "system") {
+            const prefersDarkTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle("dark", prefersDarkTheme);
+          }
+        }
+      }
+      
+      initTheme();
+      document.addEventListener("astro:after-swap", initTheme);
+    </script>
   </head>
   <body>
     {
@@ -139,11 +170,23 @@ const {
                     <line x1="21" y1="12" x2="9" y2="12" />
                   </svg>
                 </button>
+                <ThemeToggle
+                  class="nav-icon-btn w-10! h-10! rounded-full! border-[1.5px]! border-border! bg-card! text-muted-foreground! hover:border-primary! hover:text-primary! hover:bg-primary/5!"
+                  variant="outline"
+                  size="sm"
+                  ariaLabel="Toggle dark mode"
+                />
               </div>
               <!-- Shown when logged OUT -->
               <div id="navLoggedOut" style="display:flex;align-items:center;gap:0.75rem;">
                 <a href="/login" class="inline-flex items-center justify-center bg-card text-primary font-semibold text-sm py-2 px-5 rounded-xl border-[1.5px] border-primary no-underline transition-all hover:bg-primary/5">Log In</a>
                 <a href="/signup" class="bg-primary text-white font-bold text-sm py-2.5 px-5 rounded-full no-underline transition-all shadow-sm hover:bg-primary-accent hover:-translate-y-px hover:shadow-md">Sign Up</a>
+                <ThemeToggle
+                  class="nav-icon-btn w-10! h-10! rounded-full! border-[1.5px]! border-border! bg-card! text-muted-foreground! hover:border-primary! hover:text-primary! hover:bg-primary/5!"
+                  variant="outline"
+                  size="sm"
+                  ariaLabel="Toggle dark mode"
+                />
               </div>
             </div>
           </div>
