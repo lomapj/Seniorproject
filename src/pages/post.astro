@@ -82,7 +82,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                   <label for="giveawayToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="giveawayLabel">
                     <input type="checkbox" id="giveawayToggle" class="sr-only peer" />
                     <div class="w-11 h-6 bg-muted-foreground/20 rounded-full relative transition-colors peer-checked:bg-primary shrink-0">
-                      <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5"></div>
+                      <div id="giveawayToggleButton" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"></div>
                     </div>
                     <div>
                       <span class="text-sm font-bold text-foreground flex items-center gap-2">
@@ -98,7 +98,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                   <label for="offersToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="offersLabel">
                     <input type="checkbox" id="offersToggle" class="sr-only peer" />
                     <div class="w-11 h-6 bg-muted-foreground/20 rounded-full relative transition-colors peer-checked:bg-violet-500 shrink-0">
-                      <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5"></div>
+                      <div id="offersToggleButton" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"></div>
                     </div>
                     <div>
                       <span class="text-sm font-bold text-foreground flex items-center gap-2">
@@ -332,6 +332,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
     const previewBadge = document.getElementById("previewOffersBadge");
     
     if (offersToggle.checked) {
+      document.getElementById("offersToggleButton")?.classList.add("translate-x-5");
       offersLabel.classList.remove("border-border", "bg-muted/50");
       offersLabel.classList.add("border-violet-400", "bg-violet-500/5");
       
@@ -340,6 +341,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       }
     }
     else {
+      document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
       offersLabel.classList.add("border-border", "bg-muted/50");
       offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
       
@@ -351,6 +353,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   
   giveawayToggle.addEventListener("change", () => {
     if (giveawayToggle.checked) {
+      document.getElementById("giveawayToggleButton")?.classList.add("translate-x-5");
+      document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
       priceInput.value = "0";
       priceInput.disabled = true;
       priceInput.classList.add("opacity-50");
@@ -371,6 +375,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       }
     }
     else {
+      document.getElementById("giveawayToggleButton")?.classList.remove("translate-x-5");
       priceInput.value = "";
       priceInput.disabled = false;
       priceInput.classList.remove("opacity-50");
