@@ -110,7 +110,39 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                   </label>
                 </div>
                 
-                <div class="space-y-1.5">
+                <div class="sm:col-span-2" id="auctionToggleWrapper">
+                  <label for="auctionToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="auctionLabel">
+                    <input type="checkbox" id="auctionToggle" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-muted-foreground/20 rounded-full relative transition-colors peer-checked:bg-amber-500 shrink-0">
+                      <div id="auctionToggleButton" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"></div>
+                    </div>
+                    <div>
+                      <span class="text-sm font-bold text-foreground flex items-center gap-2">
+                        List as auction
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-amber-500/10 text-amber-600 border border-amber-200">Auction</span>
+                      </span>
+                      <span class="text-xs text-muted-foreground">Buyers place bids — highest bid wins when the auction ends.</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="sm:col-span-2 hidden" id="auctionFields">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 p-4 rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900">
+                    <div class="space-y-1.5">
+                      <Label for="startingBid">Starting Bid <span class="text-error">*</span></Label>
+                      <div class="relative flex items-center">
+                        <span class="absolute left-3 font-bold text-muted-foreground">$</span>
+                        <Input id="startingBid" type="number" placeholder="0.01" step="0.01" min="0.01" class="pl-7" />
+                      </div>
+                    </div>
+                    <div class="space-y-1.5">
+                      <Label for="auctionEndTime">Auction Ends <span class="text-error">*</span></Label>
+                      <Input id="auctionEndTime" type="datetime-local" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5" id="priceField">
                   <Label for="price">Price <span class="text-error">*</span></Label>
                   <div class="relative flex items-center">
                     <span class="absolute left-3 font-bold text-muted-foreground">$</span>
@@ -118,7 +150,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                   </div>
                 </div>
 
-                <div class="space-y-1.5">
+                <div class="space-y-1.5" id="statusField">
                   <Label for="status">Initial Status</Label>
                   <NativeSelect id="status" class="w-full">
                     <NativeSelectOption value="available">Available</NativeSelectOption>
@@ -227,11 +259,17 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   
   const giveawayToggle = document.getElementById("giveawayToggle") as HTMLInputElement;
   const giveawayLabel = document.getElementById("giveawayLabel")!;
-  const priceField = priceInput.closest(".space-y-1\\.5") as HTMLElement;
-  
   const offersToggle = document.getElementById("offersToggle") as HTMLInputElement;
   const offersLabel = document.getElementById("offersLabel")!;
   const offersWrapper = document.getElementById("offersToggleWrapper")!;
+
+  const auctionToggle = document.getElementById("auctionToggle") as HTMLInputElement;
+  const auctionLabel = document.getElementById("auctionLabel")!;
+  const auctionFields = document.getElementById("auctionFields")!;
+  const priceField = document.getElementById("priceField")!;
+  const statusField = document.getElementById("statusField")!;
+  const startingBidInput = document.getElementById("startingBid") as HTMLInputElement;
+  const auctionEndTimeInput = document.getElementById("auctionEndTime") as HTMLInputElement;
   
   const previewTitle = document.getElementById("previewTitle");
   const previewPrice = document.getElementById("previewPrice");
@@ -443,6 +481,38 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
     }
   });
 
+  auctionToggle.addEventListener("change", () => {
+    if (auctionToggle.checked) {
+      document.getElementById("auctionToggleButton")?.classList.add("translate-x-5");
+      auctionLabel.classList.remove("border-border", "bg-muted/50");
+      auctionLabel.classList.add("border-amber-400", "bg-amber-500/5");
+      auctionFields.classList.remove("hidden");
+      priceField.classList.add("hidden");
+      statusField.classList.add("hidden");
+
+      // Disable giveaway and offers when auction is on
+      giveawayToggle.checked = false;
+      giveawayToggle.disabled = true;
+      giveawayToggle.dispatchEvent(new Event("change"));
+      offersToggle.checked = false;
+      offersToggle.disabled = true;
+      offersWrapper.classList.add("opacity-50", "pointer-events-none");
+      document.getElementById("giveawayToggleWrapper")?.classList.add("opacity-50", "pointer-events-none");
+    } else {
+      document.getElementById("auctionToggleButton")?.classList.remove("translate-x-5");
+      auctionLabel.classList.add("border-border", "bg-muted/50");
+      auctionLabel.classList.remove("border-amber-400", "bg-amber-500/5");
+      auctionFields.classList.add("hidden");
+      priceField.classList.remove("hidden");
+      statusField.classList.remove("hidden");
+
+      giveawayToggle.disabled = false;
+      offersToggle.disabled = false;
+      offersWrapper.classList.remove("opacity-50", "pointer-events-none");
+      document.getElementById("giveawayToggleWrapper")?.classList.remove("opacity-50", "pointer-events-none");
+    }
+  });
+
   const form = document.getElementById("listingForm") as HTMLFormElement;
   const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
 
@@ -456,6 +526,11 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       try {
         const listing = await fetchListing(editId);
         if (listing.user_id !== user.id) { window.location.href = "/profile"; return; }
+        if (listing.is_auction) {
+          alert("Auction listings cannot be edited. You can delete the listing from your profile instead.");
+          window.location.href = "/profile";
+          return;
+        }
         titleInput.value = listing.title;
         categoryInput.value = listing.category;
         conditionInput.value = listing.condition;
@@ -487,11 +562,18 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
     const title = titleInput.value.trim();
     const category = categoryInput.value;
     const condition = conditionInput.value;
-    const price = parseFloat(priceInput.value);
-    const status = (document.getElementById("status") as HTMLSelectElement).value;
+    const isAuction = auctionToggle.checked;
+    const price = isAuction ? 0 : parseFloat(priceInput.value);
+    const status = isAuction ? "available" : (document.getElementById("status") as HTMLSelectElement).value;
     const description = descriptionInput.value.trim();
-    
-    if (!title || !category || !condition || isNaN(price) || price < 0 || !description) { alert("Please fill in all required fields."); return; }
+    const startingBid = isAuction ? parseFloat(startingBidInput.value) : null;
+    const auctionEndTime = isAuction ? new Date(auctionEndTimeInput.value).toISOString() : null;
+
+    if (!title || !category || !condition || !description) { alert("Please fill in all required fields."); return; }
+    if (!isAuction && (isNaN(price) || price < 0)) { alert("Please enter a valid price."); return; }
+    if (isAuction && (!startingBid || startingBid <= 0)) { alert("Please enter a valid starting bid."); return; }
+    if (isAuction && !auctionEndTime) { alert("Please set an auction end date and time."); return; }
+    if (isAuction && new Date(auctionEndTime!) <= new Date()) { alert("Auction end time must be in the future."); return; }
 
     submitBtn.disabled = true;
     submitBtn.textContent = editId ? "Saving..." : "Publishing...";
@@ -514,7 +596,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
 
     if (editId) {
       try {
-        await updateListing(editId, { title, category, condition, price, status, description, images: [...keptImages, ...imageUrls], open_to_offers: offersToggle.checked });
+        await updateListing(editId, { title, category, condition, price, status, description, images: [...keptImages, ...imageUrls], open_to_offers: offersToggle.checked, is_auction: isAuction, starting_bid: startingBid, auction_end_time: auctionEndTime });
         window.location.href = `/item?id=${editId}`;
       } catch (err: any) {
         alert(`Failed to save: ${err.message}`);
@@ -523,7 +605,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       }
     } else {
       const sellerName = user.user_metadata?.full_name || user.email || "Seller";
-      const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName, open_to_offers: offersToggle.checked });
+      const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName, open_to_offers: offersToggle.checked, is_auction: isAuction, starting_bid: startingBid, auction_end_time: auctionEndTime });
       if (error) { alert(`Failed to publish: ${error.message}`); submitBtn.disabled = false; submitBtn.textContent = "Publish Listing"; return; }
       window.location.href = "/marketplace";
     }

@@ -95,6 +95,36 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
             </CardContent>
           </Card>
 
+          <!-- Auction Section -->
+          <div id="auctionSection" class="hidden flex-col gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide bg-amber-500/10 text-amber-600 border border-amber-200">Auction</span>
+              <span class="text-sm font-bold text-foreground" id="auctionCountdown"></span>
+            </div>
+            <div class="flex items-end justify-between">
+              <div>
+                <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Current Bid</p>
+                <p class="text-2xl font-extrabold text-amber-600" id="auctionCurrentBid">—</p>
+              </div>
+              <p class="text-xs text-muted-foreground" id="auctionBidCount"></p>
+            </div>
+            <div id="bidForm" class="hidden flex-col gap-3 pt-3 border-t border-amber-200 dark:border-amber-900">
+              <div class="relative flex items-center">
+                <span class="absolute left-3 font-bold text-muted-foreground">$</span>
+                <input id="bidAmount" type="number" placeholder="Enter your bid" step="0.01" min="0"
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring pl-7" />
+              </div>
+              <button id="bidSubmitBtn" type="button"
+                class="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white transition-colors w-full">
+                Place Bid
+              </button>
+            </div>
+            <p id="bidStatus" class="text-sm"></p>
+            <div id="auctionEnded" class="hidden pt-3 border-t border-amber-200 dark:border-amber-900">
+              <p class="text-sm font-bold text-foreground" id="auctionWinnerText"></p>
+            </div>
+          </div>
+
           <div class="mt-2">
             <h2 class="text-base font-extrabold text-foreground mb-2">Description</h2>
             <p class="text-base text-muted-foreground leading-relaxed" id="itemDescription"></p>
@@ -205,6 +235,8 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
     submitReport,
     hasReported,
     hasReviewed,
+    fetchBids,
+    placeBid,
   } from "../lib/api";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
@@ -280,12 +312,13 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       // Title & price
       document.getElementById("itemTitle")!.textContent = item.title;
       const itemPriceElement = document.getElementById("itemPrice")!;
-      if (item.price === 0) {
+      if (item.is_auction) {
+        itemPriceElement.style.display = "none";
+      } else if (item.price === 0) {
         itemPriceElement.textContent = "FREE";
         itemPriceElement.classList.remove("text-primary");
         itemPriceElement.classList.add("text-teal-600");
-      }
-      else {
+      } else {
         itemPriceElement.textContent = `$${item.price.toFixed(2)}`;
       }
       document.getElementById("itemCondition")!.textContent = item.condition;
@@ -298,7 +331,7 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       const statusColor = item.status === "available" ? "success" : item.status === "sold" ? "error" : "warning";
       statusBadge.innerHTML = `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border border-${statusColor} text-${statusColor} capitalize">${item.status}</span>`;
       
-      if (item.price === 0) {
+      if (!item.is_auction && item.price === 0) {
         const giveawayBadge = document.createElement("span");
         giveawayBadge.className = "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-teal-500/10 text-teal-600 border border-teal-200";
         giveawayBadge.innerHTML = "🎁 Giveaway";
@@ -416,6 +449,114 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
 
       document.getElementById("loadingState")!.classList.add("hidden");
       document.getElementById("itemContent")!.classList.remove("hidden");
+
+      // ── Auction Section ────────────────────────────────────────────────
+      if (item.is_auction) {
+        const auctionSection = document.getElementById("auctionSection")!;
+        auctionSection.classList.remove("hidden");
+        auctionSection.style.display = "flex";
+
+        const auctionCountdown = document.getElementById("auctionCountdown")!;
+        const auctionCurrentBid = document.getElementById("auctionCurrentBid")!;
+        const auctionBidCount = document.getElementById("auctionBidCount")!;
+        const bidForm = document.getElementById("bidForm")!;
+        const bidAmountInput = document.getElementById("bidAmount") as HTMLInputElement;
+        const bidSubmitBtn = document.getElementById("bidSubmitBtn") as HTMLButtonElement;
+        const bidStatus = document.getElementById("bidStatus")!;
+        const auctionEnded = document.getElementById("auctionEnded")!;
+        const auctionWinnerText = document.getElementById("auctionWinnerText")!;
+
+        const endTime = new Date(item.auction_end_time!);
+        let bids = await fetchBids(item.id);
+
+        function updateBidDisplay() {
+          const topBid = bids[0];
+          auctionCurrentBid.textContent = topBid
+            ? `$${topBid.amount.toFixed(2)}`
+            : `$${(item.starting_bid ?? 0).toFixed(2)} (starting)`;
+          auctionBidCount.textContent = bids.length === 0
+            ? "No bids yet"
+            : `${bids.length} bid${bids.length !== 1 ? "s" : ""}`;
+        }
+
+        function updateCountdown() {
+          const now = new Date();
+          const diff = endTime.getTime() - now.getTime();
+          if (diff <= 0) {
+            auctionCountdown.textContent = "Auction ended";
+            bidForm.style.display = "none";
+            auctionEnded.classList.remove("hidden");
+            const winner = bids[0];
+            auctionWinnerText.textContent = winner
+              ? `Winner: ${winner.bidder_name} — $${winner.amount.toFixed(2)}`
+              : "Auction ended with no bids.";
+            return;
+          }
+          const days = Math.floor(diff / 86400000);
+          const hrs = Math.floor((diff % 86400000) / 3600000);
+          const mins = Math.floor((diff % 3600000) / 60000);
+          const secs = Math.floor((diff % 60000) / 1000);
+          auctionCountdown.textContent = days > 0
+            ? `${days}d ${hrs}h ${mins}m left`
+            : `${hrs}h ${mins}m ${secs}s left`;
+        }
+
+        updateBidDisplay();
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // Show bid form if logged in, not the seller, and auction not ended
+        const isEnded = new Date() >= endTime;
+        const isSeller = currentUserId === item.user_id;
+
+        function updateBidFormState() {
+          if (!currentUserId || isSeller || isEnded) return;
+          const isHighestBidder = bids.length > 0 && bids[0].bidder_id === currentUserId;
+          if (isHighestBidder) {
+            bidForm.style.display = "none";
+            bidStatus.innerHTML = `<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 border border-amber-200 bg-amber-50 rounded-full px-3 py-1">You have the highest bid</span>`;
+            bidStatus.classList.remove("hidden");
+          } else {
+            bidForm.classList.remove("hidden");
+            bidForm.style.display = "flex";
+            bidStatus.textContent = "";
+          }
+        }
+
+        updateBidFormState();
+
+        bidSubmitBtn?.addEventListener("click", async () => {
+          const amount = parseFloat(bidAmountInput.value);
+          const minBid = bids[0] ? bids[0].amount : (item.starting_bid ?? 0.01);
+          bidStatus.textContent = "";
+
+          if (isNaN(amount) || amount <= 0) {
+            bidStatus.innerHTML = `<span class="text-error font-semibold">Please enter a valid amount.</span>`;
+            return;
+          }
+          if (amount <= minBid) {
+            bidStatus.innerHTML = `<span class="text-error font-semibold">Bid must be higher than $${minBid.toFixed(2)}.</span>`;
+            return;
+          }
+
+          bidSubmitBtn.disabled = true;
+          bidSubmitBtn.textContent = "Placing bid...";
+
+          try {
+            const bidderName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Bidder";
+            await placeBid(item.id, currentUserId!, bidderName, amount);
+            bids = await fetchBids(item.id);
+            updateBidDisplay();
+            bidAmountInput.value = "";
+            updateBidFormState();
+          } catch (err: any) {
+            bidStatus.innerHTML = `<span class="text-error font-semibold">${err?.message || "Failed to place bid."}</span>`;
+          }
+
+          bidSubmitBtn.disabled = false;
+          bidSubmitBtn.textContent = "Place Bid";
+        });
+      }
 
       // ── Report Section ─────────────────────────────────────────────────
       const reportSubmitBtn = document.getElementById("reportSubmitBtn");

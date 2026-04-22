@@ -1004,3 +1004,50 @@ export async function fetchAllProfiles(): Promise<Profile[]> {
   if (error) throw error;
   return (data ?? []) as Profile[];
 }
+
+// ── Bids (Auctions) ───────────────────────────────────────────────────────────
+
+export interface Bid {
+  id: string;
+  listing_id: string;
+  bidder_id: string;
+  bidder_name: string;
+  amount: number;
+  created_at: string;
+}
+
+/** Fetch all bids for a listing, ordered highest first. */
+export async function fetchBids(listingId: string): Promise<Bid[]> {
+  const { data, error } = await supabase
+    .from("bids")
+    .select("*")
+    .eq("listing_id", listingId)
+    .order("amount", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Bid[];
+}
+
+/** Place a bid on a listing. */
+export async function placeBid(
+  listingId: string,
+  bidderId: string,
+  bidderName: string,
+  amount: number,
+): Promise<Bid> {
+  const { data: listing, error: listingError } = await supabase
+    .from("listings")
+    .select("status, auction_end_time")
+    .eq("id", listingId)
+    .single();
+  if (listingError) throw listingError;
+  if (listing.status === "sold" || (listing.auction_end_time && new Date(listing.auction_end_time) <= new Date())) {
+    throw new Error("This auction has ended.");
+  }
+  const { data, error } = await supabase
+    .from("bids")
+    .insert({ listing_id: listingId, bidder_id: bidderId, bidder_name: bidderName, amount })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as Bid;
+}

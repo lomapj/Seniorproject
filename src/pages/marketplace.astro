@@ -28,14 +28,17 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="flex items-center justify-between gap-4 py-3">
           <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5" id="catChips">
-            {["All", "Books", "Electronics", "Furniture", "Clothing", "Misc", "Free Stuff"].map((cat, i) => (
+            {["All", "Books", "Electronics", "Furniture", "Clothing", "Misc", "Free Stuff", "Auctions"].map((cat, i) => (
               <button class={`cat-chip whitespace-nowrap px-4 py-2 rounded-full border text-sm font-semibold transition-all ${i === 0 ?
                 "active bg-primary border-primary text-primary-foreground shadow-sm" :
                 cat === "Free Stuff" ?
                   "bg-teal-500/10 border-teal-300 text-teal-700 hover:bg-teal-500/20" :
+                  cat === "Auctions" ?
+                    "bg-amber-500/10 border-amber-300 text-amber-700 hover:bg-amber-500/20" :
                   "bg-card border-border text-muted-foreground hover:border-primary hover:text-primary"
               }`} data-cat={cat === "Free Stuff" ? "Free" : cat}>
                 {cat === "Free Stuff" && <span class="mr-1">🎁</span>}
+                {cat === "Auctions" && <span class="mr-1">⏱</span>}
                 {cat}
               </button>
             ))}
@@ -235,7 +238,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
 </style>
 
 <script>
-  import { fetchListings, fetchSellerRating, type Listing } from "../lib/api";
+  import { fetchListings, fetchSellerRating, fetchBids, type Listing } from "../lib/api";
   import { supabase } from "@/lib/supabase.ts";
   import { fetchSavedListingIds, toggleSaveListing } from "@/lib/api.ts";
   
@@ -540,8 +543,10 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10"><span class="px-4 py-1.5 rounded-full font-extrabold uppercase tracking-widest text-sm text-white border-2 border-white">${item.status}</span></div>`
       : "";
     
-    const freeBadge = item.price === 0 && item.status === "available"
+    const freeBadge = item.price === 0 && item.status === "available" && !item.is_auction
       ? `<span class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide bg-teal-500 text-white shadow-lg">🎁 Free</span>`
+      : item.is_auction
+      ? `<span class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide bg-amber-500 text-white shadow-lg">⏱ Auction</span>`
       : "";
     
     const offersBadge = item.open_to_offers && item.status === "available"
@@ -549,7 +554,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       : "";
     
     return `
-      <a href="/item?id=${item.id}" class="listing-card group bg-card rounded-xl border border-border overflow-hidden no-underline text-inherit flex flex-col shadow-sm hover:-translate-y-2 hover:shadow-xl hover:border-primary/20 transition-all duration-300 fade-in-shimmer" data-category="${item.category}" data-price="${item.price}" data-id="${item.id}">
+      <a href="/item?id=${item.id}" class="listing-card group bg-card rounded-xl border border-border overflow-hidden no-underline text-inherit flex flex-col shadow-sm hover:-translate-y-2 hover:shadow-xl hover:border-primary/20 transition-all duration-300 fade-in-shimmer" data-category="${item.category}" data-price="${item.price}" data-id="${item.id}" ${item.is_auction && item.auction_end_time ? `data-auction-end="${item.auction_end_time}"` : ''}>
         <div class="h-55 relative flex items-center justify-center overflow-hidden" style="background: ${gradient}">
           ${imageHtml}
           <button type="button" class="save-btn card-fav-btn absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-muted-foreground hover:text-error z-10 border-0" aria-label="Save listing" data-id="${item.id}">
@@ -566,8 +571,9 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
             ${offersBadge}
           </div>
           <h3 class="text-base font-bold text-foreground leading-tight line-clamp-2">${item.title}</h3>
+          ${item.is_auction && item.auction_end_time ? `<div class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 auction-countdown" data-end="${item.auction_end_time}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span></span></div>` : ''}
           <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
-            <span class="text-xl font-extrabold ${item.price === 0 ? 'text-teal-600' : 'text-primary'}">${item.price === 0 ? 'FREE' : '$' + item.price}</span>
+            <span class="text-xl font-extrabold ${item.is_auction ? 'text-amber-600' : item.price === 0 ? 'text-teal-600' : 'text-primary'} ${item.is_auction ? 'auction-bid-display' : ''}" ${item.is_auction ? `data-listing-id="${item.id}" data-starting-bid="${item.starting_bid ?? 0}"` : ''}>${item.is_auction ? `$${item.starting_bid ?? 0}` : item.price === 0 ? 'FREE' : '$' + item.price}</span>
             <div class="seller-rating text-xs text-muted-foreground" data-seller-id="${item.user_id}">
               <span class="text-amber-400/50">★★★★★</span>
             </div>
@@ -624,7 +630,41 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     }
     
     loadCardRatings();
-    
+
+    async function loadAuctionBids() {
+      const bidElements = document.querySelectorAll<HTMLElement>(".auction-bid-display[data-listing-id]");
+      await Promise.all(Array.from(bidElements).map(async (el) => {
+        const listingId = el.dataset.listingId!;
+        const startingBid = parseFloat(el.dataset.startingBid || "0");
+        try {
+          const bids = await fetchBids(listingId);
+          el.textContent = bids.length > 0 ? `$${bids[0].amount.toFixed(2)}` : `$${startingBid.toFixed(2)}`;
+        } catch (_) {}
+      }));
+    }
+
+    loadAuctionBids();
+
+    function updateAuctionCountdowns() {
+      document.querySelectorAll<HTMLElement>(".auction-countdown[data-end]").forEach((el) => {
+        const end = new Date(el.dataset.end!);
+        const diff = end.getTime() - Date.now();
+        const span = el.querySelector("span")!;
+        if (diff <= 0) {
+          span.textContent = "Ended";
+          return;
+        }
+        const days = Math.floor(diff / 86400000);
+        const hrs = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        span.textContent = days > 0 ? `${days}d ${hrs}h ${mins}m left` : `${hrs}h ${mins}m ${secs}s left`;
+      });
+    }
+
+    updateAuctionCountdowns();
+    setInterval(updateAuctionCountdowns, 1000);
+
     resultsCount.textContent = listings.length.toString();
     
     const observer = new IntersectionObserver((entries) => {
@@ -659,8 +699,10 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     
     let filtered = allListings;
     
-    if (currentCat === "Free") {
-      filtered = filtered.filter((listing) => listing.price === 0);
+    if (currentCat === "Auctions") {
+      filtered = filtered.filter((listing) => listing.is_auction);
+    } else if (currentCat === "Free") {
+      filtered = filtered.filter((listing) => listing.price === 0 && !listing.is_auction);
     }
     else if (currentCat !== "All") {
       filtered = filtered.filter((l) => l.category === currentCat);

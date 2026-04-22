@@ -311,12 +311,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/
 						? `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover" />`
 						: `<span class="text-5xl drop-shadow-md">${icon}</span>`
 					}
-          ${item.price === 0 && item.status === "available" ? `<span class="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide bg-teal-500 text-white shadow-sm">🎁 Free</span>` : ""}
+          ${item.is_auction ? `<span class="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide bg-amber-500 text-white shadow-sm">Auction</span>` : item.price === 0 && item.status === "available" ? `<span class="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide bg-teal-500 text-white shadow-sm">🎁 Free</span>` : ""}
         </div>
         <div class="p-4 flex flex-col gap-0.5">
           <span class="text-xs font-bold text-muted-foreground uppercase">${item.category}</span>
           <h3 class="text-base font-extrabold text-foreground">${item.title}</h3>
-          <span class="text-base font-extrabold ${item.price === 0 ? 'text-teal-600' : 'text-primary'}">${item.price === 0 ? 'FREE' : '$' + item.price.toFixed(2)}</span>
+          <span class="text-base font-extrabold ${item.is_auction ? 'text-amber-600' : item.price === 0 ? 'text-teal-600' : 'text-primary'}">${item.is_auction ? 'Auction' : item.price === 0 ? 'FREE' : '$' + item.price.toFixed(2)}</span>
         </div>
       </a>
     `;
