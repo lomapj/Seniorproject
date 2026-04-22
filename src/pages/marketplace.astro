@@ -295,18 +295,15 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
         if (urlCat === "Free") {
           cat.classList.add("active", "bg-teal-500", "border-teal-500", "text-primary-foreground", "shadow-sm");
           cat.classList.remove("bg-teal-500/10", "border-teal-300", "text-teal-700");
-        }
-        else {
+        } else {
           cat.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
           cat.classList.remove("bg-card", "border-border", "text-muted-foreground");
         }
-      }
-      else {
+      } else {
         cat.classList.remove("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm", "bg-teal-500", "border-teal-500");
         if (chipCat === "Free") {
           cat.classList.add("bg-teal-500/10", "border-teal-300", "text-teal-700");
-        }
-        else {
+        } else {
           cat.classList.add("bg-card", "border-border", "text-muted-foreground");
         }
       }
@@ -319,8 +316,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       advancedSearchPanel.classList.remove("hidden");
       advancedSearchToggle.classList.add("border-primary", "text-primary", "bg-primary/5");
       advancedSearchToggle.classList.remove("border-border", "text-muted-foreground", "bg-card");
-    }
-    else {
+    } else {
       advancedSearchPanel.classList.add("hidden");
       if (countActiveFilters() === 0) {
         advancedSearchToggle.classList.remove("border-primary", "text-primary", "bg-primary/5");
@@ -391,9 +387,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   function renderActiveFilterPills() {
     const pills: string[] = [];
     
-    if (selectedCondition !== "Any") {
-      pills.push(makeFilterPill("Condition: " + selectedCondition, "condition"));
-    }
+    if (selectedCondition !== "Any") pills.push(makeFilterPill("Condition: " + selectedCondition, "condition"));
     if (datePostedSelect.value !== "any") {
       const label = datePostedSelect.options[datePostedSelect.selectedIndex].text;
       pills.push(makeFilterPill(label, "date"));
@@ -401,37 +395,22 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     const minVal = priceMin.value ? parseFloat(priceMin.value) : 0;
     const maxVal = priceMax.value ? parseFloat(priceMax.value) : 0;
     if (minVal > 0 || maxVal > 0) {
-      
       let priceLabel = "";
-      if (minVal > 0 && maxVal > 0) {
-        priceLabel = `$${minVal} – $${maxVal}`;
-      }
-      else if (minVal > 0) {
-        priceLabel = `$${minVal}+`;
-      }
-      else {
-        priceLabel = `Up to $${maxVal}`;
-      }
-      
+      if (minVal > 0 && maxVal > 0) priceLabel = `$${minVal} – $${maxVal}`;
+      else if (minVal > 0) priceLabel = `$${minVal}+`;
+      else priceLabel = `Up to $${maxVal}`;
       pills.push(makeFilterPill(priceLabel, "price"));
     }
     const selectedRating = document.querySelector<HTMLInputElement>('input[name="minRating"]:checked')?.value || "any";
-    if (selectedRating !== "any") {
-      pills.push(makeFilterPill(selectedRating + "★ & Up", "rating"));
-    }
-    if (hideOwnListings.checked) {
-      pills.push(makeFilterPill("Hiding my listings", "hideOwn"));
-    }
-    if (showOnlyOwn.checked) {
-      pills.push(makeFilterPill("Only my listings", "showOwn"));
-    }
+    if (selectedRating !== "any") pills.push(makeFilterPill(selectedRating + "★ & Up", "rating"));
+    if (hideOwnListings.checked) pills.push(makeFilterPill("Hiding my listings", "hideOwn"));
+    if (showOnlyOwn.checked) pills.push(makeFilterPill("Only my listings", "showOwn"));
     if (sortSelect.value !== "newest") {
       const label = sortSelect.options[sortSelect.selectedIndex].text;
       pills.push(makeFilterPill("Sort: " + label, "sort"));
     }
     
     activeFiltersBar.innerHTML = pills.join("");
-    
     activeFiltersBar.querySelectorAll("[data-remove-filter]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const target = (e.currentTarget as HTMLElement).getAttribute("data-remove-filter");
@@ -452,36 +431,17 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       case "condition":
         selectedCondition = "Any";
         condChips.forEach((c, i) => {
-          if (i === 0) {
-            c.classList.add("bg-primary/10", "border-primary/30", "text-primary");
-            c.classList.remove("bg-muted", "border-border", "text-muted-foreground");
-          } else {
-            c.classList.remove("bg-primary/10", "border-primary/30", "text-primary");
-            c.classList.add("bg-muted", "border-border", "text-muted-foreground");
-          }
+          if (i === 0) { c.classList.add("bg-primary/10", "border-primary/30", "text-primary"); c.classList.remove("bg-muted", "border-border", "text-muted-foreground"); }
+          else { c.classList.remove("bg-primary/10", "border-primary/30", "text-primary"); c.classList.add("bg-muted", "border-border", "text-muted-foreground"); }
         });
         break;
-      case "date":
-        datePostedSelect.value = "any";
-        break;
-      case "price":
-        priceMin.value = "";
-        priceMax.value = "";
-        break;
-      case "rating":
-        ratingRadios.forEach((r, i) => { r.checked = i === 0; });
-        break;
-      case "hideOwn":
-        hideOwnListings.checked = false;
-        break;
-      case "showOwn":
-        showOnlyOwn.checked = false;
-        break;
-      case "sort":
-        sortSelect.value = "newest";
-        break;
+      case "date": datePostedSelect.value = "any"; break;
+      case "price": priceMin.value = ""; priceMax.value = ""; break;
+      case "rating": ratingRadios.forEach((r, i) => { r.checked = i === 0; }); break;
+      case "hideOwn": hideOwnListings.checked = false; break;
+      case "showOwn": showOnlyOwn.checked = false; break;
+      case "sort": sortSelect.value = "newest"; break;
     }
-    
     applyClientFilters();
   }
   
@@ -491,14 +451,8 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     priceMax.value = "";
     selectedCondition = "Any";
     condChips.forEach((c, i) => {
-      if (i === 0) {
-        c.classList.add("bg-primary/10", "border-primary/30", "text-primary");
-        c.classList.remove("bg-muted", "border-border", "text-muted-foreground");
-      }
-      else {
-        c.classList.remove("bg-primary/10", "border-primary/30", "text-primary");
-        c.classList.add("bg-muted", "border-border", "text-muted-foreground");
-      }
+      if (i === 0) { c.classList.add("bg-primary/10", "border-primary/30", "text-primary"); c.classList.remove("bg-muted", "border-border", "text-muted-foreground"); }
+      else { c.classList.remove("bg-primary/10", "border-primary/30", "text-primary"); c.classList.add("bg-muted", "border-border", "text-muted-foreground"); }
     });
     datePostedSelect.value = "any";
     ratingRadios.forEach((r, i) => { r.checked = i === 0; });
@@ -507,25 +461,17 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     applyClientFilters();
   });
   
-  applyFiltersBtn.addEventListener("click", () => {
-    applyClientFilters();
-  });
+  applyFiltersBtn.addEventListener("click", () => { applyClientFilters(); });
   
   function getDateCutoff(value: string): Date | null {
     const now = new Date();
     switch (value) {
-      case "today":
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      case "3days":
-        return new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
-      case "week":
-        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      case "month":
-        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      case "3months":
-        return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-      default:
-        return null;
+      case "today": return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      case "3days": return new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+      case "week": return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case "month": return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      case "3months": return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      default: return null;
     }
   }
   
@@ -542,8 +488,12 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     const statusOverlay = item.status !== "available"
       ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10"><span class="px-4 py-1.5 rounded-full font-extrabold uppercase tracking-widest text-sm text-white border-2 border-white">${item.status}</span></div>`
       : "";
+
+    const saleBadge = item.on_sale && item.status === "available" && !item.is_auction
+      ? `<span class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide bg-orange-500 text-white shadow-lg">🏷️ On Sale</span>`
+      : "";
     
-    const freeBadge = item.price === 0 && item.status === "available" && !item.is_auction
+    const freeBadge = item.price === 0 && item.status === "available" && !item.is_auction && !item.on_sale
       ? `<span class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide bg-teal-500 text-white shadow-lg">🎁 Free</span>`
       : item.is_auction
       ? `<span class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide bg-amber-500 text-white shadow-lg">⏱ Auction</span>`
@@ -563,7 +513,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
             </svg>
           </button>
           ${statusOverlay}
-          ${freeBadge}
+          ${saleBadge}${freeBadge}
         </div>
         <div class="p-4 flex-1 flex flex-col gap-2">
           <div class="flex items-center justify-between">
@@ -573,7 +523,10 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
           <h3 class="text-base font-bold text-foreground leading-tight line-clamp-2">${item.title}</h3>
           ${item.is_auction && item.auction_end_time ? `<div class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 auction-countdown" data-end="${item.auction_end_time}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span></span></div>` : ''}
           <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
-            <span class="text-xl font-extrabold ${item.is_auction ? 'text-amber-600' : item.price === 0 ? 'text-teal-600' : 'text-primary'} ${item.is_auction ? 'auction-bid-display' : ''}" ${item.is_auction ? `data-listing-id="${item.id}" data-starting-bid="${item.starting_bid ?? 0}"` : ''}>${item.is_auction ? `$${item.starting_bid ?? 0}` : item.price === 0 ? 'FREE' : '$' + item.price}</span>
+            <div class="flex flex-col leading-tight">
+              ${item.on_sale && item.original_price && !item.is_auction ? `<span class="text-xs text-muted-foreground line-through">$${item.original_price}</span>` : ""}
+              <span class="text-xl font-extrabold ${item.is_auction ? 'text-amber-600 auction-bid-display' : item.on_sale ? 'text-orange-500' : item.price === 0 ? 'text-teal-600' : 'text-primary'}" ${item.is_auction ? `data-listing-id="${item.id}" data-starting-bid="${item.starting_bid ?? 0}"` : ''}>${item.is_auction ? `$${item.starting_bid ?? 0}` : item.price === 0 ? 'FREE' : '$' + item.price}</span>
+            </div>
             <div class="seller-rating text-xs text-muted-foreground" data-seller-id="${item.user_id}">
               <span class="text-amber-400/50">★★★★★</span>
             </div>
@@ -601,17 +554,12 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     async function loadCardRatings() {
       const ratingElements = document.querySelectorAll<HTMLElement>(".seller-rating[data-seller-id]");
       const sellerIds = [...new Set(Array.from(ratingElements).map(element => element.dataset.sellerId!))];
-      
       const uncachedIds = sellerIds.filter(id => !(id in sellerRatingsCache));
       
       await Promise.all(
         uncachedIds.map(async (sellerId) => {
-          try {
-            sellerRatingsCache[sellerId] = await fetchSellerRating(sellerId);
-          }
-          catch (_) {
-            sellerRatingsCache[sellerId] = { average: 0, count: 0 };
-          }
+          try { sellerRatingsCache[sellerId] = await fetchSellerRating(sellerId); }
+          catch (_) { sellerRatingsCache[sellerId] = { average: 0, count: 0 }; }
         })
       );
       
@@ -622,8 +570,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
           const full = Math.floor(rating.average);
           const empty = 5 - full;
           element.innerHTML = `<span class="text-amber-400">${"\u2605".repeat(full)}${"\u2606".repeat(empty)}</span> <span>${rating.average}</span>`;
-        }
-        else {
+        } else {
           element.innerHTML = `<span class="text-muted-foreground">No ratings</span>`;
         }
       });
@@ -650,10 +597,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
         const end = new Date(el.dataset.end!);
         const diff = end.getTime() - Date.now();
         const span = el.querySelector("span")!;
-        if (diff <= 0) {
-          span.textContent = "Ended";
-          return;
-        }
+        if (diff <= 0) { span.textContent = "Ended"; return; }
         const days = Math.floor(diff / 86400000);
         const hrs = Math.floor((diff % 86400000) / 3600000);
         const mins = Math.floor((diff % 3600000) / 60000);
@@ -664,15 +608,12 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
 
     updateAuctionCountdowns();
     setInterval(updateAuctionCountdowns, 1000);
-
+    
     resultsCount.textContent = listings.length.toString();
     
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("fade-in-visible");
-          observer.unobserve(entry.target);
-        }
+        if (entry.isIntersecting) { entry.target.classList.add("fade-in-visible"); observer.unobserve(entry.target); }
       });
     }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
     
@@ -689,11 +630,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     let savedIds: Set<String> = new Set();
     
     if (user) {
-      const { data } = await supabase
-        .from("saved_listings")
-        .select("listing_id")
-        .eq("user_id", user.id);
-      
+      const { data } = await supabase.from("saved_listings").select("listing_id").eq("user_id", user.id);
       savedIds = new Set((data ?? []).map((row: any) => row.listing_id.toString()));
     }
     
@@ -703,59 +640,35 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       filtered = filtered.filter((listing) => listing.is_auction);
     } else if (currentCat === "Free") {
       filtered = filtered.filter((listing) => listing.price === 0 && !listing.is_auction);
-    }
-    else if (currentCat !== "All") {
+    } else if (currentCat !== "All") {
       filtered = filtered.filter((l) => l.category === currentCat);
     }
     
-    if (min > 0) {
-      filtered = filtered.filter((l) => l.price >= min);
-    }
-    if (max < Infinity) {
-      filtered = filtered.filter((l) => l.price <= max);
-    }
-    
-    if (query) {
-      filtered = filtered.filter((l) => l.title.toLowerCase().includes(query));
-    }
-    
-    if (savedOnly) {
-      filtered = filtered.filter((l) => savedIds.has(l.id.toString()));
-    }
-    
-    if (selectedCondition !== "Any") {
-      filtered = filtered.filter((l) => l.condition === selectedCondition);
-    }
+    if (min > 0) filtered = filtered.filter((l) => l.price >= min);
+    if (max < Infinity) filtered = filtered.filter((l) => l.price <= max);
+    if (query) filtered = filtered.filter((l) => l.title.toLowerCase().includes(query));
+    if (savedOnly) filtered = filtered.filter((l) => savedIds.has(l.id.toString()));
+    if (selectedCondition !== "Any") filtered = filtered.filter((l) => l.condition === selectedCondition);
     
     const dateCutoff = getDateCutoff(datePostedSelect.value);
-    if (dateCutoff) {
-      filtered = filtered.filter((l) => new Date(l.created_at) >= dateCutoff);
-    }
+    if (dateCutoff) filtered = filtered.filter((l) => new Date(l.created_at) >= dateCutoff);
     
     if (user) {
-      if (hideOwnListings.checked) {
-        filtered = filtered.filter((l) => l.user_id !== user.id);
-      }
-      if (showOnlyOwn.checked) {
-        filtered = filtered.filter((l) => l.user_id === user.id);
-      }
+      if (hideOwnListings.checked) filtered = filtered.filter((l) => l.user_id !== user.id);
+      if (showOnlyOwn.checked) filtered = filtered.filter((l) => l.user_id === user.id);
     }
     
     const selectedRating = document.querySelector<HTMLInputElement>('input[name="minRating"]:checked')?.value || "any";
     if (selectedRating !== "any") {
       const minRating = parseFloat(selectedRating);
-      
       const sellerIds = [...new Set(filtered.map((l) => l.user_id))];
       const uncachedIds = sellerIds.filter((id) => !(id in sellerRatingsCache));
       
       if (uncachedIds.length > 0) {
         await Promise.all(
           uncachedIds.map(async (sellerId) => {
-            try {
-              sellerRatingsCache[sellerId] = await fetchSellerRating(sellerId);
-            } catch (_) {
-              sellerRatingsCache[sellerId] = { average: 0, count: 0 };
-            }
+            try { sellerRatingsCache[sellerId] = await fetchSellerRating(sellerId); }
+            catch (_) { sellerRatingsCache[sellerId] = { average: 0, count: 0 }; }
           })
         );
       }
@@ -767,12 +680,8 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     }
     
     const sort = sortSelect.value;
-    if (sort === "price_asc") {
-      filtered = [...filtered].sort((a, b) => a.price - b.price);
-    }
-    else if (sort === "price_desc") {
-      filtered = [...filtered].sort((a, b) => b.price - a.price);
-    }
+    if (sort === "price_asc") filtered = [...filtered].sort((a, b) => a.price - b.price);
+    else if (sort === "price_desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
     else if (sort === "rating_desc") {
       filtered = [...filtered].sort((a, b) => {
         const rA = sellerRatingsCache[a.user_id]?.average || 0;
@@ -806,19 +715,14 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       catChips.forEach((c) => {
         c.classList.remove("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm", "bg-teal-500", "border-teal-500");
         const chipCat = c.getAttribute("data-cat");
-        if (chipCat === "Free") {
-          c.classList.add("bg-teal-500/10", "border-teal-300", "text-teal-700");
-        }
-        else {
-          c.classList.add("bg-card", "border-border", "text-muted-foreground");
-        }
+        if (chipCat === "Free") c.classList.add("bg-teal-500/10", "border-teal-300", "text-teal-700");
+        else c.classList.add("bg-card", "border-border", "text-muted-foreground");
       });
       const selectedCat = chip.getAttribute("data-cat");
       if (selectedCat === "Free") {
         chip.classList.remove("bg-teal-500/10", "border-teal-300", "text-teal-700");
         chip.classList.add("active", "bg-teal-500", "border-teal-500", "text-primary-foreground", "shadow-sm");
-      }
-      else {
+      } else {
         chip.classList.remove("bg-card", "border-border", "text-muted-foreground");
         chip.classList.add("active", "bg-primary", "border-primary", "text-primary-foreground", "shadow-sm");
       }
@@ -827,12 +731,8 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     });
   });
   
-  sortSelect.addEventListener("change", () => {
-    applyClientFilters();
-  });
-  
+  sortSelect.addEventListener("change", () => { applyClientFilters(); });
   window.addEventListener("saved-changed", applyClientFilters);
-  
   loadListings();
 </script>
 

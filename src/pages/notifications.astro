@@ -51,7 +51,7 @@ import Button from "@/components/starwind/button/Button.astro";
 
 <script>
 	import { supabase } from "../lib/supabase";
-	import { fetchNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification, clearReadNotifications, timeAgo } from "../lib/api";
+	import { fetchNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification, clearReadNotifications, timeAgo, checkStaleListingsAndNotify } from "../lib/api";
 	import type { Notification } from "../lib/database.types";
 	
 	const NOTIF_ICONS: Record<string, string> = {
@@ -60,6 +60,7 @@ import Button from "@/components/starwind/button/Button.astro";
 		listing_pending: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
 		review: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
 		report_resolved: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>`,
+		sale_reminder: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
 	};
 	
 	const NOTIF_COLORS: Record<string, string> = {
@@ -68,6 +69,7 @@ import Button from "@/components/starwind/button/Button.astro";
 		listing_pending: "text-amber-500 bg-amber-500/10",
 		review: "text-amber-400 bg-amber-400/10",
 		report_resolved: "text-purple-500 bg-purple-500/10",
+		sale_reminder: "text-orange-500 bg-orange-500/10",
 	};
 	
 	function escapeHtml(str: string): string {
@@ -139,15 +141,13 @@ import Button from "@/components/starwind/button/Button.astro";
 		
 		if (unreadCount > 0) {
 			markAllButton.classList.remove("hidden");
-		}
-		else {
+		} else {
 			markAllButton.classList.add("hidden");
 		}
 		
 		if (readCount > 0) {
 			clearButton.classList.remove("hidden");
-		}
-		else {
+		} else {
 			clearButton.classList.add("hidden");
 		}
 		
@@ -157,19 +157,12 @@ import Button from "@/components/starwind/button/Button.astro";
 	function attachHandlers() {
 		document.querySelectorAll<HTMLAnchorElement>(".notif-link").forEach((link) => {
 			link.addEventListener("click", async (e) => {
-				const id = link.dataset.notificationId;
-				
-				if (!id) {
-					return;
-				}
-				
+				const id = link.dataset.notifId;
+				if (!id) return;
 				const notification = allNotifications.find((notification) => notification.id === id);
 				if (notification && !notification.read) {
 					notification.read = true;
-					try {
-						await markNotificationRead(id);
-					}
-					catch (_) {}
+					try { await markNotificationRead(id); } catch (_) {}
 				}
 			});
 		});
@@ -178,11 +171,8 @@ import Button from "@/components/starwind/button/Button.astro";
 			button.addEventListener("click", async (element) => {
 				element.preventDefault();
 				element.stopPropagation();
-				const id = button.dataset.notificationId;
-				
-				if (!id) {
-					return;
-				}
+				const id = button.dataset.notifId;
+				if (!id) return;
 				
 				const card = button.closest("[data-notif-id]");
 				if (card) {
@@ -192,11 +182,7 @@ import Button from "@/components/starwind/button/Button.astro";
 						updateUI();
 					}, 200);
 				}
-				
-				try {
-					await deleteNotification(id);
-				}
-				catch (_) {}
+				try { await deleteNotification(id); } catch (_) {}
 			});
 		});
 	}
@@ -212,10 +198,10 @@ import Button from "@/components/starwind/button/Button.astro";
 		currentUserId = user.id;
 		
 		try {
+			await checkStaleListingsAndNotify(user.id);
 			allNotifications = await fetchNotifications(user.id);
 			updateUI();
-		}
-		catch (err) {
+		} catch (err) {
 			console.error("Failed to load notifications:", err);
 			document.getElementById("loadingState")!.classList.add("hidden");
 			document.getElementById("emptyState")!.classList.remove("hidden");
@@ -242,30 +228,17 @@ import Button from "@/components/starwind/button/Button.astro";
 			.subscribe();
 		
 		document.getElementById("markAllReadBtn")!.addEventListener("click", async () => {
-			if (!currentUserId) {
-				return;
-			}
-			
+			if (!currentUserId) return;
 			allNotifications.forEach((n) => (n.read = true));
 			updateUI();
-			
-			try {
-				await markAllNotificationsRead(currentUserId);
-			}
-			catch (_) {}
+			try { await markAllNotificationsRead(currentUserId); } catch (_) {}
 		});
 		
 		document.getElementById("clearReadBtn")!.addEventListener("click", async () => {
-			if (!currentUserId) {
-				return;
-			}
-			
+			if (!currentUserId) return;
 			allNotifications = allNotifications.filter((n) => !n.read);
 			updateUI();
-			try {
-				await clearReadNotifications(currentUserId);
-			}
-			catch (_) {}
+			try { await clearReadNotifications(currentUserId); } catch (_) {}
 		});
 	}
 	

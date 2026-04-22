@@ -23,6 +23,10 @@ export interface Database {
           is_auction: boolean;
           starting_bid: number | null;
           auction_end_time: string | null;
+          on_sale: boolean;
+          discount_percent: number;
+          original_price: number | null;
+          sale_notified_at: string | null;
         };
         Insert: {
           id?: string;
@@ -40,6 +44,10 @@ export interface Database {
           is_auction?: boolean;
           starting_bid?: number | null;
           auction_end_time?: string | null;
+          on_sale?: boolean;
+          discount_percent?: number;
+          original_price?: number | null;
+          sale_notified_at?: string | null;
         };
         Update: {
           id?: string;
@@ -57,6 +65,10 @@ export interface Database {
           is_auction?: boolean;
           starting_bid?: number | null;
           auction_end_time?: string | null;
+          on_sale?: boolean;
+          discount_percent?: number;
+          original_price?: number | null;
+          sale_notified_at?: string | null;
         };
       };
       conversations: {

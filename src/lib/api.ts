@@ -53,7 +53,6 @@ export interface TransactionWithNames extends Transaction {
 
 // ── Listings ───────────────────────────────────────────────────────────────────
 
-/** Fetch all available listings, newest first. Optional filters. */
 export async function fetchListings(opts?: {
   category?: string;
   search?: string;
@@ -83,7 +82,6 @@ export async function fetchListings(opts?: {
     query = query.in("id", opts.savedOnly);
   }
 
-  // Sorting
   if (opts?.sort === "price_asc") {
     query = query.order("price", { ascending: true });
   } else if (opts?.sort === "price_desc") {
@@ -95,7 +93,6 @@ export async function fetchListings(opts?: {
   return (data ?? []) as Listing[];
 }
 
-/** Fetch a single listing by ID. */
 export async function fetchListing(id: string) {
   const { data, error } = await supabase
     .from("listings")
@@ -106,7 +103,6 @@ export async function fetchListing(id: string) {
   return data as Listing;
 }
 
-/** Fetch listings belonging to a specific user. */
 export async function fetchUserListings(userId: string) {
   const { data, error } = await supabase
     .from("listings")
@@ -117,13 +113,11 @@ export async function fetchUserListings(userId: string) {
   return (data ?? []) as Listing[];
 }
 
-/** Delete a listing (must be owner). */
 export async function deleteListing(id: string) {
   const { error } = await supabase.from("listings").delete().eq("id", id);
   if (error) throw error;
 }
 
-/** Update a listing's fields. */
 export async function updateListing(id: string, fields: Partial<Listing>) {
   const { error } = await supabase
     .from("listings")
@@ -134,11 +128,9 @@ export async function updateListing(id: string, fields: Partial<Listing>) {
 
 // ── Conversations ──────────────────────────────────────────────────────────────
 
-/** Fetch all conversations for a user with last message preview. */
 export async function fetchConversations(
   userId: string,
 ): Promise<ConversationWithPreview[]> {
-  // Get all conversations where user is buyer or seller
   const { data: convos, error } = await supabase
     .from("conversations")
     .select("*, listings(title, price, images)")
@@ -150,7 +142,6 @@ export async function fetchConversations(
 
   const convoIds = convos.map((c: any) => c.id);
 
-  // Get last message for each conversation
   const { data: allMessages, error: msgError } = await supabase
     .from("messages")
     .select("*")
@@ -159,7 +150,6 @@ export async function fetchConversations(
 
   if (msgError) throw msgError;
 
-  // Get unread counts
   const { data: unreadData, error: unreadError } = await supabase
     .from("messages")
     .select("conversation_id")
@@ -169,21 +159,17 @@ export async function fetchConversations(
 
   if (unreadError) throw unreadError;
 
-  // Count unreads per conversation
   const unreadMap: Record<string, number> = {};
   for (const msg of unreadData ?? []) {
-    unreadMap[msg.conversation_id] =
-      (unreadMap[msg.conversation_id] || 0) + 1;
+    unreadMap[msg.conversation_id] = (unreadMap[msg.conversation_id] || 0) + 1;
   }
 
-  // Get other user names via auth metadata
   const otherUserIds = convos.map((c: any) =>
     c.buyer_id === userId ? c.seller_id : c.buyer_id,
   );
   const uniqueUserIds = [...new Set(otherUserIds)];
   const userNames = await fetchUserNames(uniqueUserIds);
 
-  // Build last message map (first message per conversation = most recent)
   const lastMessageMap: Record<string, any> = {};
   for (const msg of allMessages ?? []) {
     if (!lastMessageMap[msg.conversation_id]) {
@@ -194,12 +180,7 @@ export async function fetchConversations(
   return convos.map((c: any) => {
     const otherId = c.buyer_id === userId ? c.seller_id : c.buyer_id;
     const otherName = userNames[otherId] || "Unknown";
-    const initials = otherName
-      .split(" ")
-      .map((w: string) => w[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    const initials = otherName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
     const lastMsg = lastMessageMap[c.id];
     const listing = c.listings;
 
@@ -222,13 +203,11 @@ export async function fetchConversations(
   });
 }
 
-/** Get or create a conversation between buyer and seller about a listing. */
 export async function fetchOrCreateConversation(
   listingId: string | null,
   buyerId: string,
   sellerId: string,
 ): Promise<Conversation> {
-  // Try to find existing
   let query = supabase
     .from("conversations")
     .select("*")
@@ -245,14 +224,9 @@ export async function fetchOrCreateConversation(
   if (findError) throw findError;
   if (existing) return existing as Conversation;
 
-  // Create new
   const { data: created, error: createError } = await supabase
     .from("conversations")
-    .insert({
-      listing_id: listingId,
-      buyer_id: buyerId,
-      seller_id: sellerId,
-    })
+    .insert({ listing_id: listingId, buyer_id: buyerId, seller_id: sellerId })
     .select()
     .single();
 
@@ -260,10 +234,7 @@ export async function fetchOrCreateConversation(
   return created as Conversation;
 }
 
-/** Fetch all messages in a conversation. */
-export async function fetchMessages(
-  conversationId: string,
-): Promise<Message[]> {
+export async function fetchMessages(conversationId: string): Promise<Message[]> {
   const { data, error } = await supabase
     .from("messages")
     .select("*")
@@ -274,7 +245,6 @@ export async function fetchMessages(
   return (data ?? []) as Message[];
 }
 
-/** Send a message in a conversation. */
 export async function sendMessage(
   conversationId: string,
   senderId: string,
@@ -282,17 +252,12 @@ export async function sendMessage(
 ): Promise<Message> {
   const { data, error } = await supabase
     .from("messages")
-    .insert({
-      conversation_id: conversationId,
-      sender_id: senderId,
-      content,
-    })
+    .insert({ conversation_id: conversationId, sender_id: senderId, content })
     .select()
     .single();
 
   if (error) throw error;
 
-  // Update conversation timestamp
   await supabase
     .from("conversations")
     .update({ updated_at: new Date().toISOString() })
@@ -301,11 +266,7 @@ export async function sendMessage(
   return data as Message;
 }
 
-/** Mark all messages from the other user as read. */
-export async function markMessagesRead(
-  conversationId: string,
-  userId: string,
-): Promise<void> {
+export async function markMessagesRead(conversationId: string, userId: string): Promise<void> {
   const { error } = await supabase
     .from("messages")
     .update({ read: true })
@@ -316,9 +277,7 @@ export async function markMessagesRead(
   if (error) throw error;
 }
 
-/** Get total unread message count for a user. */
 export async function getUnreadCount(userId: string): Promise<number> {
-  // Get all conversation IDs where user is a participant
   const { data: convos, error: convoError } = await supabase
     .from("conversations")
     .select("id")
@@ -342,7 +301,6 @@ export async function getUnreadCount(userId: string): Promise<number> {
 
 // ── Reports ────────────────────────────────────────────────────────────────────
 
-/** Submit a report for a listing. */
 export async function submitReport(
   listingId: string,
   reporterId: string,
@@ -351,29 +309,18 @@ export async function submitReport(
 ): Promise<Report> {
   const { data, error } = await supabase
     .from("reports")
-    .insert({
-      listing_id: listingId,
-      reporter_id: reporterId,
-      reason,
-      details: details || null,
-    })
+    .insert({ listing_id: listingId, reporter_id: reporterId, reason, details: details || null })
     .select()
     .single();
 
   if (error) {
-    if (error.code === "23505") {
-      throw new Error("You have already reported this listing.");
-    }
+    if (error.code === "23505") throw new Error("You have already reported this listing.");
     throw error;
   }
   return data as Report;
 }
 
-/** Check if a user has already reported a listing. */
-export async function hasReported(
-  listingId: string,
-  reporterId: string,
-): Promise<boolean> {
+export async function hasReported(listingId: string, reporterId: string): Promise<boolean> {
   const { count, error } = await supabase
     .from("reports")
     .select("*", { count: "exact", head: true })
@@ -386,7 +333,6 @@ export async function hasReported(
 
 // ── Reviews ────────────────────────────────────────────────────────────────────
 
-/** Submit a review for a seller after a transaction. */
 export async function submitReview(
   listingId: string,
   reviewerId: string,
@@ -413,18 +359,13 @@ export async function submitReview(
     .single();
 
   if (error) {
-    if (error.code === "23505") {
-      throw new Error("You have already reviewed this listing.");
-    }
+    if (error.code === "23505") throw new Error("You have already reviewed this listing.");
     throw error;
   }
   return data as Review;
 }
 
-/** Fetch all reviews for a seller. */
-export async function fetchSellerReviews(
-  sellerId: string,
-): Promise<Review[]> {
+export async function fetchSellerReviews(sellerId: string): Promise<Review[]> {
   const { data, error } = await supabase
     .from("reviews")
     .select("*")
@@ -436,10 +377,7 @@ export async function fetchSellerReviews(
   return (data ?? []) as Review[];
 }
 
-/** Fetch all reviews about a user (both as seller and as buyer). */
-export async function fetchUserReviews(
-  userId: string,
-): Promise<Review[]> {
+export async function fetchUserReviews(userId: string): Promise<Review[]> {
   const { data, error } = await supabase
     .from("reviews")
     .select("*")
@@ -450,10 +388,7 @@ export async function fetchUserReviews(
   return (data ?? []) as Review[];
 }
 
-/** Fetch all reviews a user has left. */
-export async function fetchReviewsByUser(
-  userId: string,
-): Promise<Review[]> {
+export async function fetchReviewsByUser(userId: string): Promise<Review[]> {
   const { data, error } = await supabase
     .from("reviews")
     .select("*")
@@ -464,10 +399,7 @@ export async function fetchReviewsByUser(
   return (data ?? []) as Review[];
 }
 
-/** Fetch reviews for a specific listing. */
-export async function fetchListingReviews(
-  listingId: string,
-): Promise<Review[]> {
+export async function fetchListingReviews(listingId: string): Promise<Review[]> {
   const { data, error } = await supabase
     .from("reviews")
     .select("*")
@@ -478,10 +410,7 @@ export async function fetchListingReviews(
   return (data ?? []) as Review[];
 }
 
-/** Get a seller's average rating and total review count. */
-export async function fetchSellerRating(
-  sellerId: string,
-): Promise<SellerRating> {
+export async function fetchSellerRating(sellerId: string): Promise<SellerRating> {
   const { data, error } = await supabase
     .from("reviews")
     .select("rating")
@@ -494,18 +423,12 @@ export async function fetchSellerRating(
   if (reviews.length === 0) return { average: 0, count: 0 };
 
   const sum = reviews.reduce((acc: number, r: any) => acc + r.rating, 0);
-  return {
-    average: Math.round((sum / reviews.length) * 10) / 10,
-    count: reviews.length,
-  };
+  return { average: Math.round((sum / reviews.length) * 10) / 10, count: reviews.length };
 }
 
-/** Get a user's full rating breakdown (as seller and as buyer). */
-export async function fetchUserRating(
-  userId: string,
-): Promise<UserRating> {
+export async function fetchUserRating(userId: string): Promise<UserRating> {
   const { data, error } = await supabase
-  .from("reviews")
+    .from("reviews")
     .select("rating, review_type")
     .eq("reviewed_user_id", userId);
 
@@ -513,45 +436,26 @@ export async function fetchUserRating(
 
   const all = data ?? [];
   if (all.length === 0) {
-    return {
-      average: 0,
-      count: 0,
-      asSeller: { average: 0, count: 0 },
-      asBuyer: { average: 0, count: 0 },
-    };
+    return { average: 0, count: 0, asSeller: { average: 0, count: 0 }, asBuyer: { average: 0, count: 0 } };
   }
 
-  const sellerReviews = all.filter((review: any) => review.review_type === "buyer_to_seller");
-  const buyerReviews = all.filter((review: any) => review.review_type === "seller_to_buyer");
+  const sellerReviews = all.filter((r: any) => r.review_type === "buyer_to_seller");
+  const buyerReviews = all.filter((r: any) => r.review_type === "seller_to_buyer");
 
   function average(arr: any[]) {
-    if (arr.length === 0) {
-      return { average: 0, count: 0 };
-    }
-
+    if (arr.length === 0) return { average: 0, count: 0 };
     const sum = arr.reduce((acc: number, r: any) => acc + r.rating, 0);
-    return {
-      average: Math.round((sum / arr.length) * 10) / 10,
-      count: arr.length
-    };
+    return { average: Math.round((sum / arr.length) * 10) / 10, count: arr.length };
   }
 
   const overall = average(all);
-  return {
-    ...overall,
-    asSeller: average(sellerReviews),
-    asBuyer: average(buyerReviews),
-  };
+  return { ...overall, asSeller: average(sellerReviews), asBuyer: average(buyerReviews) };
 }
 
-/** Check if a user has already reviewed a specific listing. */
-export async function hasReviewed(
-  listingId: string,
-  reviewerId: string,
-): Promise<boolean> {
+export async function hasReviewed(listingId: string, reviewerId: string): Promise<boolean> {
   const { count, error } = await supabase
     .from("reviews")
-    .select("*", { count: "exact", head: true})
+    .select("*", { count: "exact", head: true })
     .eq("listing_id", listingId)
     .eq("reviewer_id", reviewerId);
 
@@ -559,38 +463,30 @@ export async function hasReviewed(
   return (count ?? 0) > 0;
 }
 
-// ── Transactions ────────────────────────────────────────────────────────────────────
-export async function fetchUserTransactions(
-  userId: string,
-): Promise<TransactionWithNames[]> {
+// ── Transactions ──────────────────────────────────────────────────────────────
+
+export async function fetchUserTransactions(userId: string): Promise<TransactionWithNames[]> {
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
     .or(`seller_id.eq.${userId}, buyer_id.eq.${userId}`)
     .order("completed_at", { ascending: false });
-  
-  if (error) {
-    throw error;
-  }
-  if (!data || data.length === 0) {
-    return [];
-  }
-  
+
+  if (error) throw error;
+  if (!data || data.length === 0) return [];
+
   const userIds = new Set<string>();
-  for (const transaction of data) {
-    userIds.add(transaction.seller_id);
-    
-    if (transaction.buyer_id) {
-      userIds.add(transaction.buyer_id);
-    }
+  for (const t of data) {
+    userIds.add(t.seller_id);
+    if (t.buyer_id) userIds.add(t.buyer_id);
   }
-  
+
   const names = await fetchUserNames([...userIds]);
-  
-  return data.map((transaction: any) => ({
-    ...transaction,
-    seller_name: names[transaction.seller_id] || "Unknown",
-    buyer_name: transaction.buyer_id ? names[transaction.buyer_id] || "Unknown" : null,
+
+  return data.map((t: any) => ({
+    ...t,
+    seller_name: names[t.seller_id] || "Unknown",
+    buyer_name: t.buyer_id ? names[t.buyer_id] || "Unknown" : null,
   })) as TransactionWithNames[];
 }
 
@@ -603,47 +499,23 @@ export async function createTransaction(fields: {
   category?: string;
   images?: string[];
 }): Promise<Transaction> {
-  const { data, error } = await supabase
-    .from("transactions")
-    .insert(fields)
-    .select()
-    .single();
-  
-  if (error) {
-    throw error;
-  }
-  
+  const { data, error } = await supabase.from("transactions").insert(fields).select().single();
+  if (error) throw error;
   return data as Transaction;
 }
 
-export async function cancelTransaction(
-  transactionId: string
-) {
-  const { error } = await supabase
-    .from("transactions")
-    .update({ status: "cancelled" })
-    .eq("id", transactionId);
-  
-  if (error) {
-    throw error;
-  }
+export async function cancelTransaction(transactionId: string) {
+  const { error } = await supabase.from("transactions").update({ status: "cancelled" }).eq("id", transactionId);
+  if (error) throw error;
 }
 
-export async function assignTransactionBuyer(
-  transactionId: string,
-  buyerId: string,
-) {
-  const { error } = await supabase
-    .from("transactions")
-    .update({ buyer_id: buyerId })
-    .eq("id", transactionId);
-  
-  if (error) {
-    throw error;
-  }
+export async function assignTransactionBuyer(transactionId: string, buyerId: string) {
+  const { error } = await supabase.from("transactions").update({ buyer_id: buyerId }).eq("id", transactionId);
+  if (error) throw error;
 }
 
-// ── Notifications ────────────────────────────────────────────────────────────────────
+// ── Notifications ──────────────────────────────────────────────────────────────
+
 export async function fetchNotifications(
   userId: string,
   opts?: { unreadOnly?: boolean; limit?: number }
@@ -653,105 +525,81 @@ export async function fetchNotifications(
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
-  
-  if (opts?.unreadOnly) {
-    query = query.eq("read", false);
-  }
-  if (opts?.limit) {
-    query = query.limit(opts.limit);
-  }
-  
+
+  if (opts?.unreadOnly) query = query.eq("read", false);
+  if (opts?.limit) query = query.limit(opts.limit);
+
   const { data, error } = await query;
-  if (error) {
-    throw error;
-  }
-  
+  if (error) throw error;
   return (data ?? []) as Notification[];
 }
 
-export async function getUnreadNotifications(
-  userId: string
-): Promise<number> {
+export async function getUnreadNotifications(userId: string): Promise<number> {
   const { count, error } = await supabase
     .from("notifications")
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
     .eq("read", false);
-  
-  if (error) {
-    throw error;
-  }
-  
+  if (error) throw error;
   return count ?? 0;
 }
 
-export async function markNotificationRead(
-  notificationId: string
-) {
-  const { error } = await supabase
-    .from("notifications")
-    .update({ read: true })
-    .eq("id", notificationId);
-  
-  if (error) {
-    throw error;
-  }
+export async function markNotificationRead(notificationId: string) {
+  const { error } = await supabase.from("notifications").update({ read: true }).eq("id", notificationId);
+  if (error) throw error;
 }
 
-export async function markAllNotificationsRead(
-  userId: string
-) {
-  const { error } = await supabase
-    .from("notifications")
-    .update({ read: true })
+export async function markAllNotificationsRead(userId: string) {
+  const { error } = await supabase.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
+  if (error) throw error;
+}
+
+export async function deleteNotification(notificationId: string) {
+  const { error } = await supabase.from("notifications").delete().eq("id", notificationId);
+  if (error) throw error;
+}
+
+export async function clearReadNotifications(userId: string) {
+  const { error } = await supabase.from("notifications").delete().eq("user_id", userId).eq("read", true);
+  if (error) throw error;
+}
+
+// ── Sale Reminders ─────────────────────────────────────────────────────────────
+
+export async function checkStaleListingsAndNotify(userId: string): Promise<void> {
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+  const { data: staleListings } = await supabase
+    .from("listings")
+    .select("id, title, price")
     .eq("user_id", userId)
-    .eq("read", false);
-  
-  if (error) {
-    throw error;
-  }
-}
+    .eq("status", "available")
+    .eq("on_sale", false)
+    .is("sale_notified_at", null)
+    .lt("created_at", fourteenDaysAgo.toISOString());
 
-export async function deleteNotification(
-  notificationId: string
-) {
-  const { error } = await supabase
-    .from("notifications")
-    .delete()
-    .eq("id", notificationId);
-  
-  if (error) {
-    throw error;
-  }
-}
+  if (!staleListings || staleListings.length === 0) return;
 
-export async function clearReadNotifications(
-  userId: string
-) {
-  const { error } = await supabase
-    .from("notifications")
-    .delete()
-    .eq("user_id", userId)
-    .eq("read", true);
-  
-  if (error) {
-    throw error;
+  for (const listing of staleListings) {
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      type: "sale_reminder",
+      title: "Consider putting your item on sale",
+      body: `"${listing.title}" has been unsold for 2 weeks. Adding a discount could help it sell faster!`,
+      link: `/post?edit=${listing.id}`,
+      read: false,
+    });
+
+    await supabase.from("listings").update({ sale_notified_at: new Date().toISOString() }).eq("id", listing.id);
   }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-/** Fetch display names for a list of user IDs via Supabase auth admin or profiles. */
-export async function fetchUserNames(
-  userIds: string[],
-): Promise<Record<string, string>> {
-  // Since we can't call auth.admin from the client, we look up seller_name
-  // from listings created by these users as a fallback.
+export async function fetchUserNames(userIds: string[]): Promise<Record<string, string>> {
   const nameMap: Record<string, string> = {};
-
-  if (userIds.length === 0) {
-    return nameMap;
-  }
+  if (userIds.length === 0) return nameMap;
 
   const { data: profiles, error: profileError } = await supabase
     .from("profiles")
@@ -760,9 +608,7 @@ export async function fetchUserNames(
 
   if (!profileError && profiles) {
     for (const profile of profiles) {
-      if (profile.full_name) {
-        nameMap[profile.id] = profile.full_name;
-      }
+      if (profile.full_name) nameMap[profile.id] = profile.full_name;
     }
   }
 
@@ -775,41 +621,27 @@ export async function fetchUserNames(
       .not("seller_name", "is", null);
 
     for (const row of listings ?? []) {
-      if (row.seller_name && !nameMap[row.user_id]) {
-        nameMap[row.user_id] = row.seller_name;
-      }
+      if (row.seller_name && !nameMap[row.user_id]) nameMap[row.user_id] = row.seller_name;
     }
   }
 
   return nameMap;
 }
 
-/** Calculate how long ago a date string was from now. */
 export function timeAgo(dateString: string): string {
   const now = Date.now();
   const date = new Date(dateString).getTime();
   const difference = now - date;
   const minutes = Math.floor(difference / 60000);
-  
-  if (minutes < 1) {
-    return "Just now";
-  }
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-  const hours = Math.floor(minutes/60);
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
+
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  if (days < 30) {
-    return `${days}d ago`;
-  }
+  if (days < 30) return `${days}d ago`;
   const months = Math.floor(days / 30);
-  if (months < 12) {
-    return `${months}mo ago`;
-  }
-  
+  if (months < 12) return `${months}mo ago`;
   return `${Math.floor(months / 12)}y ago`;
 }
 
@@ -817,11 +649,7 @@ export function timeAgo(dateString: string): string {
 
 const BUCKET = "listing-images";
 
-/** Upload an image to Supabase Storage and return its public URL. */
-export async function uploadListingImage(
-  file: File,
-  userId: string,
-): Promise<string> {
+export async function uploadListingImage(file: File, userId: string): Promise<string> {
   const ext = file.name.split(".").pop();
   const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
@@ -831,13 +659,10 @@ export async function uploadListingImage(
   });
   if (error) throw error;
 
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(path);
   return publicUrl;
 }
 
-/** Delete images from Supabase Storage by their full URLs. */
 export async function deleteListingImages(urls: string[]): Promise<void> {
   const paths = urls
     .map((url) => {
@@ -848,65 +673,35 @@ export async function deleteListingImages(urls: string[]): Promise<void> {
     .filter(Boolean) as string[];
 
   if (paths.length === 0) return;
-
   const { error } = await supabase.storage.from(BUCKET).remove(paths);
   if (error) throw error;
 }
 
 // ── Saved Listings ─────────────────────────────────────────────────────────────
 
-/** Get all saved listing IDs for the current user. */
 export async function fetchSavedListingIds(userId: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from("saved_listings")
-    .select("listing_id")
-    .eq("user_id", userId);
-  
-  if (error) {
-    throw error;
-  }
-  
+  const { data, error } = await supabase.from("saved_listings").select("listing_id").eq("user_id", userId);
+  if (error) throw error;
   return (data ?? []).map((row: any) => row.listing_id);
 }
 
-/** Toggle save/unsave a listing. */
-export async function toggleSaveListing(
-  userId: string,
-  listingId: string,
-): Promise<boolean> {
+export async function toggleSaveListing(userId: string, listingId: string): Promise<boolean> {
   const { data: existing, error: checkError } = await supabase
     .from("saved_listings")
     .select("id")
     .eq("user_id", userId)
     .eq("listing_id", listingId)
     .maybeSingle();
-  
-  if (checkError) {
-    throw checkError;
-  }
-  
+
+  if (checkError) throw checkError;
+
   if (existing) {
-    const { error } = await supabase
-    .from("saved_listings")
-      .delete()
-      .eq("user_id", userId)
-      .eq("listing_id", listingId);
-    
-    if (error) {
-      throw error;
-    }
-    
+    const { error } = await supabase.from("saved_listings").delete().eq("user_id", userId).eq("listing_id", listingId);
+    if (error) throw error;
     return false;
-  }
-  else {
-    const { error } = await supabase
-      .from("saved_listings")
-      .insert({ user_id: userId, listing_id: listingId });
-
-    if (error) {
-      throw error;
-    }
-
+  } else {
+    const { error } = await supabase.from("saved_listings").insert({ user_id: userId, listing_id: listingId });
+    if (error) throw error;
     return true;
   }
 }
@@ -921,21 +716,13 @@ export interface ReportWithDetails extends Report {
   seller_name: string | null;
 }
 
-/** Check if the current user is an admin. */
 export async function checkIsAdmin(userId: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", userId)
-    .single();
+  const { data, error } = await supabase.from("profiles").select("is_admin").eq("id", userId).single();
   if (error) return false;
   return data?.is_admin === true;
 }
 
-/** Fetch all reports with listing details and reporter names. Admin only (RLS enforced). */
-export async function fetchAllReports(
-  statusFilter?: string,
-): Promise<ReportWithDetails[]> {
+export async function fetchAllReports(statusFilter?: string): Promise<ReportWithDetails[]> {
   let query = supabase
     .from("reports")
     .select("*, listings(title, images, status, seller_name, user_id)")
@@ -967,40 +754,24 @@ export async function fetchAllReports(
   })) as ReportWithDetails[];
 }
 
-/** Resolve or dismiss a report. Admin only (RLS enforced). */
-export async function updateReportStatus(
-  reportId: string,
-  status: "resolved" | "dismissed",
-): Promise<void> {
-  const { error } = await supabase
-    .from("reports")
-    .update({ status })
-    .eq("id", reportId);
+export async function updateReportStatus(reportId: string, status: "resolved" | "dismissed"): Promise<void> {
+  const { error } = await supabase.from("reports").update({ status }).eq("id", reportId);
   if (error) throw error;
 }
 
-/** Admin: delete any listing by ID (RLS allows admins). */
 export async function adminDeleteListing(id: string): Promise<void> {
   const { error } = await supabase.from("listings").delete().eq("id", id);
   if (error) throw error;
 }
 
-/** Fetch all listings for admin view. */
 export async function fetchAllListings(): Promise<Listing[]> {
-  const { data, error } = await supabase
-    .from("listings")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("listings").select("*").order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as Listing[];
 }
 
-/** Fetch all user profiles. Admin only (RLS enforced). */
 export async function fetchAllProfiles(): Promise<Profile[]> {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as Profile[];
 }
@@ -1016,7 +787,6 @@ export interface Bid {
   created_at: string;
 }
 
-/** Fetch all bids for a listing, ordered highest first. */
 export async function fetchBids(listingId: string): Promise<Bid[]> {
   const { data, error } = await supabase
     .from("bids")
@@ -1027,7 +797,6 @@ export async function fetchBids(listingId: string): Promise<Bid[]> {
   return (data ?? []) as Bid[];
 }
 
-/** Place a bid on a listing. */
 export async function placeBid(
   listingId: string,
   bidderId: string,

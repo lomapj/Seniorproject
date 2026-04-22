@@ -18,9 +18,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
-        <!-- Form Side -->
         <form class="flex flex-col gap-6" id="listingForm">
-          <!-- Photos -->
           <Card>
             <CardContent class="pt-6">
               <div class="flex justify-between items-baseline mb-4">
@@ -40,7 +38,6 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
             </CardContent>
           </Card>
 
-          <!-- Details -->
           <Card>
             <CardContent class="pt-6">
               <h2 class="text-lg font-extrabold text-foreground mb-4">Listing Details</h2>
@@ -77,8 +74,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                     <NativeSelectOption>Poor</NativeSelectOption>
                   </NativeSelect>
                 </div>
-                
-                <div class="sm:col-span-2">
+
+                <div class="sm:col-span-2" id="giveawayToggleWrapper">
                   <label for="giveawayToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="giveawayLabel">
                     <input type="checkbox" id="giveawayToggle" class="sr-only peer" />
                     <div class="w-11 h-6 bg-muted-foreground/20 rounded-full relative transition-colors peer-checked:bg-primary shrink-0">
@@ -93,7 +90,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                     </div>
                   </label>
                 </div>
-                
+
                 <div class="sm:col-span-2" id="offersToggleWrapper">
                   <label for="offersToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="offersLabel">
                     <input type="checkbox" id="offersToggle" class="sr-only peer" />
@@ -109,7 +106,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                     </div>
                   </label>
                 </div>
-                
+
                 <div class="sm:col-span-2" id="auctionToggleWrapper">
                   <label for="auctionToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="auctionLabel">
                     <input type="checkbox" id="auctionToggle" class="sr-only peer" />
@@ -158,6 +155,25 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                   </NativeSelect>
                 </div>
 
+                <!-- Sale/Discount Section (edit mode only) -->
+                <div class="sm:col-span-2 hidden" id="discountSection">
+                  <div class="p-4 rounded-xl border-2 border-dashed border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/30">
+                    <h3 class="text-sm font-bold text-orange-900 dark:text-orange-300 mb-3">🏷️ Put Item On Sale</h3>
+                    <div class="flex items-center gap-4 flex-wrap">
+                      <label class="flex items-center gap-2 text-sm text-orange-800 dark:text-orange-300 cursor-pointer font-semibold">
+                        <input type="checkbox" id="onSaleToggle" class="w-4 h-4 accent-orange-500" />
+                        Enable discount
+                      </label>
+                      <div id="discountInputWrapper" class="hidden flex items-center gap-2">
+                        <input type="number" id="discountPercent" min="5" max="90" placeholder="e.g. 20"
+                          class="w-20 border border-orange-300 dark:border-orange-600 rounded-lg px-2 py-1.5 text-sm bg-white dark:bg-card text-foreground focus:outline-none focus:border-orange-400" />
+                        <span class="text-sm text-orange-800 dark:text-orange-300 font-semibold">% off</span>
+                      </div>
+                    </div>
+                    <p id="salePricePreview" class="text-sm font-bold text-orange-600 dark:text-orange-400 mt-2 hidden"></p>
+                  </div>
+                </div>
+
                 <div class="sm:col-span-2 space-y-1.5">
                   <Label for="description">Description <span class="text-error">*</span></Label>
                   <Textarea id="description" rows={5} placeholder="Tell buyers more about your item. Include details like brand, model, usage, or any flaws." maxlength="1000" required />
@@ -176,9 +192,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
           </div>
         </form>
 
-        <!-- Sidebar -->
         <aside class="sticky top-24 flex flex-col gap-6">
-          <!-- Preview -->
           <Card>
             <CardContent class="pt-5">
               <div class="flex justify-between items-center mb-3">
@@ -211,7 +225,6 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
             </CardContent>
           </Card>
 
-          <!-- Tips -->
           <Alert variant="warning" class="bg-amber-50 border-amber-200">
             <AlertTitle class="text-amber-900 text-sm">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><path d="M12 2v4"></path><path d="m4.93 4.93 2.83 2.83"></path><path d="M2 12h4"></path><path d="m4.93 19.07 2.83-2.83"></path><path d="M12 22v-4"></path><path d="m19.07 19.07-2.83-2.83"></path><path d="M22 12h-4"></path><path d="m19.07 4.93-2.83 2.83"></path><path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"></path></svg>
@@ -256,7 +269,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   const conditionInput = document.getElementById("condition") as HTMLSelectElement;
   const priceInput = document.getElementById("price") as HTMLInputElement;
   const descriptionInput = document.getElementById("description") as HTMLTextAreaElement;
-  
+
   const giveawayToggle = document.getElementById("giveawayToggle") as HTMLInputElement;
   const giveawayLabel = document.getElementById("giveawayLabel")!;
   const offersToggle = document.getElementById("offersToggle") as HTMLInputElement;
@@ -270,36 +283,29 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   const statusField = document.getElementById("statusField")!;
   const startingBidInput = document.getElementById("startingBid") as HTMLInputElement;
   const auctionEndTimeInput = document.getElementById("auctionEndTime") as HTMLInputElement;
-  
+
   const previewTitle = document.getElementById("previewTitle");
   const previewPrice = document.getElementById("previewPrice");
   const previewCondition = document.getElementById("previewCondition");
   const previewImg = document.getElementById("previewImg")!;
   const previewSellerName = document.getElementById("previewSellerName");
-  
+
   (async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user && previewSellerName) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", user.id)
-          .single();
-        if (profile?.full_name) {
-          previewSellerName.textContent = profile.full_name.split(" ")[0];
-        }
+        const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+        if (profile?.full_name) previewSellerName.textContent = profile.full_name.split(" ")[0];
       }
     } catch (_) {}
   })();
 
   const titleCount = document.getElementById("titleCount");
   const descCount = document.getElementById("descCount");
-
   let selectedFiles: File[] = [];
   let keptImages: string[] = [];
   const editId = new URLSearchParams(window.location.search).get("edit");
-  
+
   const PREVIEW_GRADIENTS: Record<string, string> = {
     Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
     Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
@@ -307,49 +313,26 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
     Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
     Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
   };
-  
+
   const PREVIEW_ICONS: Record<string, string> = {
-    Books: "\u{1F4D7}",
-    Electronics: "\u{1F4BB}",
-    Furniture: "\u{1FA91}",
-    Clothing: "\u{1F9E5}",
-    Misc: "\u{1F4E6}",
+    Books: "\u{1F4D7}", Electronics: "\u{1F4BB}", Furniture: "\u{1FA91}", Clothing: "\u{1F9E5}", Misc: "\u{1F4E6}",
   };
-  
+
   function updatePreview() {
     const category = categoryInput?.value || "";
     const gradient = PREVIEW_GRADIENTS[category] || "";
     const icon = PREVIEW_ICONS[category] || "";
-    
-    if (keptImages.length > 0) {
-      previewImg.style.background = "";
-      previewImg.innerHTML = `<img src="${keptImages[0]}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
-    }
-    else if (selectedFiles.length > 0) {
-      previewImg.style.background = "";
-      previewImg.innerHTML = `<img src="${URL.createObjectURL(selectedFiles[0])}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
-    }
-    else if (gradient) {
-      previewImg.style.background = gradient;
-      previewImg.innerHTML = `<span class="text-5xl">${icon}</span>`;
-    }
-    else {
-      previewImg.style.background = "";
-      previewImg.innerHTML = `<div class="text-center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><p class="text-xs font-semibold mt-1">Image preview</p></div>`;
-    }
+    if (keptImages.length > 0) { previewImg.style.background = ""; previewImg.innerHTML = `<img src="${keptImages[0]}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`; }
+    else if (selectedFiles.length > 0) { previewImg.style.background = ""; previewImg.innerHTML = `<img src="${URL.createObjectURL(selectedFiles[0])}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`; }
+    else if (gradient) { previewImg.style.background = gradient; previewImg.innerHTML = `<span class="text-5xl">${icon}</span>`; }
+    else { previewImg.style.background = ""; previewImg.innerHTML = `<div class="text-center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><p class="text-xs font-semibold mt-1">Image preview</p></div>`; }
   }
 
   function renderExistingThumbs() {
     const container = document.getElementById("existingPreviews")!;
-    container.innerHTML = keptImages.map((url, i) => `
-      <div class="preview-thumb"><img src="${url}" alt="existing" /><button type="button" class="thumb-remove existing-remove" data-index="${i}">&times;</button></div>
-    `).join("");
+    container.innerHTML = keptImages.map((url, i) => `<div class="preview-thumb"><img src="${url}" alt="existing" /><button type="button" class="thumb-remove existing-remove" data-index="${i}">&times;</button></div>`).join("");
     container.querySelectorAll<HTMLButtonElement>(".existing-remove").forEach(btn => {
-      btn.addEventListener("click", () => {
-        keptImages.splice(parseInt(btn.dataset.index ?? "0"), 1);
-        renderExistingThumbs();
-        updatePreview();
-      });
+      btn.addEventListener("click", () => { keptImages.splice(parseInt(btn.dataset.index ?? "0"), 1); renderExistingThumbs(); updatePreview(); });
     });
   }
 
@@ -357,18 +340,13 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
     const container = document.getElementById("uploadPreviews")!;
     container.innerHTML = "";
     selectedFiles.forEach((file, i) => {
-      const url = URL.createObjectURL(file);
       const div = document.createElement("div");
       div.className = "preview-thumb";
-      div.innerHTML = `<img src="${url}" alt="preview" /><button type="button" class="thumb-remove" data-index="${i}" aria-label="Remove">&times;</button>`;
+      div.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="preview" /><button type="button" class="thumb-remove" data-index="${i}" aria-label="Remove">&times;</button>`;
       container.appendChild(div);
     });
     container.querySelectorAll(".thumb-remove").forEach(btn => {
-      btn.addEventListener("click", () => {
-        selectedFiles.splice(parseInt((btn as HTMLElement).dataset.index ?? "0"), 1);
-        renderThumbs();
-        updatePreview();
-      });
+      btn.addEventListener("click", () => { selectedFiles.splice(parseInt((btn as HTMLElement).dataset.index ?? "0"), 1); renderThumbs(); updatePreview(); });
     });
   }
 
@@ -385,99 +363,55 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   uploadZone?.addEventListener("drop", (e) => { e.preventDefault(); uploadZone.classList.remove("border-primary", "bg-primary/5"); if (e.dataTransfer?.files.length) addFiles(Array.from(e.dataTransfer.files)); });
   fileInput?.addEventListener("change", () => { if (fileInput.files) addFiles(Array.from(fileInput.files)); fileInput.value = ""; });
 
-  titleInput?.addEventListener("input", () => {
-    if (previewTitle) previewTitle.textContent = titleInput.value || "Your listing title here";
-    if (titleCount) titleCount.textContent = `${titleInput.value.length}/80`;
-  });
+  titleInput?.addEventListener("input", () => { if (previewTitle) previewTitle.textContent = titleInput.value || "Your listing title here"; if (titleCount) titleCount.textContent = `${titleInput.value.length}/80`; });
   categoryInput?.addEventListener("change", () => { updatePreview(); });
-  conditionInput?.addEventListener("change", () => {
-    if (previewCondition) {
-      previewCondition.textContent = conditionInput.value || "Condition";
-    }
-  });
+  conditionInput?.addEventListener("change", () => { if (previewCondition) previewCondition.textContent = conditionInput.value || "Condition"; });
   priceInput?.addEventListener("input", () => {
     const value = parseFloat(priceInput.value) || 0;
     if (previewPrice) {
-      if (value === 0 && giveawayToggle.checked) {
-        previewPrice.textContent = "FREE";
-        previewPrice.classList.remove("text-primary");
-        previewPrice.classList.add("text-teal-600");
-      }
-      else {
-        previewPrice.textContent = value === 0 ? "$0" : `$${value.toLocaleString()}`;
-        previewPrice.classList.add("text-primary");
-        previewPrice.classList.remove("text-teal-600");
-      }
+      if (value === 0 && giveawayToggle.checked) { previewPrice.textContent = "FREE"; previewPrice.classList.remove("text-primary"); previewPrice.classList.add("text-teal-600"); }
+      else { previewPrice.textContent = value === 0 ? "$0" : `$${value.toLocaleString()}`; previewPrice.classList.add("text-primary"); previewPrice.classList.remove("text-teal-600"); }
     }
   });
   descriptionInput?.addEventListener("input", () => { if (descCount) descCount.textContent = `${descriptionInput.value.length}/1000`; });
-  
+
   offersToggle.addEventListener("change", () => {
     const previewBadge = document.getElementById("previewOffersBadge");
-    
     if (offersToggle.checked) {
       document.getElementById("offersToggleButton")?.classList.add("translate-x-5");
       offersLabel.classList.remove("border-border", "bg-muted/50");
       offersLabel.classList.add("border-violet-400", "bg-violet-500/5");
-      
-      if (previewBadge) {
-        previewBadge.classList.remove("hidden");
-      }
-    }
-    else {
+      if (previewBadge) previewBadge.classList.remove("hidden");
+    } else {
       document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
       offersLabel.classList.add("border-border", "bg-muted/50");
       offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
-      
-      if (previewBadge) {
-        previewBadge.classList.add("hidden");
-      }
+      if (previewBadge) previewBadge.classList.add("hidden");
     }
   });
-  
+
   giveawayToggle.addEventListener("change", () => {
     const previewBadge = document.getElementById("previewOffersBadge");
-    
     if (giveawayToggle.checked) {
       document.getElementById("giveawayToggleButton")?.classList.add("translate-x-5");
       document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
       previewBadge?.classList.add("hidden");
-      priceInput.value = "0";
-      priceInput.disabled = true;
-      priceInput.classList.add("opacity-50");
+      priceInput.value = "0"; priceInput.disabled = true; priceInput.classList.add("opacity-50");
       giveawayLabel.classList.remove("border-border", "bg-muted/50");
       giveawayLabel.classList.add("border-teal-400", "bg-teal-500/5");
-      
-      offersToggle.checked = false;
-      offersToggle.disabled = true;
+      offersToggle.checked = false; offersToggle.disabled = true;
       offersWrapper.classList.add("opacity-50", "pointer-events-none");
       offersLabel.classList.add("border-border", "bg-muted/50");
       offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
-      if (previewPrice) {
-        previewPrice.textContent = "FREE";
-      }
-      if (previewPrice) {
-        previewPrice.classList.remove("text-primary");
-        previewPrice.classList.add("text-teal-600");
-      }
-    }
-    else {
+      if (previewPrice) { previewPrice.textContent = "FREE"; previewPrice.classList.remove("text-primary"); previewPrice.classList.add("text-teal-600"); }
+    } else {
       document.getElementById("giveawayToggleButton")?.classList.remove("translate-x-5");
-      priceInput.value = "";
-      priceInput.disabled = false;
-      priceInput.classList.remove("opacity-50");
+      priceInput.value = ""; priceInput.disabled = false; priceInput.classList.remove("opacity-50");
       giveawayLabel.classList.add("border-border", "bg-muted/50");
       giveawayLabel.classList.remove("border-teal-400", "bg-teal-500/5");
-      
       offersToggle.disabled = false;
       offersWrapper.classList.remove("opacity-50", "pointer-events-none");
-      if (previewPrice) {
-        previewPrice.textContent = "$0";
-      }
-      if (previewPrice) {
-        previewPrice.classList.add("text-primary");
-        previewPrice.classList.remove("text-teal-600");
-      }
+      if (previewPrice) { previewPrice.textContent = "$0"; previewPrice.classList.add("text-primary"); previewPrice.classList.remove("text-teal-600"); }
     }
   });
 
@@ -489,13 +423,9 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       auctionFields.classList.remove("hidden");
       priceField.classList.add("hidden");
       statusField.classList.add("hidden");
-
-      // Disable giveaway and offers when auction is on
-      giveawayToggle.checked = false;
-      giveawayToggle.disabled = true;
+      giveawayToggle.checked = false; giveawayToggle.disabled = true;
       giveawayToggle.dispatchEvent(new Event("change"));
-      offersToggle.checked = false;
-      offersToggle.disabled = true;
+      offersToggle.checked = false; offersToggle.disabled = true;
       offersWrapper.classList.add("opacity-50", "pointer-events-none");
       document.getElementById("giveawayToggleWrapper")?.classList.add("opacity-50", "pointer-events-none");
     } else {
@@ -505,18 +435,50 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       auctionFields.classList.add("hidden");
       priceField.classList.remove("hidden");
       statusField.classList.remove("hidden");
-
-      giveawayToggle.disabled = false;
-      offersToggle.disabled = false;
+      giveawayToggle.disabled = false; offersToggle.disabled = false;
       offersWrapper.classList.remove("opacity-50", "pointer-events-none");
       document.getElementById("giveawayToggleWrapper")?.classList.remove("opacity-50", "pointer-events-none");
+    }
+  });
+
+  // Sale/Discount toggle
+  const onSaleToggle = document.getElementById("onSaleToggle") as HTMLInputElement;
+  const discountInputWrapper = document.getElementById("discountInputWrapper")!;
+  const discountPercentInput = document.getElementById("discountPercent") as HTMLInputElement;
+  const salePricePreview = document.getElementById("salePricePreview")!;
+  let lockedOriginalPrice: number | null = null;
+
+  onSaleToggle?.addEventListener("change", () => {
+    if (onSaleToggle.checked) {
+      lockedOriginalPrice = parseFloat(priceInput.value);
+      priceInput.readOnly = true;
+      priceInput.classList.add("opacity-50");
+      discountInputWrapper.classList.remove("hidden");
+    } else {
+      discountInputWrapper.classList.add("hidden");
+      salePricePreview.classList.add("hidden");
+      discountPercentInput.value = "";
+      if (lockedOriginalPrice !== null) priceInput.value = lockedOriginalPrice.toString();
+      lockedOriginalPrice = null;
+      priceInput.readOnly = false;
+      priceInput.classList.remove("opacity-50");
+    }
+  });
+
+  discountPercentInput?.addEventListener("input", () => {
+    const pct = parseInt(discountPercentInput.value);
+    const basePrice = lockedOriginalPrice!;
+    if (!isNaN(pct) && basePrice && pct >= 5 && pct <= 90) {
+      const salePrice = (basePrice * (1 - pct / 100)).toFixed(2);
+      salePricePreview.textContent = `Sale price: $${salePrice} (was $${basePrice.toFixed(2)})`;
+      salePricePreview.classList.remove("hidden");
+      priceInput.value = salePrice;
     }
   });
 
   const form = document.getElementById("listingForm") as HTMLFormElement;
   const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
 
-  // Edit Listing
   if (editId) {
     document.querySelector("h1")!.textContent = "Edit Listing";
     submitBtn.textContent = "Save Changes";
@@ -535,14 +497,9 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
         categoryInput.value = listing.category;
         conditionInput.value = listing.condition;
         priceInput.value = listing.price.toString();
-        if (listing.price === 0) {
-          giveawayToggle.checked = true;
-          giveawayToggle.dispatchEvent(new Event("change"));
-        }
-        if (listing.open_to_offers) {
-          offersToggle.checked = true;
-          offersToggle.dispatchEvent(new Event("change"));
-        }
+        lockedOriginalPrice = listing.original_price ?? listing.price;
+        if (listing.price === 0) { giveawayToggle.checked = true; giveawayToggle.dispatchEvent(new Event("change")); }
+        if (listing.open_to_offers) { offersToggle.checked = true; offersToggle.dispatchEvent(new Event("change")); }
         (document.getElementById("status") as HTMLSelectElement).value = listing.status;
         descriptionInput.value = listing.description;
         titleCount!.textContent = `${listing.title.length}/80`;
@@ -553,6 +510,19 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
         keptImages = listing.images ? [...listing.images] : [];
         renderExistingThumbs();
         updatePreview();
+        document.getElementById("discountSection")?.classList.remove("hidden");
+        if (listing.on_sale) {
+          onSaleToggle.checked = true;
+          discountInputWrapper.classList.remove("hidden");
+          if (listing.discount_percent) {
+            discountPercentInput.value = listing.discount_percent.toString();
+            if (listing.original_price) {
+              const sp = (listing.original_price * (1 - listing.discount_percent / 100)).toFixed(2);
+              salePricePreview.textContent = `Sale price: $${sp} (was $${listing.original_price.toFixed(2)})`;
+              salePricePreview.classList.remove("hidden");
+            }
+          }
+        }
       } catch { window.location.href = "/profile"; }
     })();
   }
@@ -596,7 +566,17 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
 
     if (editId) {
       try {
-        await updateListing(editId, { title, category, condition, price, status, description, images: [...keptImages, ...imageUrls], open_to_offers: offersToggle.checked, is_auction: isAuction, starting_bid: startingBid, auction_end_time: auctionEndTime });
+        await updateListing(editId, {
+          title, category, condition, price, status, description,
+          images: [...keptImages, ...imageUrls],
+          open_to_offers: offersToggle.checked,
+          is_auction: isAuction,
+          starting_bid: startingBid,
+          auction_end_time: auctionEndTime,
+          on_sale: onSaleToggle?.checked || false,
+          discount_percent: parseInt(discountPercentInput?.value || "0") || 0,
+          original_price: onSaleToggle?.checked ? (lockedOriginalPrice ?? price) : null,
+        });
         window.location.href = `/item?id=${editId}`;
       } catch (err: any) {
         alert(`Failed to save: ${err.message}`);
@@ -605,7 +585,11 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       }
     } else {
       const sellerName = user.user_metadata?.full_name || user.email || "Seller";
-      const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName, open_to_offers: offersToggle.checked, is_auction: isAuction, starting_bid: startingBid, auction_end_time: auctionEndTime });
+      const { error } = await supabase.from("listings").insert({
+        user_id: user.id, title, category, condition, price, status, description,
+        images: imageUrls, seller_name: sellerName, open_to_offers: offersToggle.checked,
+        is_auction: isAuction, starting_bid: startingBid, auction_end_time: auctionEndTime
+      });
       if (error) { alert(`Failed to publish: ${error.message}`); submitBtn.disabled = false; submitBtn.textContent = "Publish Listing"; return; }
       window.location.href = "/marketplace";
     }
