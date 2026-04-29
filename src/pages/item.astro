@@ -237,6 +237,7 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
     hasReviewed,
     fetchBids,
     placeBid,
+    incrementViewCount,
   } from "../lib/api";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
@@ -299,6 +300,13 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
 
     try {
       const item = await fetchListing(id);
+
+      // Increment view count once per session, never for the seller
+      const viewKey = `viewed_${id}`;
+      if (currentUserId !== item.user_id && !sessionStorage.getItem(viewKey)) {
+        sessionStorage.setItem(viewKey, "1");
+        incrementViewCount(id, item.view_count ?? 0, item.daily_views ?? 0);
+      }
 
       // Breadcrumb
       const breadcrumbCategory = document.getElementById("breadcrumbCategory");

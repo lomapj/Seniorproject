@@ -409,7 +409,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
         if (!id || !confirm("Mark this listing as sold?")) return;
         btn.disabled = true;
         try {
-          await updateListing(id, { status: "sold" });
+          await updateListing(id, { status: "sold", sold_at: new Date().toISOString() });
           // Reload to reflect changes
           window.location.reload();
         } catch (err) {

@@ -27,6 +27,9 @@ export interface Database {
           discount_percent: number;
           original_price: number | null;
           sale_notified_at: string | null;
+          sold_at: string | null;
+          view_count: number;
+          daily_views: number;
         };
         Insert: {
           id?: string;
@@ -48,6 +51,9 @@ export interface Database {
           discount_percent?: number;
           original_price?: number | null;
           sale_notified_at?: string | null;
+          sold_at?: string | null;
+          view_count?: number;
+          daily_views?: number;
         };
         Update: {
           id?: string;
@@ -69,6 +75,9 @@ export interface Database {
           discount_percent?: number;
           original_price?: number | null;
           sale_notified_at?: string | null;
+          sold_at?: string | null;
+          view_count?: number;
+          daily_views?: number;
         };
       };
       conversations: {
