@@ -145,46 +145,74 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
           </Card>
 
           <!-- Actions -->
-          <div class="grid grid-cols-[1fr_auto] gap-3 mt-2">
-            <Button variant="primary" href="/messages" id="actionMsgBtn" class="gap-2 font-extrabold">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              Message Seller
-            </Button>
-            <Dialog>
-              <DialogTrigger class="inline-flex items-center justify-center border border-border text-muted-foreground hover:text-error hover:border-error gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-                Report
-              </DialogTrigger>
-              <DialogContent class="max-w-120">
-                <DialogHeader>
-                  <DialogTitle>Report Listing</DialogTitle>
-                  <DialogDescription>Help us keep our community safe. Why are you reporting this?</DialogDescription>
-                </DialogHeader>
-                <div class="space-y-4 py-4">
-                  <div class="space-y-1.5">
-                    <label class="text-sm font-semibold text-foreground">Reason</label>
-                    <NativeSelect id="reportReason">
-                      <NativeSelectOption>Inappropriate content</NativeSelectOption>
-                      <NativeSelectOption>Suspected scam</NativeSelectOption>
-                      <NativeSelectOption>Wrong category</NativeSelectOption>
-                      <NativeSelectOption>Prohibited item</NativeSelectOption>
-                      <NativeSelectOption>Other</NativeSelectOption>
-                    </NativeSelect>
+          <div class="flex flex-col gap-3 mt-2">
+            <div class="grid grid-cols-[1fr_auto] gap-3">
+              <Button variant="primary" href="/messages" id="actionMsgBtn" class="gap-2 font-extrabold">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Message Seller
+              </Button>
+              <Dialog>
+                <DialogTrigger class="inline-flex items-center justify-center border border-border text-muted-foreground hover:text-error hover:border-error gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                  Report
+                </DialogTrigger>
+                <DialogContent class="max-w-120">
+                  <DialogHeader>
+                    <DialogTitle>Report Listing</DialogTitle>
+                    <DialogDescription>Help us keep our community safe. Why are you reporting this?</DialogDescription>
+                  </DialogHeader>
+                  <div class="space-y-4 py-4">
+                    <div class="space-y-1.5">
+                      <label class="text-sm font-semibold text-foreground">Reason</label>
+                      <NativeSelect id="reportReason">
+                        <NativeSelectOption>Inappropriate content</NativeSelectOption>
+                        <NativeSelectOption>Suspected scam</NativeSelectOption>
+                        <NativeSelectOption>Wrong category</NativeSelectOption>
+                        <NativeSelectOption>Prohibited item</NativeSelectOption>
+                        <NativeSelectOption>Other</NativeSelectOption>
+                      </NativeSelect>
+                    </div>
+                    <div class="space-y-1.5">
+                      <label class="text-sm font-semibold text-foreground">Details</label>
+                      <Textarea id="reportDetails" placeholder="Additional information..." rows={3} />
+                    </div>
                   </div>
-                  <div class="space-y-1.5">
-                    <label class="text-sm font-semibold text-foreground">Details</label>
-                    <Textarea id="reportDetails" placeholder="Additional information..." rows={3} />
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Cancel</Button>
+                    </DialogClose>
+                    <Button variant="error" id="reportSubmitBtn">Submit Report</Button>
+                  </DialogFooter>
+                  <div id="reportStatus" class="px-6 pb-4"></div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <!-- Trade Offer (shown to non-sellers on available non-auction items) -->
+            <div id="tradeOfferSection" class="hidden">
+              <Dialog>
+                <DialogTrigger class="w-full inline-flex items-center justify-center gap-2 border border-violet-300 text-violet-600 hover:bg-violet-50 hover:border-violet-400 dark:hover:bg-violet-950/30 rounded-md px-4 py-2.5 text-sm font-bold transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                  Propose a Trade
+                </DialogTrigger>
+                <DialogContent class="max-w-120">
+                  <DialogHeader>
+                    <DialogTitle>Propose a Trade</DialogTitle>
+                    <DialogDescription>Select one of your listings to offer in exchange for this item.</DialogDescription>
+                  </DialogHeader>
+                  <div id="myListingsForTrade" class="py-4 flex flex-col gap-2 max-h-72 overflow-y-auto">
+                    <p class="text-sm text-muted-foreground text-center py-4">Loading your listings...</p>
                   </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="secondary">Cancel</Button>
-                  </DialogClose>
-                  <Button variant="error" id="reportSubmitBtn">Submit Report</Button>
-                </DialogFooter>
-                <div id="reportStatus" class="px-6 pb-4"></div>
-              </DialogContent>
-            </Dialog>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Cancel</Button>
+                    </DialogClose>
+                    <Button variant="primary" id="tradeSubmitBtn">Send Trade Offer</Button>
+                  </DialogFooter>
+                  <div id="tradeStatus" class="px-6 pb-4"></div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
       </div>
@@ -238,6 +266,8 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
     fetchBids,
     placeBid,
     incrementViewCount,
+    fetchUserListings,
+    createTradeOffer,
   } from "../lib/api";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
@@ -414,6 +444,108 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       if (currentUserId && currentUserId === item.user_id) {
         if (sellerCardMsgBtn) sellerCardMsgBtn.style.display = "none";
         if (actionMsgBtn) actionMsgBtn.style.display = "none";
+      }
+
+      // ── Trade Offer ────────────────────────────────────────────────────────
+      const tradeOfferSection = document.getElementById("tradeOfferSection");
+      const canTrade = currentUserId && currentUserId !== item.user_id && item.status === "available" && !item.is_auction;
+
+      if (canTrade && tradeOfferSection) {
+        tradeOfferSection.classList.remove("hidden");
+
+        let selectedTradeListingId: string | null = null;
+        let tradeListingsLoaded = false;
+
+        const myListingsContainer = document.getElementById("myListingsForTrade")!;
+        const tradeSubmitBtn = document.getElementById("tradeSubmitBtn") as HTMLButtonElement;
+        const tradeStatus = document.getElementById("tradeStatus")!;
+
+        const TRADE_GRADIENTS: Record<string, string> = {
+          Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
+          Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
+          Furniture: "linear-gradient(135deg,#a0522d,#cd853f)",
+          Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
+          Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
+        };
+        const TRADE_ICONS: Record<string, string> = {
+          Books: "📕", Electronics: "💻", Furniture: "🪑", Clothing: "🧥", Misc: "📦",
+        };
+
+        async function loadMyListings() {
+          if (tradeListingsLoaded) return;
+          tradeListingsLoaded = true;
+          try {
+            const myListings = await fetchUserListings(currentUserId!);
+            const available = myListings.filter(l => l.status === "available" && l.id !== item.id);
+            if (available.length === 0) {
+              myListingsContainer.innerHTML = `<p class="text-sm text-muted-foreground text-center py-6">You have no active listings to offer. <a href="/post" class="text-primary font-bold hover:underline">Post one first.</a></p>`;
+              return;
+            }
+            myListingsContainer.innerHTML = available.map(l => {
+              const grad = TRADE_GRADIENTS[l.category] || "linear-gradient(135deg,#6b7280,#9ca3af)";
+              const icon = TRADE_ICONS[l.category] || "📦";
+              const thumb = l.images && l.images.length > 0
+                ? `<img src="${l.images[0]}" class="w-10 h-10 object-cover rounded-md" />`
+                : `<div class="w-10 h-10 rounded-md flex items-center justify-center text-lg" style="background:${grad}">${icon}</div>`;
+              const price = l.price === 0 ? "FREE" : `$${l.price.toFixed(2)}`;
+              return `
+                <label class="trade-listing-option flex items-center gap-3 p-3 rounded-lg border-2 border-border hover:border-violet-400 cursor-pointer transition-all has-[:checked]:border-violet-500 has-[:checked]:bg-violet-500/5">
+                  <input type="radio" name="tradeListing" value="${l.id}" class="sr-only" />
+                  ${thumb}
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-foreground truncate">${l.title}</p>
+                    <p class="text-xs text-muted-foreground">${l.category} · <span class="font-semibold text-primary">${price}</span></p>
+                  </div>
+                  <div class="w-4 h-4 rounded-full border-2 border-border trade-radio-dot shrink-0"></div>
+                </label>
+              `;
+            }).join("");
+
+            myListingsContainer.querySelectorAll<HTMLInputElement>('input[name="tradeListing"]').forEach(radio => {
+              radio.addEventListener("change", () => {
+                selectedTradeListingId = radio.value;
+                myListingsContainer.querySelectorAll(".trade-radio-dot").forEach(dot => {
+                  dot.className = "w-4 h-4 rounded-full border-2 border-border trade-radio-dot shrink-0";
+                });
+                const dot = radio.closest("label")?.querySelector(".trade-radio-dot");
+                if (dot) dot.className = "w-4 h-4 rounded-full border-2 border-violet-500 bg-violet-500 trade-radio-dot shrink-0";
+              });
+            });
+          } catch (err) {
+            myListingsContainer.innerHTML = `<p class="text-sm text-error text-center py-6">Failed to load your listings.</p>`;
+          }
+        }
+
+        tradeOfferSection.querySelector("button")?.addEventListener("click", loadMyListings);
+
+        tradeSubmitBtn?.addEventListener("click", async () => {
+          if (!selectedTradeListingId) {
+            tradeStatus.innerHTML = `<p class="text-sm text-error font-semibold">Please select a listing to offer.</p>`;
+            return;
+          }
+          tradeSubmitBtn.disabled = true;
+          tradeSubmitBtn.textContent = "Sending...";
+          tradeStatus.textContent = "";
+          try {
+            await createTradeOffer(item.id, currentUserId!, selectedTradeListingId);
+            await supabase.from("notifications").insert({
+              user_id: item.user_id,
+              type: "trade_offer",
+              title: "New Trade Offer",
+              body: `Someone wants to trade with you for "${item.title}"`,
+              link: `/item?id=${item.id}`,
+              read: false,
+            });
+            tradeStatus.innerHTML = `<p class="text-sm text-success font-semibold">Trade offer sent! The seller will be notified.</p>`;
+            tradeSubmitBtn.textContent = "Offer Sent ✓";
+            try { toast.success("Trade offer sent!"); } catch (_) {}
+          } catch (err: any) {
+            tradeStatus.innerHTML = `<p class="text-sm text-error font-semibold">${err?.message || "Failed to send trade offer."}</p>`;
+            tradeSubmitBtn.disabled = false;
+            tradeSubmitBtn.textContent = "Send Trade Offer";
+            try { toast.error("Failed to send trade offer."); } catch (_) {}
+          }
+        });
       }
 
       // Fav button

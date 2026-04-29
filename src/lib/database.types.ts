@@ -318,7 +318,68 @@ export interface Database {
           data?: Record<string, any>;
           created_at?: string;
         }
-      }
+      };
+      trade_offers: {
+        Row: {
+          id: string;
+          listing_id: string;
+          offerer_id: string;
+          offered_listing_id: string;
+          status: "pending" | "accepted" | "declined" | "cancelled";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id: string;
+          offerer_id: string;
+          offered_listing_id: string;
+          status?: "pending" | "accepted" | "declined" | "cancelled";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          listing_id?: string;
+          offerer_id?: string;
+          offered_listing_id?: string;
+          status?: "pending" | "accepted" | "declined" | "cancelled";
+          created_at?: string;
+        };
+      };
+      meetups: {
+        Row: {
+          id: string;
+          conversation_id: string;
+          proposer_id: string;
+          other_user_id: string;
+          listing_id: string | null;
+          location: string;
+          proposed_time: string;
+          status: "proposed" | "confirmed" | "cancelled";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          conversation_id: string;
+          proposer_id: string;
+          other_user_id: string;
+          listing_id?: string | null;
+          location: string;
+          proposed_time: string;
+          status?: "proposed" | "confirmed" | "cancelled";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          conversation_id?: string;
+          proposer_id?: string;
+          other_user_id?: string;
+          listing_id?: string | null;
+          location?: string;
+          proposed_time?: string;
+          status?: "proposed" | "confirmed" | "cancelled";
+          created_at?: string;
+        };
+      };
     };
   };
 }
@@ -350,3 +411,9 @@ export type TransactionUpdate = Database["public"]["Tables"]["transactions"]["Up
 
 export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 export type NotificationInsert = Database["public"]["Tables"]["notifications"]["Insert"];
+
+export type TradeOffer = Database["public"]["Tables"]["trade_offers"]["Row"];
+export type TradeOfferInsert = Database["public"]["Tables"]["trade_offers"]["Insert"];
+
+export type Meetup = Database["public"]["Tables"]["meetups"]["Row"];
+export type MeetupInsert = Database["public"]["Tables"]["meetups"]["Insert"];

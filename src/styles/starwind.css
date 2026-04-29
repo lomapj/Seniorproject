@@ -158,6 +158,10 @@
   * {
     @apply border-border outline-outline/50;
   }
+  .dark select option {
+    background-color: #171717;
+    color: #fafafa;
+  }
   body {
     @apply bg-background text-foreground scheme-light dark:scheme-dark;
   }

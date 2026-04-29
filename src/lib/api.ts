@@ -8,6 +8,8 @@ export type {
   Profile,
   Transaction,
   Notification,
+  TradeOffer,
+  Meetup,
 } from "./database.types";
 
 import type {
@@ -18,7 +20,9 @@ import type {
   Review,
   Profile,
   Transaction,
-  Notification
+  Notification,
+  TradeOffer,
+  Meetup,
 } from "./database.types";
 
 // ── Extended types ─────────────────────────────────────────────────────────────
@@ -768,6 +772,159 @@ export async function adminDeleteListing(id: string): Promise<void> {
   if (error) throw error;
 }
 
+// ── Seller Dashboard / Listing Insights ───────────────────────────────────────
+
+export interface ListingInsight extends Listing {
+  save_count: number;
+  conversation_count: number;
+  days_active: number;
+  suggestion: string;
+}
+
+export async function fetchSellerDashboard(userId: string): Promise<ListingInsight[]> {
+  const { data: listings, error } = await supabase
+    .from("listings")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  if (!listings || listings.length === 0) return [];
+
+  const listingIds = listings.map((l: any) => l.id);
+
+  const { data: saves } = await supabase
+    .from("saved_listings")
+    .select("listing_id")
+    .in("listing_id", listingIds);
+
+  const saveMap: Record<string, number> = {};
+  for (const s of saves ?? []) saveMap[s.listing_id] = (saveMap[s.listing_id] || 0) + 1;
+
+  const { data: convos } = await supabase
+    .from("conversations")
+    .select("listing_id")
+    .in("listing_id", listingIds);
+
+  const convoMap: Record<string, number> = {};
+  for (const c of convos ?? []) convoMap[c.listing_id] = (convoMap[c.listing_id] || 0) + 1;
+
+  return listings.map((l: any) => {
+    const saves = saveMap[l.id] || 0;
+    const convos = convoMap[l.id] || 0;
+    const views = l.view_count || 0;
+    const daysActive = Math.floor((Date.now() - new Date(l.created_at).getTime()) / 86400000);
+
+    let suggestion = "";
+    if (l.status === "sold") {
+      suggestion = "Sold! Great job.";
+    } else if (views > 30 && saves > 3 && convos === 0) {
+      suggestion = "High interest but no messages — consider lowering the price slightly.";
+    } else if (daysActive > 30 && l.status === "available" && !l.on_sale) {
+      suggestion = "Listed 30+ days. Try adding a discount to boost visibility.";
+    } else if (views > 15 && saves === 0) {
+      suggestion = "People are viewing but not saving — try better photos or a clearer title.";
+    } else if (views < 5 && daysActive > 7) {
+      suggestion = "Low views after a week — try updating your title or description.";
+    } else if (daysActive < 3) {
+      suggestion = "Just listed! Give it a few days to get traction.";
+    } else {
+      suggestion = "Your listing is live and getting attention!";
+    }
+
+    return { ...l, save_count: saves, conversation_count: convos, days_active: daysActive, suggestion } as ListingInsight;
+  });
+}
+
+// ── Trade / Swap Offers ───────────────────────────────────────────────────────
+
+export async function createTradeOffer(listingId: string, offererId: string, offeredListingId: string): Promise<TradeOffer> {
+  const { data, error } = await supabase
+    .from("trade_offers")
+    .insert({ listing_id: listingId, offerer_id: offererId, offered_listing_id: offeredListingId })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as TradeOffer;
+}
+
+export async function fetchTradeOffersForListing(listingId: string): Promise<TradeOffer[]> {
+  const { data, error } = await supabase
+    .from("trade_offers")
+    .select("*")
+    .eq("listing_id", listingId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as TradeOffer[];
+}
+
+export async function fetchMyTradeOffers(userId: string): Promise<TradeOffer[]> {
+  const { data, error } = await supabase
+    .from("trade_offers")
+    .select("*")
+    .eq("offerer_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as TradeOffer[];
+}
+
+export async function updateTradeOfferStatus(offerId: string, status: "accepted" | "declined" | "cancelled"): Promise<void> {
+  const { error } = await supabase.from("trade_offers").update({ status }).eq("id", offerId);
+  if (error) throw error;
+}
+
+// ── Campus Meetup Scheduler ───────────────────────────────────────────────────
+
+export const CAMPUS_LOCATIONS = [
+  "Campus Center",
+  "Campus Commons",
+  "Greenley Hall (Library)",
+  "Laffin Hall – Student Services Center",
+  "Gleeson Plaza",
+  "Ralph Bunche Plaza",
+  "Amphitheater",
+  "School of Business",
+  "Memorial Hall",
+  "Hooper Hall",
+  "Roosevelt Hall",
+  "Hicks Hall",
+] as const;
+
+export async function proposeMeetup(
+  conversationId: string,
+  proposerId: string,
+  otherUserId: string,
+  listingId: string | null,
+  location: string,
+  proposedTime: string,
+): Promise<Meetup> {
+  const { data, error } = await supabase
+    .from("meetups")
+    .insert({ conversation_id: conversationId, proposer_id: proposerId, other_user_id: otherUserId, listing_id: listingId, location, proposed_time: proposedTime })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as Meetup;
+}
+
+export async function fetchMeetupForConversation(conversationId: string): Promise<Meetup | null> {
+  const { data, error } = await supabase
+    .from("meetups")
+    .select("*")
+    .eq("conversation_id", conversationId)
+    .neq("status", "cancelled")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data as Meetup | null;
+}
+
+export async function updateMeetupStatus(meetupId: string, status: "confirmed" | "cancelled"): Promise<void> {
+  const { error } = await supabase.from("meetups").update({ status }).eq("id", meetupId);
+  if (error) throw error;
+}
+
 export async function fetchAllListings(): Promise<Listing[]> {
   const { data, error } = await supabase.from("listings").select("*").order("created_at", { ascending: false });
   if (error) throw error;
@@ -809,18 +966,53 @@ export async function placeBid(
 ): Promise<Bid> {
   const { data: listing, error: listingError } = await supabase
     .from("listings")
-    .select("status, auction_end_time")
+    .select("status, auction_end_time, title, user_id")
     .eq("id", listingId)
     .single();
   if (listingError) throw listingError;
   if (listing.status === "sold" || (listing.auction_end_time && new Date(listing.auction_end_time) <= new Date())) {
     throw new Error("This auction has ended.");
   }
+
+  // Capture current highest bidder before inserting
+  const { data: topBids } = await supabase
+    .from("bids")
+    .select("bidder_id, bidder_name, amount")
+    .eq("listing_id", listingId)
+    .order("amount", { ascending: false })
+    .limit(1);
+  const previousHighest = topBids?.[0] ?? null;
+
   const { data, error } = await supabase
     .from("bids")
     .insert({ listing_id: listingId, bidder_id: bidderId, bidder_name: bidderName, amount })
     .select()
     .single();
   if (error) throw error;
+
+  // Notify previous highest bidder they've been outbid
+  if (previousHighest && previousHighest.bidder_id !== bidderId) {
+    await supabase.from("notifications").insert({
+      user_id: previousHighest.bidder_id,
+      type: "outbid",
+      title: "You've been outbid!",
+      body: `Someone bid $${amount.toFixed(2)} on "${listing.title}". Place a higher bid to stay in the lead.`,
+      link: `/item?id=${listingId}`,
+      read: false,
+    });
+  }
+
+  // Notify the seller of the new bid
+  if (listing.user_id !== bidderId) {
+    await supabase.from("notifications").insert({
+      user_id: listing.user_id,
+      type: "new_bid",
+      title: "New bid on your auction!",
+      body: `${bidderName} placed a bid of $${amount.toFixed(2)} on "${listing.title}".`,
+      link: `/item?id=${listingId}`,
+      read: false,
+    });
+  }
+
   return data as Bid;
 }

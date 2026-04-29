@@ -144,6 +144,13 @@ const {
                     <line x1="2" y1="10" x2="22" y2="10" />
                   </svg>
                 </a>
+                <a href="/dashboard" class="nav-icon-btn w-10 h-10 rounded-full border-[1.5px] border-border bg-card text-muted-foreground flex items-center justify-center no-underline transition-all relative hover:border-primary hover:text-primary hover:bg-primary/5" title="Seller Dashboard">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                </a>
                 <a href="/profile" class="nav-icon-btn w-10 h-10 rounded-full border-[1.5px] border-border bg-card text-muted-foreground flex items-center justify-center no-underline transition-all relative hover:border-primary hover:text-primary hover:bg-primary/5" title="Profile">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <>
@@ -450,7 +457,7 @@ const {
     <script>
       import { supabase } from "../lib/supabase";
 
-      const PROTECTED_PATHS = ["/profile", "/post", "/messages", "/transactions", "/moderation", "/notifications"];
+      const PROTECTED_PATHS = ["/profile", "/post", "/messages", "/transactions", "/moderation", "/notifications", "/dashboard"];
       const AUTH_PATHS = ["/login", "/signup"];
       const currentPath = window.location.pathname;
 

@@ -38,17 +38,73 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
             <p id="headerSub" class="text-xs text-muted-foreground"></p>
           </div>
         </div>
-        <a id="headerListingLink" href="#" class="hidden items-center gap-3 px-3 py-2 bg-muted border border-border rounded-lg no-underline text-inherit hover:bg-primary/5 hover:border-primary transition-colors">
-          <div class="w-9 h-9 rounded-md flex items-center justify-center text-base bg-primary/10">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
-          </div>
-          <div>
-            <p id="headerListingTitle" class="text-xs font-bold text-foreground"></p>
-            <p id="headerListingPrice" class="text-xs font-bold text-primary"></p>
-          </div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </a>
+        <div class="flex items-center gap-2">
+          <button id="scheduleMeetupBtn" class="hidden w-9 h-9 rounded-lg bg-muted text-muted-foreground flex items-center justify-center hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors" title="Schedule Campus Meetup">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </button>
+          <a id="headerListingLink" href="#" class="hidden items-center gap-3 px-3 py-2 bg-muted border border-border rounded-lg no-underline text-inherit hover:bg-primary/5 hover:border-primary transition-colors">
+            <div class="w-9 h-9 rounded-md flex items-center justify-center text-base bg-primary/10">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+            </div>
+            <div>
+              <p id="headerListingTitle" class="text-xs font-bold text-foreground"></p>
+              <p id="headerListingPrice" class="text-xs font-bold text-primary"></p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </div>
       </header>
+
+      <!-- Meetup Banner -->
+      <div id="meetupBanner" class="hidden mx-4 mt-3 mb-1 p-3 rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/30 shrink-0 self-start w-[calc(100%-2rem)]">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div class="flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div>
+              <p class="text-sm font-bold text-foreground" id="meetupBannerTitle">Meetup Proposed</p>
+              <p class="text-xs text-muted-foreground" id="meetupBannerDetails"></p>
+            </div>
+          </div>
+          <div class="flex gap-2" id="meetupBannerActions"></div>
+        </div>
+      </div>
+
+      <!-- Meetup Modal (custom, no Astro Dialog needed) -->
+      <div id="meetupModal" class="hidden fixed inset-0 z-[400] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-card rounded-2xl border border-border shadow-2xl w-full max-w-md p-6 flex flex-col gap-5">
+          <div>
+            <h2 class="text-lg font-extrabold text-foreground">Schedule a Campus Meetup</h2>
+            <p class="text-sm text-muted-foreground mt-0.5">Pick a location and time to exchange the item on campus.</p>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-foreground">Location</label>
+            <select id="meetupLocation" class="w-full py-2.5 px-3 rounded-lg border border-border bg-muted text-foreground text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+              <option value="">Select a location...</option>
+              <option>Campus Center</option>
+              <option>Campus Commons</option>
+              <option>Greenley Hall (Library)</option>
+              <option>Laffin Hall – Student Services Center</option>
+              <option>Gleeson Plaza</option>
+              <option>Ralph Bunche Plaza</option>
+              <option>Amphitheater</option>
+              <option>School of Business</option>
+              <option>Memorial Hall</option>
+              <option>Hooper Hall</option>
+              <option>Roosevelt Hall</option>
+              <option>Hicks Hall</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-foreground">Date & Time</label>
+            <input type="datetime-local" id="meetupDateTime" class="w-full py-2.5 px-3 rounded-lg border border-border bg-muted text-foreground text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
+          </div>
+          <p id="meetupModalStatus" class="text-sm hidden"></p>
+          <div class="flex gap-3 justify-end">
+            <button id="meetupModalCancel" class="px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors">Cancel</button>
+            <button id="meetupModalSubmit" class="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold transition-colors">Propose Meetup</button>
+          </div>
+        </div>
+      </div>
       
       <div id="reviewBanner" class="hidden mx-4 mt-3 mb-1 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 shrink-0 self-start w-[calc(100%-2rem)]">
         <div class="flex items-center justify-between gap-3">
@@ -97,9 +153,12 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
     sendMessage,
     markMessagesRead,
     hasReviewed,
-    fetchListing
+    fetchListing,
+    proposeMeetup,
+    fetchMeetupForConversation,
+    updateMeetupStatus,
   } from "../lib/api";
-  import type { ConversationWithPreview, Message } from "../lib/api";
+  import type { ConversationWithPreview, Message, Meetup } from "../lib/api";
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const convList = document.getElementById("convList")!;
@@ -120,6 +179,166 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
   let currentConversationId: string | null = null;
   let conversations: ConversationWithPreview[] = [];
   let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+  let currentMeetup: Meetup | null = null;
+
+  // ── Meetup helpers ────────────────────────────────────────────────────────
+  const scheduleMeetupBtn = document.getElementById("scheduleMeetupBtn") as HTMLButtonElement;
+  const meetupModal = document.getElementById("meetupModal")!;
+  const meetupModalCancel = document.getElementById("meetupModalCancel")!;
+  const meetupModalSubmit = document.getElementById("meetupModalSubmit") as HTMLButtonElement;
+  const meetupLocation = document.getElementById("meetupLocation") as HTMLSelectElement;
+  const meetupDateTime = document.getElementById("meetupDateTime") as HTMLInputElement;
+  const meetupModalStatus = document.getElementById("meetupModalStatus")!;
+  const meetupBanner = document.getElementById("meetupBanner")!;
+  const meetupBannerTitle = document.getElementById("meetupBannerTitle")!;
+  const meetupBannerDetails = document.getElementById("meetupBannerDetails")!;
+  const meetupBannerActions = document.getElementById("meetupBannerActions")!;
+
+  // Set min datetime to now
+  const minDt = new Date();
+  minDt.setMinutes(minDt.getMinutes() - minDt.getTimezoneOffset());
+  meetupDateTime.min = minDt.toISOString().slice(0, 16);
+
+  scheduleMeetupBtn?.addEventListener("click", () => {
+    meetupModalStatus.classList.add("hidden");
+    meetupModalStatus.textContent = "";
+    meetupModal.classList.remove("hidden");
+  });
+
+  meetupModalCancel?.addEventListener("click", () => meetupModal.classList.add("hidden"));
+
+  meetupModal?.addEventListener("click", (e) => {
+    if (e.target === meetupModal) meetupModal.classList.add("hidden");
+  });
+
+  meetupModalSubmit?.addEventListener("click", async () => {
+    const location = meetupLocation.value;
+    const dateTime = meetupDateTime.value;
+    if (!location) {
+      meetupModalStatus.textContent = "Please select a location.";
+      meetupModalStatus.className = "text-sm text-error font-semibold";
+      meetupModalStatus.classList.remove("hidden");
+      return;
+    }
+    if (!dateTime) {
+      meetupModalStatus.textContent = "Please select a date and time.";
+      meetupModalStatus.className = "text-sm text-error font-semibold";
+      meetupModalStatus.classList.remove("hidden");
+      return;
+    }
+    if (!currentConversationId || !currentUserId) return;
+
+    const conv = conversations.find(c => c.id === currentConversationId);
+    if (!conv) return;
+    const otherUserId = conv.buyer_id === currentUserId ? conv.seller_id : conv.buyer_id;
+
+    meetupModalSubmit.disabled = true;
+    meetupModalSubmit.textContent = "Sending...";
+
+    try {
+      const meetup = await proposeMeetup(
+        currentConversationId,
+        currentUserId,
+        otherUserId,
+        conv.listing_id ?? null,
+        location,
+        new Date(dateTime).toISOString(),
+      );
+      currentMeetup = meetup;
+
+      await supabase.from("notifications").insert({
+        user_id: otherUserId,
+        type: "meetup_proposed",
+        title: "Campus Meetup Proposed",
+        body: `Meet at ${location} — check your messages to confirm.`,
+        link: "/messages",
+        read: false,
+      });
+
+      meetupModal.classList.add("hidden");
+      renderMeetupBanner(meetup, currentUserId!);
+      meetupLocation.value = "";
+      meetupDateTime.value = "";
+    } catch (err: any) {
+      meetupModalStatus.textContent = err?.message || "Failed to propose meetup.";
+      meetupModalStatus.className = "text-sm text-error font-semibold";
+      meetupModalStatus.classList.remove("hidden");
+    } finally {
+      meetupModalSubmit.disabled = false;
+      meetupModalSubmit.textContent = "Propose Meetup";
+    }
+  });
+
+  function renderMeetupBanner(meetup: Meetup, userId: string) {
+    const isProposer = meetup.proposer_id === userId;
+    const dt = new Date(meetup.proposed_time);
+    const dateStr = dt.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+    const timeStr = dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    meetupBanner.classList.remove("hidden");
+
+    if (meetup.status === "confirmed") {
+      meetupBanner.className = "mx-4 mt-3 mb-1 p-3 rounded-lg border border-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 dark:border-emerald-500/30 shrink-0 self-start w-[calc(100%-2rem)]";
+      meetupBannerTitle.textContent = "✅ Meetup Confirmed";
+      meetupBannerDetails.textContent = `${meetup.location} · ${dateStr} at ${timeStr}`;
+      meetupBannerActions.innerHTML = `
+        <button class="text-xs font-semibold text-rose-600 hover:underline cancel-meetup-btn">Cancel</button>
+      `;
+    } else {
+      meetupBanner.className = "mx-4 mt-3 mb-1 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 shrink-0 self-start w-[calc(100%-2rem)]";
+      meetupBannerTitle.textContent = isProposer ? "📅 Meetup Proposed (waiting for confirmation)" : "📅 Meetup Proposed — confirm?";
+      meetupBannerDetails.textContent = `${meetup.location} · ${dateStr} at ${timeStr}`;
+
+      if (isProposer) {
+        meetupBannerActions.innerHTML = `
+          <button class="text-xs font-semibold text-rose-600 hover:underline cancel-meetup-btn">Cancel</button>
+        `;
+      } else {
+        meetupBannerActions.innerHTML = `
+          <button class="px-3 py-1 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors confirm-meetup-btn">Confirm</button>
+          <button class="px-3 py-1 rounded-full border border-rose-300 text-rose-600 text-xs font-bold hover:bg-rose-50 transition-colors cancel-meetup-btn">Decline</button>
+        `;
+      }
+    }
+
+    meetupBannerActions.querySelector(".confirm-meetup-btn")?.addEventListener("click", async () => {
+      if (!currentMeetup) return;
+      try {
+        await updateMeetupStatus(currentMeetup.id, "confirmed");
+        currentMeetup = { ...currentMeetup, status: "confirmed" };
+        renderMeetupBanner(currentMeetup, userId);
+        await supabase.from("notifications").insert({
+          user_id: currentMeetup.proposer_id,
+          type: "meetup_confirmed",
+          title: "Meetup Confirmed!",
+          body: `Your meetup at ${currentMeetup.location} has been confirmed.`,
+          link: "/messages",
+          read: false,
+        });
+      } catch (err) { console.error(err); }
+    });
+
+    meetupBannerActions.querySelector(".cancel-meetup-btn")?.addEventListener("click", async () => {
+      if (!currentMeetup) return;
+      try {
+        await updateMeetupStatus(currentMeetup.id, "cancelled");
+        currentMeetup = null;
+        meetupBanner.classList.add("hidden");
+      } catch (err) { console.error(err); }
+    });
+  }
+
+  async function loadMeetupForConversation(convId: string) {
+    meetupBanner.classList.add("hidden");
+    currentMeetup = null;
+    try {
+      const meetup = await fetchMeetupForConversation(convId);
+      if (meetup && currentUserId) {
+        currentMeetup = meetup;
+        renderMeetupBanner(meetup, currentUserId);
+      }
+    } catch (_) {}
+  }
 
   // ── Color palette for initials avatars ────────────────────────────────────
   const avatarColors = [
@@ -322,6 +541,13 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
       headerListingLink.classList.add("hidden");
       headerListingLink.classList.remove("flex");
     }
+
+    // Show schedule meetup button
+    scheduleMeetupBtn.classList.remove("hidden");
+    scheduleMeetupBtn.style.display = "flex";
+
+    // Load meetup for this conversation
+    await loadMeetupForConversation(convId);
 
     // Load messages
     try {

@@ -1,0 +1,212 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Seller Dashboard">
+  <div class="bg-muted min-h-screen pb-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8 pt-8">
+
+      <div class="mb-8">
+        <h1 class="text-3xl font-extrabold text-foreground tracking-tight">Seller Dashboard</h1>
+        <p class="text-muted-foreground mt-1">Track performance across all your listings</p>
+      </div>
+
+      <!-- Overview stat cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10" id="statCards">
+        <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1 animate-pulse">
+          <div class="h-3 w-20 bg-muted rounded"></div>
+          <div class="h-8 w-12 bg-muted rounded mt-1"></div>
+        </div>
+        <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1 animate-pulse">
+          <div class="h-3 w-20 bg-muted rounded"></div>
+          <div class="h-8 w-12 bg-muted rounded mt-1"></div>
+        </div>
+        <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1 animate-pulse">
+          <div class="h-3 w-20 bg-muted rounded"></div>
+          <div class="h-8 w-12 bg-muted rounded mt-1"></div>
+        </div>
+        <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1 animate-pulse">
+          <div class="h-3 w-20 bg-muted rounded"></div>
+          <div class="h-8 w-12 bg-muted rounded mt-1"></div>
+        </div>
+      </div>
+
+      <!-- Listings table -->
+      <div class="bg-card rounded-xl border border-border overflow-hidden" id="listingsTable">
+        <div class="px-6 py-4 border-b border-border flex items-center justify-between">
+          <h2 class="text-base font-extrabold text-foreground">Listing Insights</h2>
+          <a href="/post" class="text-sm font-bold text-primary hover:underline">+ New Listing</a>
+        </div>
+        <div id="tableBody">
+          <!-- skeleton rows -->
+          <div class="divide-y divide-border">
+            {[1,2,3].map(() => (
+              <div class="px-6 py-4 flex items-center gap-4 animate-pulse">
+                <div class="w-12 h-12 rounded-lg bg-muted shrink-0"></div>
+                <div class="flex-1 flex flex-col gap-2">
+                  <div class="h-4 w-48 bg-muted rounded"></div>
+                  <div class="h-3 w-32 bg-muted rounded"></div>
+                </div>
+                <div class="h-3 w-16 bg-muted rounded"></div>
+                <div class="h-3 w-16 bg-muted rounded"></div>
+                <div class="h-3 w-16 bg-muted rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div id="emptyState" class="hidden flex flex-col items-center justify-center py-24 text-muted-foreground">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-4 opacity-40"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <p class="text-base font-semibold mb-1">No listings yet</p>
+        <p class="text-sm mb-6">Post your first item to see insights here</p>
+        <a href="/post" class="bg-primary text-white font-bold text-sm py-2.5 px-6 rounded-full no-underline hover:bg-primary-accent transition-all shadow-sm">List an Item</a>
+      </div>
+
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { supabase } from "../lib/supabase";
+  import { fetchSellerDashboard } from "../lib/api";
+  import type { ListingInsight } from "../lib/api";
+
+  const CATEGORY_GRADIENTS: Record<string, string> = {
+    Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
+    Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
+    Furniture: "linear-gradient(135deg,#a0522d,#cd853f)",
+    Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
+    Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
+  };
+  const CATEGORY_ICONS: Record<string, string> = {
+    Books: "📕", Electronics: "💻", Furniture: "🪑", Clothing: "🧥", Misc: "📦",
+  };
+
+  const STATUS_COLORS: Record<string, string> = {
+    available: "text-emerald-600 bg-emerald-500/10 border-emerald-200",
+    sold: "text-rose-600 bg-rose-500/10 border-rose-200",
+    pending: "text-amber-600 bg-amber-500/10 border-amber-200",
+  };
+
+  function renderStat(label: string, value: string | number, icon: string, color: string) {
+    return `
+      <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1">
+        <div class="flex items-center gap-2 text-muted-foreground text-xs font-bold uppercase tracking-wide">
+          <span class="${color}">${icon}</span>${label}
+        </div>
+        <p class="text-3xl font-extrabold text-foreground">${value}</p>
+      </div>
+    `;
+  }
+
+  function renderSuggestionChip(suggestion: string, status: string) {
+    if (status === "sold") return `<span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-500/10 border border-emerald-200 rounded-full px-2.5 py-0.5">✓ Sold</span>`;
+    const isWarning = suggestion.includes("Try") || suggestion.includes("try") || suggestion.includes("consider") || suggestion.includes("Consider");
+    const cls = isWarning
+      ? "text-amber-600 bg-amber-500/10 border-amber-200"
+      : "text-blue-600 bg-blue-500/10 border-blue-200";
+    return `<span class="inline-flex items-center gap-1 text-xs font-semibold ${cls} border rounded-full px-2.5 py-0.5 max-w-xs truncate" title="${suggestion}">💡 ${suggestion}</span>`;
+  }
+
+  function renderRow(l: ListingInsight): string {
+    const gradient = CATEGORY_GRADIENTS[l.category] || "linear-gradient(135deg,#6b7280,#9ca3af)";
+    const icon = CATEGORY_ICONS[l.category] || "📦";
+    const thumb = l.images && l.images.length > 0
+      ? `<img src="${l.images[0]}" class="w-12 h-12 object-cover rounded-lg" />`
+      : `<div class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl" style="background:${gradient}">${icon}</div>`;
+
+    const statusCls = STATUS_COLORS[l.status] || "text-muted-foreground bg-muted border-border";
+    const price = l.price === 0 ? "FREE" : `$${l.price.toFixed(2)}`;
+    const daysLabel = l.days_active === 0 ? "Today" : l.days_active === 1 ? "1 day" : `${l.days_active} days`;
+
+    return `
+      <div class="px-6 py-4 flex items-center gap-4 hover:bg-muted/40 transition-colors">
+        <a href="/item?id=${l.id}" class="shrink-0">${thumb}</a>
+        <div class="flex-1 min-w-0">
+          <a href="/item?id=${l.id}" class="text-sm font-bold text-foreground hover:text-primary transition-colors no-underline block truncate">${escHtml(l.title)}</a>
+          <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+            <span class="text-xs font-bold text-primary">${price}</span>
+            <span class="text-xs text-muted-foreground">·</span>
+            <span class="text-xs text-muted-foreground">${escHtml(l.category)}</span>
+            <span class="text-xs text-muted-foreground">·</span>
+            <span class="inline-flex items-center rounded-full px-2 py-px text-[10px] font-bold border capitalize ${statusCls}">${l.status}</span>
+          </div>
+        </div>
+        <div class="hidden sm:flex items-center gap-1 text-sm font-bold text-foreground min-w-16 justify-center flex-col">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>${l.view_count ?? 0}</span>
+          <span class="text-[10px] font-semibold text-muted-foreground">views</span>
+        </div>
+        <div class="hidden sm:flex items-center gap-1 text-sm font-bold text-foreground min-w-16 justify-center flex-col">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>${l.save_count}</span>
+          <span class="text-[10px] font-semibold text-muted-foreground">saves</span>
+        </div>
+        <div class="hidden md:flex items-center gap-1 text-sm font-bold text-foreground min-w-16 justify-center flex-col">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>${l.conversation_count}</span>
+          <span class="text-[10px] font-semibold text-muted-foreground">messages</span>
+        </div>
+        <div class="hidden lg:flex items-center gap-1 text-sm font-bold text-foreground min-w-16 justify-center flex-col">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>${daysLabel}</span>
+          <span class="text-[10px] font-semibold text-muted-foreground">active</span>
+        </div>
+        <div class="shrink-0 hidden xl:block max-w-60">
+          ${renderSuggestionChip(l.suggestion, l.status)}
+        </div>
+        <div class="shrink-0 flex gap-2">
+          ${l.status !== "sold" ? `<a href="/post?edit=${l.id}" class="text-xs font-semibold text-primary hover:underline no-underline">Edit</a>` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  function escHtml(str: string): string {
+    const d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  async function init() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = "/login"; return; }
+
+    try {
+      const insights = await fetchSellerDashboard(user.id);
+
+      const statCards = document.getElementById("statCards")!;
+      const tableBody = document.getElementById("tableBody")!;
+      const emptyState = document.getElementById("emptyState")!;
+
+      if (insights.length === 0) {
+        document.getElementById("listingsTable")!.classList.add("hidden");
+        emptyState.classList.remove("hidden");
+        statCards.innerHTML = renderStat("Total Listings", 0, "📦", "text-primary") +
+          renderStat("Total Views", 0, "👁", "text-blue-500") +
+          renderStat("Total Saves", 0, "❤️", "text-rose-500") +
+          renderStat("Total Messages", 0, "💬", "text-emerald-500");
+        return;
+      }
+
+      const totalViews = insights.reduce((s, l) => s + (l.view_count ?? 0), 0);
+      const totalSaves = insights.reduce((s, l) => s + l.save_count, 0);
+      const totalMessages = insights.reduce((s, l) => s + l.conversation_count, 0);
+      const soldCount = insights.filter(l => l.status === "sold").length;
+
+      statCards.innerHTML =
+        renderStat("Total Listings", insights.length, "📦", "text-primary") +
+        renderStat("Total Views", totalViews.toLocaleString(), "👁", "text-blue-500") +
+        renderStat("Total Saves", totalSaves, "❤️", "text-rose-500") +
+        renderStat("Sold", soldCount, "✅", "text-emerald-500");
+
+      tableBody.innerHTML = `<div class="divide-y divide-border">${insights.map(renderRow).join("")}</div>`;
+
+    } catch (err) {
+      console.error("Failed to load dashboard:", err);
+    }
+  }
+
+  init();
+</script>
