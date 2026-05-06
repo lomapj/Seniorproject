@@ -532,7 +532,7 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
 
     // Listing link
     if (conv.listing_id && conv.listing_title) {
-      headerListingLink.href = `/item/${conv.listing_id}`;
+      headerListingLink.href = `/item?id=${conv.listing_id}`;
       headerListingLink.classList.remove("hidden");
       headerListingLink.classList.add("flex");
       headerListingTitle.textContent = conv.listing_title;
@@ -581,8 +581,9 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
           
           if (!alreadyReviewed) {
             reviewBanner.classList.remove("hidden");
-            const link = document.createElement("reviewBannerLink")!;
+            const link = document.getElementById("reviewBannerLink")!;
             link.setAttribute("href", `/item?id=${conversation.listing_id}`);
+            console.log("test");
           }
         }
       }
