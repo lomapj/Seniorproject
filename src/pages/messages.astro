@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
     <aside class="border-r border-border flex flex-col bg-muted overflow-hidden min-h-0">
       <div class="p-5 flex justify-between items-center">
         <h1 class="text-2xl font-extrabold text-foreground">Messages</h1>
-        <button type="button" class="w-10 h-10 rounded-lg bg-card text-primary flex items-center justify-center shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all" aria-label="New message">
+        <button type="button" id="newMessageBtn" class="w-10 h-10 rounded-lg bg-card text-primary flex items-center justify-center shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all" aria-label="New message">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
         </button>
       </div>
@@ -66,6 +66,25 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
             </div>
           </div>
           <div class="flex gap-2" id="meetupBannerActions"></div>
+        </div>
+      </div>
+
+      <!-- New Message -->
+      <div id="newMessagePanel" class="hidden fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-card rounded-2xl border border-border shadow-2xl w-full max-w-md p-6 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-extrabold text-foreground">New Message</h2>
+            <button id="newMessageClose" class="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="flex items-center bg-muted border border-border rounded-lg px-3">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-muted-foreground mr-2 shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="newMessageSearch" placeholder="Search by name..." autocomplete="off" class="border-0 bg-transparent py-2.5 text-sm w-full outline-none font-inherit" />
+          </div>
+          <div id="newMessageResults" class="flex flex-col gap-1 max-h-64 overflow-y-auto">
+            <p class="text-sm text-muted-foreground text-center py-4">Start typing to search for someone</p>
+          </div>
         </div>
       </div>
 
@@ -151,12 +170,14 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
     fetchOrCreateConversation,
     fetchMessages,
     sendMessage,
+    deleteConversation,
     markMessagesRead,
     hasReviewed,
     fetchListing,
     proposeMeetup,
     fetchMeetupForConversation,
     updateMeetupStatus,
+    fetchAllProfiles,
   } from "../lib/api";
   import type { ConversationWithPreview, Message, Meetup } from "../lib/api";
 
@@ -180,6 +201,7 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
   let conversations: ConversationWithPreview[] = [];
   let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
   let currentMeetup: Meetup | null = null;
+  const renderedMessageIds = new Set<string>();
 
   // ── Meetup helpers ────────────────────────────────────────────────────────
   const scheduleMeetupBtn = document.getElementById("scheduleMeetupBtn") as HTMLButtonElement;
@@ -390,88 +412,117 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
         const color = getColorForId(conv.id);
         const activeClasses = isActive ? "bg-card border-l-4 border-l-primary shadow-inner" : "";
         return `
-          <button type="button"
-            class="conv-item w-full p-4 px-5 flex gap-3 border-0 bg-transparent text-left transition-all border-b border-border/50 hover:bg-card/80 ${activeClasses}"
-            data-conv="${conv.id}">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm" style="background: ${color}">
-              <span class="text-white font-extrabold text-sm">${escapeHtml(conv.other_initials)}</span>
-            </div>
-            <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-              <div class="flex justify-between items-baseline">
-                <span class="text-sm font-extrabold text-foreground">${escapeHtml(conv.other_name)}</span>
-                <span class="text-xs text-muted-foreground">${formatTime(conv.last_message_time)}</span>
+          <div class="relative group/conv border-b border-border/50">
+            <button type="button"
+              class="conv-item w-full p-4 px-5 flex gap-3 border-0 bg-transparent text-left transition-all hover:bg-card/80 ${activeClasses}"
+              data-conv="${conv.id}">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm" style="background: ${color}">
+                <span class="text-white font-extrabold text-sm">${escapeHtml(conv.other_initials)}</span>
               </div>
-              <div class="flex justify-between items-baseline">
-                <span class="text-sm text-muted-foreground truncate">${escapeHtml(conv.last_message || "No messages yet")}</span>
-                ${conv.unread_count > 0 ? `<span class="bg-primary text-primary-foreground text-[0.7rem] font-extrabold px-1.5 py-px rounded-full min-w-5 text-center">${conv.unread_count}</span>` : ""}
+              <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                <div class="flex justify-between items-baseline">
+                  <span class="text-sm font-extrabold text-foreground">${escapeHtml(conv.other_name)}</span>
+                  <span class="text-xs text-muted-foreground">${formatTime(conv.last_message_time)}</span>
+                </div>
+                <div class="flex justify-between items-baseline">
+                  <span class="text-sm text-muted-foreground truncate">${escapeHtml(conv.last_message || "No messages yet")}</span>
+                  ${conv.unread_count > 0 ? `<span class="bg-primary text-primary-foreground text-[0.7rem] font-extrabold px-1.5 py-px rounded-full min-w-5 text-center">${conv.unread_count}</span>` : ""}
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+            <button type="button" class="delete-conv-btn absolute bottom-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-error hover:bg-error/10 opacity-0 group-hover/conv:opacity-100 transition-all z-10" data-conv="${conv.id}" title="Delete conversation">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
         `;
       })
       .join("");
 
-    // Attach click listeners
     convList.querySelectorAll(".conv-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const convId = btn.getAttribute("data-conv")!;
-        selectConversation(convId);
+      btn.addEventListener("click", () => selectConversation(btn.getAttribute("data-conv")!));
+    });
+
+    convList.querySelectorAll<HTMLElement>(".delete-conv-btn").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const convId = btn.dataset.conv!;
+        if (!confirm("Delete this conversation? This cannot be undone.")) return;
+        // Save for rollback in case DB delete fails
+        const removed = conversations.find((c) => c.id === convId) ?? null;
+        const wasActive = currentConversationId === convId;
+        // Optimistic update — remove from UI immediately
+        conversations = conversations.filter((c) => c.id !== convId);
+        if (wasActive) {
+          currentConversationId = null;
+          chatHistory.innerHTML = `<div id="emptyChat" class="flex-1 flex flex-col items-center justify-center text-muted-foreground"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-3 opacity-40"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><p class="text-sm font-semibold">Select a conversation to start messaging</p></div>`;
+          headerName.textContent = "Select a conversation";
+          headerSub.textContent = "";
+          headerListingLink.classList.add("hidden");
+          scheduleMeetupBtn.classList.add("hidden");
+          meetupBanner.classList.add("hidden");
+        }
+        renderConversations(conversations);
+        try {
+          const conv = removed;
+          await deleteConversation(convId, currentUserId!, conv?.buyer_id ?? "");
+        } catch (err) {
+          console.error(err);
+          // Rollback on failure
+          if (removed) {
+            conversations.push(removed);
+            conversations.sort((a, b) => new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime());
+          }
+          if (wasActive) currentConversationId = convId;
+          renderConversations(conversations);
+          alert("Failed to delete conversation. Please try again.");
+        }
       });
     });
   }
 
   // ── Render messages ───────────────────────────────────────────────────────
+  function buildMessageHtml(msg: Message, otherInitials: string): string {
+    const isMe = msg.sender_id === currentUserId;
+    const time = new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    if (isMe) {
+      return `<div class="flex gap-3 max-w-[70%] self-end flex-row-reverse" data-msg-id="${msg.id}">
+        <div class="flex flex-col gap-1">
+          <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-primary text-primary-foreground rounded-br-sm font-medium">${escapeHtml(msg.content)}</div>
+          <span class="text-[0.7rem] text-muted-foreground font-semibold px-2 text-right">${time}</span>
+        </div>
+      </div>`;
+    } else {
+      const color = getColorForId(currentConversationId || "");
+      return `<div class="flex gap-3 max-w-[70%]" data-msg-id="${msg.id}">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-auto" style="background: ${color}">
+          <span class="text-white text-[0.7rem] font-extrabold">${escapeHtml(otherInitials)}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-card text-foreground rounded-bl-sm border border-border">${escapeHtml(msg.content)}</div>
+          <span class="text-[0.7rem] text-muted-foreground font-semibold px-2">${time}</span>
+        </div>
+      </div>`;
+    }
+  }
+
   function renderMessages(msgs: Message[], otherInitials: string) {
     if (emptyChat) emptyChat.remove();
+    renderedMessageIds.clear();
 
-    // Group by date
     let lastDate = "";
     let html = "";
 
     for (const msg of msgs) {
+      renderedMessageIds.add(msg.id);
       const msgDate = new Date(msg.created_at).toLocaleDateString();
       if (msgDate !== lastDate) {
         lastDate = msgDate;
         const today = new Date().toLocaleDateString();
         const yesterday = new Date(Date.now() - 86400000).toLocaleDateString();
-        let label = msgDate;
-        if (msgDate === today) label = "Today";
-        else if (msgDate === yesterday) label = "Yesterday";
-
-        html += `
-          <div class="text-center relative my-3">
-            <div class="absolute left-0 top-1/2 w-full h-px bg-border"></div>
-            <span class="relative bg-muted/30 px-4 text-xs font-bold text-muted-foreground uppercase">${label}</span>
-          </div>
-        `;
+        let label = msgDate === today ? "Today" : msgDate === yesterday ? "Yesterday" : msgDate;
+        html += `<div class="text-center relative my-3"><div class="absolute left-0 top-1/2 w-full h-px bg-border"></div><span class="relative bg-muted/30 px-4 text-xs font-bold text-muted-foreground uppercase">${label}</span></div>`;
       }
-
-      const isMe = msg.sender_id === currentUserId;
-      const time = new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-      if (isMe) {
-        html += `
-          <div class="flex gap-3 max-w-[70%] self-end flex-row-reverse">
-            <div class="flex flex-col gap-1">
-              <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-primary text-primary-foreground rounded-br-sm font-medium">${escapeHtml(msg.content)}</div>
-              <span class="text-[0.7rem] text-muted-foreground font-semibold px-2 text-right">${time}</span>
-            </div>
-          </div>
-        `;
-      } else {
-        const color = getColorForId(currentConversationId || "");
-        html += `
-          <div class="flex gap-3 max-w-[70%]">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-auto" style="background: ${color}">
-              <span class="text-white text-[0.7rem] font-extrabold">${escapeHtml(otherInitials)}</span>
-            </div>
-            <div class="flex flex-col gap-1">
-              <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-card text-foreground rounded-bl-sm border border-border">${escapeHtml(msg.content)}</div>
-              <span class="text-[0.7rem] text-muted-foreground font-semibold px-2">${time}</span>
-            </div>
-          </div>
-        `;
-      }
+      html += buildMessageHtml(msg, otherInitials);
     }
 
     chatHistory.innerHTML = html;
@@ -480,41 +531,21 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
 
   // ── Append a single message to chat ───────────────────────────────────────
   function appendMessage(msg: Message, otherInitials: string) {
+    if (renderedMessageIds.has(msg.id)) return;
+    renderedMessageIds.add(msg.id);
     if (emptyChat) emptyChat.remove();
 
-    const isMe = msg.sender_id === currentUserId;
-    const time = new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const div = document.createElement("div");
-
-    if (isMe) {
-      div.className = "flex gap-3 max-w-[70%] self-end flex-row-reverse";
-      div.innerHTML = `
-        <div class="flex flex-col gap-1">
-          <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-primary text-primary-foreground rounded-br-sm font-medium">${escapeHtml(msg.content)}</div>
-          <span class="text-[0.7rem] text-muted-foreground font-semibold px-2 text-right">${time}</span>
-        </div>
-      `;
-    } else {
-      const color = getColorForId(currentConversationId || "");
-      div.className = "flex gap-3 max-w-[70%]";
-      div.innerHTML = `
-        <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-auto" style="background: ${color}">
-          <span class="text-white text-[0.7rem] font-extrabold">${escapeHtml(otherInitials)}</span>
-        </div>
-        <div class="flex flex-col gap-1">
-          <div class="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm bg-card text-foreground rounded-bl-sm border border-border">${escapeHtml(msg.content)}</div>
-          <span class="text-[0.7rem] text-muted-foreground font-semibold px-2">${time}</span>
-        </div>
-      `;
-    }
-
-    chatHistory.appendChild(div);
+    const wrapper = document.createElement("template");
+    wrapper.innerHTML = buildMessageHtml(msg, otherInitials);
+    const el = wrapper.content.firstElementChild as HTMLElement;
+    chatHistory.appendChild(el);
     chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: "smooth" });
   }
 
   // ── Select a conversation ─────────────────────────────────────────────────
   async function selectConversation(convId: string) {
     currentConversationId = convId;
+    renderedMessageIds.clear();
     const conv = conversations.find((c) => c.id === convId);
     if (!conv || !currentUserId) return;
 
@@ -577,13 +608,12 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
       try {
         const listing = await fetchListing(conversation.listing_id);
         if (listing.status === "sold") {
-          const alreadyReviewed = await hasReviewed(conversation.listing_id, currentConversationId);
-          
+          const alreadyReviewed = await hasReviewed(conversation.listing_id, currentUserId!);
+
           if (!alreadyReviewed) {
             reviewBanner.classList.remove("hidden");
             const link = document.getElementById("reviewBannerLink")!;
             link.setAttribute("href", `/item?id=${conversation.listing_id}`);
-            console.log("test");
           }
         }
       }
@@ -652,7 +682,7 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
-        (payload: any) => {
+        async (payload: any) => {
           const newMsg = payload.new as Message;
 
           // If message is in the current conversation and not from us, append it
@@ -682,6 +712,12 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
               (a, b) => new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime(),
             );
             renderConversations(conversations);
+          } else if (newMsg.sender_id !== currentUserId && currentUserId) {
+            // Message for an unknown conversation — may be a restored soft-delete
+            try {
+              conversations = await fetchConversations(currentUserId);
+              renderConversations(conversations);
+            } catch (_) {}
           }
         },
       )
@@ -714,6 +750,74 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
     div.textContent = str;
     return div.innerHTML;
   }
+
+  // ── New Message ───────────────────────────────────────────────────────────
+  const newMessageBtn = document.getElementById("newMessageBtn")!;
+  const newMessagePanel = document.getElementById("newMessagePanel")!;
+  const newMessageClose = document.getElementById("newMessageClose")!;
+  const newMessageSearch = document.getElementById("newMessageSearch") as HTMLInputElement;
+  const newMessageResults = document.getElementById("newMessageResults")!;
+
+  let allProfiles: { id: string; full_name: string }[] = [];
+
+  newMessageBtn.addEventListener("click", async () => {
+    newMessagePanel.classList.remove("hidden");
+    newMessageSearch.value = "";
+    newMessageResults.innerHTML = `<p class="text-sm text-muted-foreground text-center py-4">Start typing to search for someone</p>`;
+    newMessageSearch.focus();
+    if (allProfiles.length === 0) {
+      try {
+        const profiles = await fetchAllProfiles();
+        allProfiles = profiles.map((p) => ({ id: p.id, full_name: p.full_name }));
+      } catch (_) {}
+    }
+  });
+
+  newMessageClose.addEventListener("click", () => newMessagePanel.classList.add("hidden"));
+  newMessagePanel.addEventListener("click", (e) => { if (e.target === newMessagePanel) newMessagePanel.classList.add("hidden"); });
+
+  newMessageSearch.addEventListener("input", () => {
+    const q = newMessageSearch.value.trim().toLowerCase();
+    if (!q) {
+      newMessageResults.innerHTML = `<p class="text-sm text-muted-foreground text-center py-4">Start typing to search for someone</p>`;
+      return;
+    }
+    const matches = allProfiles.filter(
+      (p) => p.id !== currentUserId && p.full_name.toLowerCase().includes(q)
+    );
+    if (matches.length === 0) {
+      newMessageResults.innerHTML = `<p class="text-sm text-muted-foreground text-center py-4">No users found</p>`;
+      return;
+    }
+    newMessageResults.innerHTML = matches
+      .slice(0, 10)
+      .map((p) => {
+        const color = getColorForId(p.id);
+        const initials = p.full_name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+        return `<button type="button" class="new-msg-user flex items-center gap-3 w-full px-3 py-2.5 rounded-lg hover:bg-muted transition-colors text-left" data-uid="${p.id}" data-name="${escapeHtml(p.full_name)}">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style="background:${color}">
+            <span class="text-white text-xs font-extrabold">${initials}</span>
+          </div>
+          <span class="text-sm font-semibold text-foreground">${escapeHtml(p.full_name)}</span>
+        </button>`;
+      })
+      .join("");
+
+    newMessageResults.querySelectorAll<HTMLElement>(".new-msg-user").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const uid = btn.dataset.uid!;
+        newMessagePanel.classList.add("hidden");
+        try {
+          const conv = await fetchOrCreateConversation(null, currentUserId!, uid);
+          if (!conversations.find((c) => c.id === conv.id)) {
+            conversations = await fetchConversations(currentUserId!);
+          }
+          renderConversations(conversations);
+          await selectConversation(conv.id);
+        } catch (err) { console.error(err); }
+      });
+    });
+  });
 
   // ── Initialize ────────────────────────────────────────────────────────────
   async function init() {

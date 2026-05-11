@@ -88,6 +88,8 @@ export interface Database {
           seller_id: string;
           created_at: string;
           updated_at: string;
+          deleted_by_buyer: boolean;
+          deleted_by_seller: boolean;
         };
         Insert: {
           id?: string;
@@ -96,6 +98,8 @@ export interface Database {
           seller_id: string;
           created_at?: string;
           updated_at?: string;
+          deleted_by_buyer?: boolean;
+          deleted_by_seller?: boolean;
         };
         Update: {
           id?: string;
@@ -104,6 +108,8 @@ export interface Database {
           seller_id?: string;
           created_at?: string;
           updated_at?: string;
+          deleted_by_buyer?: boolean;
+          deleted_by_seller?: boolean;
         };
       };
       messages: {

@@ -134,6 +134,15 @@ export async function updateListing(id: string, fields: Partial<Listing>) {
   if (error) throw error;
 }
 
+export async function deleteConversation(conversationId: string, userId: string, buyerId: string): Promise<void> {
+  const field = userId === buyerId ? "deleted_by_buyer" : "deleted_by_seller";
+  const { error } = await supabase
+    .from("conversations")
+    .update({ [field]: true })
+    .eq("id", conversationId);
+  if (error) throw error;
+}
+
 // ── Conversations ──────────────────────────────────────────────────────────────
 
 export async function fetchConversations(
@@ -185,7 +194,11 @@ export async function fetchConversations(
     }
   }
 
-  return convos.map((c: any) => {
+  const visibleConvos = convos.filter((c: any) =>
+    c.buyer_id === userId ? !c.deleted_by_buyer : !c.deleted_by_seller
+  );
+
+  return visibleConvos.map((c: any) => {
     const otherId = c.buyer_id === userId ? c.seller_id : c.buyer_id;
     const otherName = userNames[otherId] || "Unknown";
     const initials = otherName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -216,11 +229,13 @@ export async function fetchOrCreateConversation(
   buyerId: string,
   sellerId: string,
 ): Promise<Conversation> {
+  // Search both role orderings so we never create a duplicate
   let query = supabase
     .from("conversations")
     .select("*")
-    .eq("buyer_id", buyerId)
-    .eq("seller_id", sellerId);
+    .or(
+      `and(buyer_id.eq.${buyerId},seller_id.eq.${sellerId}),and(buyer_id.eq.${sellerId},seller_id.eq.${buyerId})`,
+    );
 
   if (listingId) {
     query = query.eq("listing_id", listingId);
@@ -228,9 +243,17 @@ export async function fetchOrCreateConversation(
     query = query.is("listing_id", null);
   }
 
-  const { data: existing, error: findError } = await query.maybeSingle();
+  const { data: rows, error: findError } = await query.limit(1);
   if (findError) throw findError;
-  if (existing) return existing as Conversation;
+  if (rows && rows.length > 0) {
+    const existing = rows[0] as Conversation;
+    // Reset deleted flags so both users can see the conversation again
+    await supabase
+      .from("conversations")
+      .update({ deleted_by_buyer: false, deleted_by_seller: false })
+      .eq("id", existing.id);
+    return existing;
+  }
 
   const { data: created, error: createError } = await supabase
     .from("conversations")
@@ -268,10 +291,15 @@ export async function sendMessage(
 
   await supabase
     .from("conversations")
-    .update({ updated_at: new Date().toISOString() })
+    .update({ updated_at: new Date().toISOString(), deleted_by_buyer: false, deleted_by_seller: false })
     .eq("id", conversationId);
 
   return data as Message;
+}
+
+export async function deleteMessage(messageId: string): Promise<void> {
+  const { error } = await supabase.from("messages").delete().eq("id", messageId);
+  if (error) throw error;
 }
 
 export async function markMessagesRead(conversationId: string, userId: string): Promise<void> {

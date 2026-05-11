@@ -188,6 +188,16 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
               </Dialog>
             </div>
 
+            <!-- Incoming Trade Offers (shown to seller only) -->
+            <div id="incomingTradeOffersSection" class="hidden flex flex-col gap-2">
+              <button type="button" id="viewTradeOffersBtn" class="w-full inline-flex items-center justify-center gap-2 border border-violet-300 text-violet-600 hover:bg-violet-50 hover:border-violet-400 dark:hover:bg-violet-950/30 rounded-md px-4 py-2.5 text-sm font-bold transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                View Trade Offers
+                <span id="tradeOfferCount" class="hidden bg-violet-500 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-full"></span>
+              </button>
+              <div id="incomingTradeOffersList" class="hidden flex flex-col gap-3 mt-1"></div>
+            </div>
+
             <!-- Trade Offer (shown to non-sellers on available non-auction items) -->
             <div id="tradeOfferSection" class="hidden">
               <Dialog>
@@ -268,6 +278,10 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
     incrementViewCount,
     fetchUserListings,
     createTradeOffer,
+    fetchTradeOffersForListing,
+    updateTradeOfferStatus,
+    updateListing,
+    fetchOrCreateConversation,
   } from "../lib/api";
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
@@ -444,6 +458,121 @@ import Textarea from "@/components/starwind/textarea/Textarea.astro";
       if (currentUserId && currentUserId === item.user_id) {
         if (sellerCardMsgBtn) sellerCardMsgBtn.style.display = "none";
         if (actionMsgBtn) actionMsgBtn.style.display = "none";
+      }
+
+      // ── Incoming Trade Offers (seller view) ───────────────────────────────
+      const isSeller = currentUserId && currentUserId === item.user_id;
+      const incomingSection = document.getElementById("incomingTradeOffersSection");
+      if (isSeller && incomingSection && item.status === "available" && !item.is_auction) {
+        incomingSection.classList.remove("hidden");
+        const viewBtn = document.getElementById("viewTradeOffersBtn") as HTMLButtonElement;
+        const offerCountBadge = document.getElementById("tradeOfferCount")!;
+        const offersList = document.getElementById("incomingTradeOffersList")!;
+        let offersLoaded = false;
+
+        // Load count on page load
+        try {
+          const offers = await fetchTradeOffersForListing(item.id);
+          const pending = offers.filter(o => o.status === "pending");
+          if (pending.length > 0) {
+            offerCountBadge.textContent = String(pending.length);
+            offerCountBadge.classList.remove("hidden");
+          }
+        } catch (_) {}
+
+        viewBtn.addEventListener("click", async () => {
+          if (offersLoaded) { offersList.classList.toggle("hidden"); return; }
+          offersLoaded = true;
+          offersList.classList.remove("hidden");
+          offersList.innerHTML = `<p class="text-sm text-muted-foreground text-center py-3">Loading...</p>`;
+          try {
+            const offers = await fetchTradeOffersForListing(item.id);
+            const pending = offers.filter(o => o.status === "pending");
+            if (pending.length === 0) {
+              offersList.innerHTML = `<p class="text-sm text-muted-foreground text-center py-3">No pending trade offers.</p>`;
+              return;
+            }
+            const cards = await Promise.all(pending.map(async (offer) => {
+              let offeredListing: any = null;
+              try { offeredListing = await fetchListing(offer.offered_listing_id); } catch (_) {}
+              const thumb = offeredListing?.images?.[0]
+                ? `<img src="${offeredListing.images[0]}" class="w-12 h-12 object-cover rounded-lg shrink-0" />`
+                : `<div class="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-xl shrink-0">📦</div>`;
+              const price = offeredListing ? (offeredListing.price === 0 ? "FREE" : `$${offeredListing.price.toFixed(2)}`) : "";
+              return { offer, offeredListing, thumb, price };
+            }));
+            offersList.innerHTML = cards.map(({ offer, offeredListing, thumb, price }) => `
+              <div class="flex items-center gap-3 p-3 rounded-xl border border-border bg-card" data-offer-id="${offer.id}">
+                ${thumb}
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold text-foreground truncate">${offeredListing?.title ?? "Unknown listing"}</p>
+                  <p class="text-xs text-muted-foreground">${offeredListing?.category ?? ""} · <span class="font-semibold text-primary">${price}</span></p>
+                  <a href="/item?id=${offer.offered_listing_id}" class="text-xs text-primary hover:underline" target="_blank">View listing →</a>
+                </div>
+                <div class="flex flex-col gap-1.5 shrink-0">
+                  <button type="button" class="accept-trade-btn px-3 py-1 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors" data-offer-id="${offer.id}">Accept</button>
+                  <button type="button" class="decline-trade-btn px-3 py-1 rounded-full border border-rose-300 text-rose-600 text-xs font-bold hover:bg-rose-50 transition-colors" data-offer-id="${offer.id}">Decline</button>
+                </div>
+              </div>
+            `).join("");
+
+            offersList.querySelectorAll<HTMLElement>(".accept-trade-btn").forEach(btn => {
+              btn.addEventListener("click", async () => {
+                const oid = btn.dataset.offerId!;
+                const offer = pending.find(o => o.id === oid)!;
+                btn.disabled = true;
+                btn.textContent = "Accepting...";
+                try {
+                  await updateTradeOfferStatus(oid, "accepted");
+                  // Mark both listings as sold
+                  await updateListing(item.id, { status: "sold", sold_at: new Date().toISOString() });
+                  await updateListing(offer.offered_listing_id, { status: "sold", sold_at: new Date().toISOString() });
+                  // Notify buyer
+                  await supabase.from("notifications").insert({
+                    user_id: offer.offerer_id,
+                    type: "trade_accepted",
+                    title: "Trade Offer Accepted!",
+                    body: `Your trade offer for "${item.title}" was accepted. Message the seller to arrange the exchange.`,
+                    link: `/messages?to=${currentUserId}&listing=${item.id}`,
+                    read: false,
+                  });
+                  // Open/create a conversation between both parties
+                  await fetchOrCreateConversation(item.id, offer.offerer_id, currentUserId!);
+                  btn.closest("[data-offer-id]")?.remove();
+                  offerCountBadge.classList.add("hidden");
+                  // Reload page to reflect sold status
+                  window.location.reload();
+                } catch (_) { btn.disabled = false; btn.textContent = "Accept"; }
+              });
+            });
+
+            offersList.querySelectorAll<HTMLElement>(".decline-trade-btn").forEach(btn => {
+              btn.addEventListener("click", async () => {
+                const oid = btn.dataset.offerId!;
+                const offer = pending.find(o => o.id === oid)!;
+                btn.disabled = true;
+                btn.textContent = "Declining...";
+                try {
+                  await updateTradeOfferStatus(oid, "declined");
+                  // Notify buyer
+                  await supabase.from("notifications").insert({
+                    user_id: offer.offerer_id,
+                    type: "trade_declined",
+                    title: "Trade Offer Declined",
+                    body: `Your trade offer for "${item.title}" was declined.`,
+                    link: `/item?id=${item.id}`,
+                    read: false,
+                  });
+                  btn.closest("[data-offer-id]")?.remove();
+                  const remaining = offersList.querySelectorAll("[data-offer-id]").length;
+                  if (remaining === 0) offersList.innerHTML = `<p class="text-sm text-muted-foreground text-center py-3">No pending trade offers.</p>`;
+                } catch (_) { btn.disabled = false; btn.textContent = "Decline"; }
+              });
+            });
+          } catch (_) {
+            offersList.innerHTML = `<p class="text-sm text-error text-center py-3">Failed to load offers.</p>`;
+          }
+        });
       }
 
       // ── Trade Offer ────────────────────────────────────────────────────────

@@ -423,11 +423,11 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     listingGrid.innerHTML = listings.map(renderCard).join("");
 
     async function loadCardRatings() {
-      const ratingElements = document.querySelectorAll<HTMLElement>(".seller-rating[data-seller-id]");
-      const sellerIds = [...new Set(Array.from(ratingElements).map(el => el.dataset.sellerId!))];
+      const sellerIds = [...new Set(listings.map(l => l.user_id))];
       const uncachedIds = sellerIds.filter(id => !(id in sellerRatingsCache));
       await Promise.all(uncachedIds.map(async (sid) => { try { sellerRatingsCache[sid] = await fetchSellerRating(sid); } catch (_) { sellerRatingsCache[sid] = { average: 0, count: 0 }; } }));
-      ratingElements.forEach(el => {
+      // Re-query after await so we update the live DOM, not stale references
+      document.querySelectorAll<HTMLElement>(".seller-rating[data-seller-id]").forEach(el => {
         const rating = sellerRatingsCache[el.dataset.sellerId!];
         if (rating && rating.count > 0) { const full = Math.floor(rating.average); el.innerHTML = `<span class="text-amber-400">${"\u2605".repeat(full)}${"\u2606".repeat(5 - full)}</span> <span>${rating.average}</span>`; }
         else { el.innerHTML = `<span class="text-muted-foreground">No ratings</span>`; }
