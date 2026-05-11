@@ -520,6 +520,13 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
 
   function renderTrending() {
     const trendingSection = document.getElementById("trendingSection")!;
+    
+    const savedOnly = new URLSearchParams(window.location.search).get("saved") === "true";
+    if (savedOnly) {
+      trendingSection.classList.add("hidden");
+      return;
+    }
+    
     const trendingGrid = document.getElementById("trendingGrid")!;
     const hasDailyData = allListings.some((l) => (l.daily_views ?? 0) > 0);
     const top = allListings
