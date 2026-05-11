@@ -261,6 +261,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
 <script>
   import { supabase } from "../lib/supabase";
   import { uploadListingImage, fetchListing, updateListing } from "../lib/api";
+  import {pre} from "fast-check";
 
   const uploadZone = document.getElementById("uploadZone");
   const fileInput = document.getElementById("fileInput") as HTMLInputElement;
@@ -375,46 +376,92 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
   });
   descriptionInput?.addEventListener("input", () => { if (descCount) descCount.textContent = `${descriptionInput.value.length}/1000`; });
 
-  offersToggle.addEventListener("change", () => {
-    const previewBadge = document.getElementById("previewOffersBadge");
-    if (offersToggle.checked) {
-      document.getElementById("offersToggleButton")?.classList.add("translate-x-5");
-      offersLabel.classList.remove("border-border", "bg-muted/50");
-      offersLabel.classList.add("border-violet-400", "bg-violet-500/5");
-      if (previewBadge) previewBadge.classList.remove("hidden");
-    } else {
-      document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
-      offersLabel.classList.add("border-border", "bg-muted/50");
-      offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
-      if (previewBadge) previewBadge.classList.add("hidden");
+  const giveawayWrapper = document.getElementById("giveawayToggleWrapper")!;
+  const auctionWrapper = document.getElementById("auctionToggleWrapper")!;
+  
+  function setToggleLocked(
+    toggle: HTMLInputElement,
+    wrapper: HTMLElement,
+    locked: boolean
+  ) {
+    toggle.disabled = locked;
+    if (locked) {
+      wrapper.classList.add("opacity-50", "pointer-events-none");
     }
-  });
-
+    else {
+      wrapper.classList.remove("opacity-50", "pointer-events-none");
+    }
+  }
+  
   giveawayToggle.addEventListener("change", () => {
     const previewBadge = document.getElementById("previewOffersBadge");
     if (giveawayToggle.checked) {
       document.getElementById("giveawayToggleButton")?.classList.add("translate-x-5");
       document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
       previewBadge?.classList.add("hidden");
-      priceInput.value = "0"; priceInput.disabled = true; priceInput.classList.add("opacity-50");
+      priceInput.value = "0";
+      priceInput.disabled = true;
+      priceInput.classList.add("opacity-50");
       giveawayLabel.classList.remove("border-border", "bg-muted/50");
       giveawayLabel.classList.add("border-teal-400", "bg-teal-500/5");
-      offersToggle.checked = false; offersToggle.disabled = true;
-      offersWrapper.classList.add("opacity-50", "pointer-events-none");
+      
+      offersToggle.checked = false;
       offersLabel.classList.add("border-border", "bg-muted/50");
       offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
-      if (previewPrice) { previewPrice.textContent = "FREE"; previewPrice.classList.remove("text-primary"); previewPrice.classList.add("text-teal-600"); }
-    } else {
+      setToggleLocked(offersToggle, offersWrapper, true);
+      setToggleLocked(auctionToggle, auctionWrapper, true);
+      
+      if (previewPrice) {
+        previewPrice.textContent = "FREE";
+        previewPrice.classList.remove("text-primary");
+        previewPrice.classList.add("text-teal-600");
+      }
+    }
+    else {
       document.getElementById("giveawayToggleButton")?.classList.remove("translate-x-5");
-      priceInput.value = ""; priceInput.disabled = false; priceInput.classList.remove("opacity-50");
+      priceInput.value = "";
+      priceInput.disabled = false;
+      priceInput.classList.remove("translate-x-5");
       giveawayLabel.classList.add("border-border", "bg-muted/50");
       giveawayLabel.classList.remove("border-teal-400", "bg-teal-500/5");
-      offersToggle.disabled = false;
-      offersWrapper.classList.remove("opacity-50", "pointer-events-none");
-      if (previewPrice) { previewPrice.textContent = "$0"; previewPrice.classList.add("text-primary"); previewPrice.classList.remove("text-teal-600"); }
+      
+      setToggleLocked(offersToggle, offersWrapper, false);
+      setToggleLocked(auctionToggle, auctionWrapper, false);
+      
+      if (previewPrice) {
+        previewPrice.textContent = "$0";
+        previewPrice.classList.add("text-primary");
+        previewPrice.classList.remove("text-teal-600");
+      }
     }
   });
-
+  
+  offersToggle.addEventListener("change", () => {
+    const previewBadge = document.getElementById("previewOffersBadge");
+    if (offersToggle.checked) {
+      document.getElementById("offersToggleButton")?.classList.add("translate-x-5");
+      offersLabel.classList.remove("border-border", "bg-muted/50");
+      offersLabel.classList.add("border-violet-400", "bg-violet-500/5");
+      if (previewBadge) {
+        previewBadge.classList.remove("hidden");
+      }
+      
+      setToggleLocked(giveawayToggle, giveawayWrapper, true);
+      setToggleLocked(auctionToggle, auctionWrapper, true);
+    }
+    else {
+      document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
+      offersLabel.classList.add("border-border", "bg-muted/50");
+      offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
+      if (previewBadge) {
+        previewBadge.classList.add("hidden");
+      }
+      
+      setToggleLocked(giveawayToggle, giveawayWrapper, false);
+      setToggleLocked(auctionToggle, auctionWrapper, false);
+    }
+  });
+  
   auctionToggle.addEventListener("change", () => {
     if (auctionToggle.checked) {
       document.getElementById("auctionToggleButton")?.classList.add("translate-x-5");
@@ -423,21 +470,24 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
       auctionFields.classList.remove("hidden");
       priceField.classList.add("hidden");
       statusField.classList.add("hidden");
-      giveawayToggle.checked = false; giveawayToggle.disabled = true;
+      
+      giveawayToggle.checked = false;
       giveawayToggle.dispatchEvent(new Event("change"));
-      offersToggle.checked = false; offersToggle.disabled = true;
-      offersWrapper.classList.add("opacity-50", "pointer-events-none");
-      document.getElementById("giveawayToggleWrapper")?.classList.add("opacity-50", "pointer-events-none");
-    } else {
+      offersToggle.checked = false;
+      offersToggle.dispatchEvent(new Event("change"));
+      setToggleLocked(giveawayToggle, giveawayWrapper, true);
+      setToggleLocked(offersToggle, offersWrapper, true);
+    }
+    else {
       document.getElementById("auctionToggleButton")?.classList.remove("translate-x-5");
       auctionLabel.classList.add("border-border", "bg-muted/50");
       auctionLabel.classList.remove("border-amber-400", "bg-amber-500/5");
       auctionFields.classList.add("hidden");
       priceField.classList.remove("hidden");
       statusField.classList.remove("hidden");
-      giveawayToggle.disabled = false; offersToggle.disabled = false;
-      offersWrapper.classList.remove("opacity-50", "pointer-events-none");
-      document.getElementById("giveawayToggleWrapper")?.classList.remove("opacity-50", "pointer-events-none");
+      
+      setToggleLocked(giveawayToggle, giveawayWrapper, false);
+      setToggleLocked(offersToggle, offersWrapper, false);
     }
   });
 
