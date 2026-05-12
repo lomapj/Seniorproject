@@ -1,0 +1,101 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Safety Tips">
+  <div class="bg-muted min-h-screen pb-16">
+    <div class="bg-card border-b border-border py-8 md:py-12 relative overflow-hidden">
+      <div class="absolute -top-1/2 -right-[10%] w-3/5 h-[200%] bg-radial-[circle] from-primary/5 to-transparent z-0"></div>
+      <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 relative z-1">
+        <h1 class="text-2xl md:text-4xl font-extrabold text-foreground tracking-tight mb-1">Safety Tips</h1>
+        <p class="text-sm md:text-base text-muted-foreground">Stay safe when buying and selling on campus. Read this before your first transaction.</p>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-10 flex flex-col gap-6">
+
+      {[
+        {
+          icon: `<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>`,
+          color: "bg-emerald-500/10 text-emerald-600",
+          title: "Meet in Public, On-Campus Locations",
+          tips: [
+            "Always meet in busy, well-lit areas like the Campus Center, library lobby, or Student Success Center.",
+            "Avoid meetups after dark or in isolated areas.",
+            "Inform a friend or roommate where you're going.",
+          ]
+        },
+        {
+          icon: `<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>`,
+          color: "bg-blue-500/10 text-blue-600",
+          title: "Safe Payment Practices",
+          tips: [
+            "Use Venmo, Zelle, or cash — never wire transfers or gift cards.",
+            "Never send money before inspecting the item in person.",
+            "Check bills for counterfeits when accepting cash.",
+            "Don't share your banking credentials with anyone.",
+          ]
+        },
+        {
+          icon: `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`,
+          color: "bg-amber-500/10 text-amber-600",
+          title: "Inspect Before You Pay",
+          tips: [
+            "Test electronics before handing over any money.",
+            "Check textbooks for missing pages, heavy highlighting, or damage.",
+            "If the item doesn't match the listing, walk away.",
+          ]
+        },
+        {
+          icon: `<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
+          color: "bg-red-500/10 text-red-600",
+          title: "Recognize Red Flags",
+          tips: [
+            "Price that seems too good to be true — it probably is.",
+            "Seller refuses to meet in person or wants to ship instead.",
+            "Pressure to pay quickly or through unusual methods.",
+            "Vague item descriptions with no photos.",
+            "Requests for your personal information beyond what's needed.",
+          ]
+        },
+        {
+          icon: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
+          color: "bg-primary/10 text-primary",
+          title: "Protect Your Account",
+          tips: [
+            "Never share your password or login link with anyone.",
+            "Log out of shared or public computers.",
+            "Report suspicious messages or profiles immediately.",
+            "All communication should happen through the platform's messaging system.",
+          ]
+        },
+      ].map((section) => (
+        <div class="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <div class={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${section.color}`}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={section.icon}></svg>
+            </div>
+            <h2 class="text-sm font-extrabold text-foreground">{section.title}</h2>
+          </div>
+          <ul class="flex flex-col gap-2 pl-1">
+            {section.tips.map((tip) => (
+              <li class="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
+                <span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full bg-primary/50"></span>
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <div class="p-5 bg-card border border-border rounded-xl flex items-start gap-3">
+        <svg class="text-primary shrink-0 mt-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.92 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 5.61 5.61l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        <div>
+          <p class="text-sm font-bold text-foreground mb-0.5">Emergency? Call Campus Security</p>
+          <p class="text-sm text-muted-foreground">Farmingdale State College Security: <strong class="text-foreground">(934) 420-2111</strong></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</Layout>

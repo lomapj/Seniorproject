@@ -1,0 +1,60 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About Us">
+  <div class="bg-muted min-h-screen pb-16">
+    <div class="bg-card border-b border-border py-8 md:py-12 relative overflow-hidden">
+      <div class="absolute -top-1/2 -right-[10%] w-3/5 h-[200%] bg-radial-[circle] from-primary/5 to-transparent z-0"></div>
+      <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 relative z-1">
+        <h1 class="text-2xl md:text-4xl font-extrabold text-foreground tracking-tight mb-1">About Us</h1>
+        <p class="text-sm md:text-base text-muted-foreground">Built by students, for students at Farmingdale State College.</p>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-10 flex flex-col gap-8">
+
+      <div class="bg-card border border-border rounded-xl p-6 flex flex-col gap-4">
+        <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center font-extrabold text-white text-base shrink-0">FSC</div>
+        <div>
+          <h2 class="text-lg font-extrabold text-foreground mb-2">What is the FSC Student Marketplace?</h2>
+          <p class="text-sm text-muted-foreground leading-relaxed">
+            The FSC Student Marketplace is a campus-exclusive platform that lets Farmingdale State College students buy, sell, and exchange items safely within the campus community. From textbooks and electronics to furniture and clothing — if a student needs it, someone on campus probably has it.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { icon: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`, label: "Campus-Exclusive", desc: "Only verified FSC students can join" },
+          { icon: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`, label: "100% Free", desc: "No fees, no commissions, ever" },
+          { icon: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`, label: "Community First", desc: "Built to connect students" },
+        ].map((item) => (
+          <div class="bg-card border border-border rounded-xl p-5 flex flex-col gap-2 items-start">
+            <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={item.icon}></svg>
+            </div>
+            <p class="text-sm font-bold text-foreground">{item.label}</p>
+            <p class="text-xs text-muted-foreground">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="bg-card border border-border rounded-xl p-6">
+        <h2 class="text-base font-extrabold text-foreground mb-3">Our Mission</h2>
+        <p class="text-sm text-muted-foreground leading-relaxed">
+          College is expensive. We built this platform to help FSC students save money by trading directly with each other — no middleman, no shipping delays, no strangers from the internet. Every transaction happens between verified members of our campus community, making it safer and more convenient than general-purpose marketplaces.
+        </p>
+      </div>
+
+      <div class="bg-card border border-border rounded-xl p-6">
+        <h2 class="text-base font-extrabold text-foreground mb-3">Contact & Feedback</h2>
+        <p class="text-sm text-muted-foreground leading-relaxed mb-4">
+          Have a suggestion, found a bug, or want to collaborate? We're always looking to improve the platform for our community.
+        </p>
+        <a href="/contact" class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-bold no-underline hover:bg-primary/90 transition-colors">Get in Touch</a>
+      </div>
+
+    </div>
+  </div>
+</Layout>

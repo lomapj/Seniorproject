@@ -1,0 +1,73 @@
+---
+import Layout from "../layouts/Layout.astro";
+const lastUpdated = "May 11, 2026";
+---
+
+<Layout title="Terms of Service">
+  <div class="bg-muted min-h-screen pb-16">
+    <div class="bg-card border-b border-border py-8 md:py-12 relative overflow-hidden">
+      <div class="absolute -top-1/2 -right-[10%] w-3/5 h-[200%] bg-radial-[circle] from-primary/5 to-transparent z-0"></div>
+      <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 relative z-1">
+        <h1 class="text-2xl md:text-4xl font-extrabold text-foreground tracking-tight mb-1">Terms of Service</h1>
+        <p class="text-sm text-muted-foreground">Last updated: {lastUpdated}</p>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-10 flex flex-col gap-6">
+
+      <div class="bg-amber-500/10 border border-amber-200 dark:border-amber-900 rounded-xl p-4 flex items-start gap-3">
+        <svg class="text-amber-600 shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p class="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">By using the FSC Student Marketplace you agree to these terms. Please read them carefully.</p>
+      </div>
+
+      {[
+        {
+          title: "1. Eligibility",
+          body: "The FSC Student Marketplace is available exclusively to enrolled students at Farmingdale State College. You must register with a valid FSC email address. By creating an account, you represent that you are a current FSC student and that all information you provide is accurate."
+        },
+        {
+          title: "2. Acceptable Use",
+          body: "You agree to use the platform only for lawful purposes. You may not list counterfeit goods, stolen property, weapons, alcohol, controlled substances, or any items prohibited by FSC policy or applicable law. Listings must accurately represent the item being sold."
+        },
+        {
+          title: "3. Transactions",
+          body: "The FSC Student Marketplace facilitates connections between buyers and sellers but is not a party to any transaction. All transactions are solely between the buyer and seller. We are not responsible for the quality, safety, or legality of items listed, the accuracy of descriptions, or the ability of buyers or sellers to complete a transaction."
+        },
+        {
+          title: "4. Prohibited Conduct",
+          body: "You may not harass, threaten, or deceive other users. Spamming, fraudulent listings, impersonation of other users or FSC staff, and circumventing the platform's messaging system to conduct transactions are all prohibited and may result in immediate account suspension."
+        },
+        {
+          title: "5. Content Ownership",
+          body: "You retain ownership of content you post, including listing photos and descriptions. By posting content, you grant the FSC Student Marketplace a non-exclusive license to display that content on the platform. You represent that you have the right to share any content you post."
+        },
+        {
+          title: "6. Account Suspension & Termination",
+          body: "We reserve the right to suspend or terminate your account at any time for violations of these terms, fraudulent activity, or behavior that harms the community. Decisions regarding account actions are final and at the sole discretion of the platform administrators."
+        },
+        {
+          title: "7. Disclaimer of Warranties",
+          body: "The FSC Student Marketplace is provided 'as is' without warranties of any kind. We do not guarantee that the platform will be error-free, uninterrupted, or free of harmful components. Use of the platform is at your own risk."
+        },
+        {
+          title: "8. Limitation of Liability",
+          body: "To the fullest extent permitted by law, the FSC Student Marketplace and its creators shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform, including but not limited to losses resulting from transactions with other users."
+        },
+        {
+          title: "9. Changes to Terms",
+          body: "We reserve the right to modify these Terms of Service at any time. Continued use of the platform after changes constitutes acceptance of the updated terms. We will notify users of material changes via email or a platform notice."
+        },
+        {
+          title: "10. Contact",
+          body: "Questions about these terms? Contact us at marketplace@farmingdale.edu or through our Contact page."
+        },
+      ].map((section) => (
+        <div class="bg-card border border-border rounded-xl p-5">
+          <h2 class="text-sm font-extrabold text-foreground mb-2">{section.title}</h2>
+          <p class="text-sm text-muted-foreground leading-relaxed">{section.body}</p>
+        </div>
+      ))}
+
+    </div>
+  </div>
+</Layout>

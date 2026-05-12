@@ -1,0 +1,80 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="FAQ">
+  <div class="bg-muted min-h-screen pb-16">
+    <div class="bg-card border-b border-border py-8 md:py-12 relative overflow-hidden">
+      <div class="absolute -top-1/2 -right-[10%] w-3/5 h-[200%] bg-radial-[circle] from-primary/5 to-transparent z-0"></div>
+      <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 relative z-1">
+        <h1 class="text-2xl md:text-4xl font-extrabold text-foreground tracking-tight mb-1">Frequently Asked Questions</h1>
+        <p class="text-sm md:text-base text-muted-foreground">Everything you need to know about the FSC Student Marketplace.</p>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-10">
+      <div class="flex flex-col gap-3" id="faqList">
+
+        {[
+          {
+            q: "Who can use the FSC Student Marketplace?",
+            a: "Only verified Farmingdale State College students can create an account and list or purchase items. You must sign up with a valid FSC email address."
+          },
+          {
+            q: "How do I list an item for sale?",
+            a: "Click 'Sell An Item' in the navigation bar or marketplace page. Fill in your item's title, description, price, condition, and photos, then submit. Your listing will be live immediately."
+          },
+          {
+            q: "Is there a fee to list or sell?",
+            a: "No. The FSC Student Marketplace is completely free to use. There are no listing fees, transaction fees, or commissions."
+          },
+          {
+            q: "How do I contact a seller?",
+            a: "Open any listing and click the 'Message Seller' button. You can chat directly through the platform's built-in messaging system."
+          },
+          {
+            q: "How do I arrange a meetup?",
+            a: "Use the 'Schedule Meetup' feature inside any conversation to propose a time and campus location. Always meet in public, well-lit areas on campus."
+          },
+          {
+            q: "What payment methods are accepted?",
+            a: "Payment is arranged directly between buyer and seller. We recommend using Venmo, Zelle, or cash during your in-person meetup. Never send money before receiving the item."
+          },
+          {
+            q: "What can I sell?",
+            a: "Textbooks, electronics, furniture, clothing, and miscellaneous school-related items. Items must be legal, campus-appropriate, and accurately described."
+          },
+          {
+            q: "How do I report a listing or user?",
+            a: "Click the flag icon on any listing or user profile to submit a report. Our moderation team reviews all reports and will take action within 24 hours."
+          },
+          {
+            q: "Can I edit or delete my listing?",
+            a: "Yes. Go to your Seller Dashboard, find the listing, and click 'Edit'. You can update any details or delete the listing entirely at any time."
+          },
+          {
+            q: "What if I was scammed or received a wrong item?",
+            a: "Contact us via the Contact page immediately. We take fraud seriously and will investigate. For your safety, always inspect items before completing payment."
+          },
+        ].map((item) => (
+          <details class="group bg-card border border-border rounded-xl overflow-hidden">
+            <summary class="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none font-semibold text-foreground text-sm md:text-base select-none">
+              {item.q}
+              <svg class="shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-4 text-sm text-muted-foreground leading-relaxed border-t border-border pt-3">
+              {item.a}
+            </div>
+          </details>
+        ))}
+
+      </div>
+
+      <div class="mt-12 p-6 bg-card border border-border rounded-xl text-center">
+        <p class="text-sm font-semibold text-foreground mb-1">Still have questions?</p>
+        <p class="text-sm text-muted-foreground mb-4">Our team is happy to help.</p>
+        <a href="/contact" class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-bold no-underline hover:bg-primary/90 transition-colors">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</Layout>
