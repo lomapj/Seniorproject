@@ -4,9 +4,9 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
 ---
 
 <Layout title="Messages" showFooter={false}>
-  <div class="grid grid-cols-[360px_1fr] h-[calc(100vh-62px)] bg-card overflow-hidden max-md:grid-cols-1">
+  <div class="grid grid-cols-[360px_1fr] h-[calc(100vh-62px)] bg-card overflow-hidden max-md:grid-cols-1 max-md:grid-rows-[auto_1fr]">
     <!-- Left: Conversation List -->
-    <aside class="border-r border-border flex flex-col bg-muted overflow-hidden min-h-0">
+    <aside class="border-r border-border flex flex-col bg-muted overflow-hidden min-h-0 max-md:max-h-[40vh]">
       <div class="p-5 flex justify-between items-center">
         <h1 class="text-2xl font-extrabold text-foreground">Messages</h1>
         <button type="button" id="newMessageBtn" class="w-10 h-10 rounded-lg bg-card text-primary flex items-center justify-center shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all" aria-label="New message">
@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
         </button>
       </div>
 
-      <div class="px-5 pb-4">
+      <div class="px-4 sm:px-5 pb-4">
         <div class="flex items-center bg-card border border-border rounded-lg px-3">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-muted-foreground mr-2 shrink-0"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
           <input type="text" id="searchInput" placeholder="Search people or items..." class="border-0 bg-transparent py-2.5 text-sm w-full outline-none font-inherit" />
@@ -28,7 +28,7 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
     
     <!-- Right: Chat -->
     <main class="flex flex-col bg-card overflow-hidden min-h-0">
-      <header id="chatHeader" class="px-5 py-3 border-b border-border flex justify-between items-center shadow-sm">
+      <header id="chatHeader" class="px-5 py-3 border-b border-border flex justify-between items-center shadow-sm flex-wrap max-md:gap-1">
         <div class="flex items-center gap-3">
           <div class="w-11 h-11 rounded-full bg-muted flex items-center justify-center">
             <span id="headerInitials" class="text-sm font-extrabold text-muted-foreground"></span>
@@ -43,7 +43,7 @@ import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </button>
           <a id="headerListingLink" href="#" class="hidden items-center gap-3 px-3 py-2 bg-muted border border-border rounded-lg no-underline text-inherit hover:bg-primary/5 hover:border-primary transition-colors">
-            <div class="w-9 h-9 rounded-md flex items-center justify-center text-base bg-primary/10">
+            <div class="w-9 h-9 rounded-md flex items-center justify-center text-base bg-primary/10 max-md:hidden">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
             </div>
             <div>

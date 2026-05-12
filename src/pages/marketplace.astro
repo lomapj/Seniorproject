@@ -6,15 +6,15 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
 
 <Layout title="Marketplace">
   <div class="bg-muted pb-16">
-    <div class="bg-card border-b border-border py-8 md:py-12 relative overflow-hidden">
+    <div class="bg-card border-b border-border py-5 md:py-12 relative overflow-hidden">
       <div class="absolute -top-1/2 -right-[10%] w-3/5 h-[200%] bg-radial-[circle] from-primary/5 to-transparent z-0"></div>
-      <div class="mx-auto max-w-7xl px-6 lg:px-8 relative z-1">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-1">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight mb-1">Campus Marketplace</h1>
+          <div class="min-w-0">
+            <h1 class="text-xl sm:text-2xl md:text-4xl font-extrabold text-foreground tracking-tight mb-1 truncate">Campus Marketplace</h1>
             <p class="text-base text-muted-foreground">Buy and sell items with your fellow Farmingdale students</p>
           </div>
-          <Button variant="primary" href="/post" class="shadow-lg shadow-primary/20 gap-2">
+          <Button variant="primary" href="/post" class="shadow-lg shadow-primary/20 gap-2 shrink-0 whitespace-nowrap px-3 sm:px-4">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Sell An Item
           </Button>
@@ -23,7 +23,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     </div>
     
     <div class="bg-card border-b border-border sticky top-18 z-50 shadow-sm">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between gap-4 py-3">
           <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5" id="catChips">
             {["All", "Books", "Electronics", "Furniture", "Clothing", "Misc"].map((cat, i) => (
@@ -32,17 +32,18 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
               </button>
             ))}
           </div>
-          <button type="button" id="advancedSearchToggle" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card text-sm font-semibold text-muted-foreground hover:border-primary hover:text-primary transition-all shrink-0">
+          <button type="button" id="advancedSearchToggle" class="relative inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full border border-border bg-card text-sm font-semibold text-muted-foreground hover:border-primary hover:text-primary transition-all shrink-0 w-10 h-10 sm:w-auto sm:h-auto justify-center">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-            Filters
-            <span id="activeFilterCount" class="hidden min-w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">0</span>
+            <span class="hidden md:inline">Filters</span>
+            <span id="activeFilterCount" class="hidden absolute -top-1.5 -right-1.5 md:hidden min-w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold items-center justify-center">0</span>
+            <span id="activeFilterCountDesktop" class="hidden min-w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold items-center justify-center">0</span>
           </button>
         </div>
       </div>
     </div>
     
     <div id="advancedSearchPanel" class="hidden bg-card border-b border-border shadow-inner">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8 py-5">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-5">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-base font-bold text-foreground flex items-center gap-2">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
@@ -63,97 +64,103 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
             <button type="button" class="listing-type-chip px-3 py-1.5 rounded-full border text-xs font-semibold transition-all bg-orange-500/10 border-orange-300 text-orange-700 hover:bg-orange-500/20" data-type="On Sale">🏷️ On Sale</button>
           </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Sort By</label>
-            <select id="sortSelect" class="w-full px-3 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none font-medium">
-              <option value="newest">Newest First</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="rating_desc">Seller Rating</option>
-              <option value="views_desc">Most Viewed</option>
-            </select>
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Price Range</label>
-            <div class="flex items-center gap-2">
-              <div class="relative flex items-center flex-1">
-                <span class="absolute left-2.5 text-xs text-muted-foreground font-bold">$</span>
-                <input type="number" id="priceMin" class="w-full pl-6 pr-2 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Min" min="0" />
-              </div>
-              <span class="text-muted-foreground text-xs font-bold">&ndash;</span>
-              <div class="relative flex items-center flex-1">
-                <span class="absolute left-2.5 text-xs text-muted-foreground font-bold">$</span>
-                <input type="number" id="priceMax" class="w-full pl-6 pr-2 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Max" min="0" />
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Condition</label>
-            <div class="flex flex-wrap gap-1.5" id="conditionChips">
-              {["Any", "New", "Like New", "Good", "Fair", "Poor"].map((cond, i) => (
-                <button type="button" class={`cond-chip px-2.5 py-1 rounded-md border text-xs font-semibold transition-all ${i === 0 ? "bg-primary/10 border-primary/30 text-primary" : "bg-muted border-border text-muted-foreground hover:border-primary/30 hover:text-primary"}`} data-condition={cond}>{cond}</button>
+            <label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Sort By</label>
+            <div class="flex flex-wrap gap-1.5" id="sortChips">
+              {[
+                { value: "newest", label: "Newest" },
+                { value: "price_asc", label: "$ Low→High" },
+                { value: "price_desc", label: "$ High→Low" },
+                { value: "rating_desc", label: "Top Rated" },
+                { value: "views_desc", label: "Most Viewed" },
+              ].map((opt, i) => (
+                <button type="button" class={`sort-chip px-2.5 py-1 rounded-full border text-xs font-semibold transition-all ${i === 0 ? "bg-primary/10 border-primary/30 text-primary" : "bg-muted border-border text-muted-foreground hover:border-primary/30 hover:text-primary"}`} data-sort={opt.value}>{opt.label}</button>
               ))}
             </div>
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Date Posted</label>
-            <select id="datePostedSelect" class="w-full px-3 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none font-medium">
-              <option value="any">Any Time</option>
-              <option value="today">Today</option>
-              <option value="3days">Last 3 Days</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="3months">Last 3 Months</option>
-            </select>
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Seller Rating</label>
-            <div class="flex flex-col gap-1" id="ratingFilter">
-              {[{ value: "any", label: "Any Rating" }, { value: "4", label: "4★ & Up" }, { value: "3", label: "3★ & Up" }, { value: "2", label: "2★ & Up" }].map((opt, i) => (
-                <label class="flex items-center gap-2 cursor-pointer text-sm group">
-                  <input type="radio" name="minRating" value={opt.value} checked={i === 0} class="accent-primary w-3.5 h-3.5" />
-                  <span class={`font-medium ${i === 0 ? "text-foreground" : "text-muted-foreground"} group-hover:text-foreground transition-colors`}>{opt.label}</span>
-                </label>
+            <label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Date Posted</label>
+            <div class="flex flex-wrap gap-1.5" id="dateChips">
+              {[
+                { value: "any", label: "Any" },
+                { value: "today", label: "Today" },
+                { value: "3days", label: "3 Days" },
+                { value: "week", label: "Week" },
+                { value: "month", label: "Month" },
+                { value: "3months", label: "3 Months" },
+              ].map((opt, i) => (
+                <button type="button" class={`date-chip px-2.5 py-1 rounded-full border text-xs font-semibold transition-all ${i === 0 ? "bg-primary/10 border-primary/30 text-primary" : "bg-muted border-border text-muted-foreground hover:border-primary/30 hover:text-primary"}`} data-date={opt.value}>{opt.label}</button>
               ))}
             </div>
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Min Views</label>
+            <label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Price Range</label>
+            <div class="flex items-center gap-1.5">
+              <div class="relative flex items-center flex-1">
+                <span class="absolute left-2.5 text-xs text-muted-foreground font-bold">$</span>
+                <input type="number" id="priceMin" class="w-full pl-6 pr-2 py-2 border border-border rounded-xl text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Min" min="0" />
+              </div>
+              <span class="text-muted-foreground text-xs font-bold shrink-0">&ndash;</span>
+              <div class="relative flex items-center flex-1">
+                <span class="absolute left-2.5 text-xs text-muted-foreground font-bold">$</span>
+                <input type="number" id="priceMax" class="w-full pl-6 pr-2 py-2 border border-border rounded-xl text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="Max" min="0" />
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Min Views</label>
             <div class="relative flex items-center">
               <svg class="absolute left-2.5 text-muted-foreground" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <input type="number" id="minViews" class="w-full pl-8 pr-2 py-2 border border-border rounded-lg text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="e.g. 10" min="0" />
-            </div>
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">My Listings</label>
-            <div class="flex flex-col gap-2 mt-0.5">
-              <label class="flex items-center gap-2.5 cursor-pointer group">
-                <div class="relative">
-                  <input type="checkbox" id="hideOwnListings" class="sr-only peer" />
-                  <div class="w-9 h-5 rounded-full bg-muted border border-border peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
-                  <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></div>
-                </div>
-                <span class="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Hide my listings</span>
-              </label>
-              <label class="flex items-center gap-2.5 cursor-pointer group">
-                <div class="relative">
-                  <input type="checkbox" id="showOnlyOwn" class="sr-only peer" />
-                  <div class="w-9 h-5 rounded-full bg-muted border border-border peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
-                  <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></div>
-                </div>
-                <span class="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Only my listings</span>
-              </label>
+              <input type="number" id="minViews" class="w-full pl-8 pr-2 py-2 border border-border rounded-xl text-sm bg-muted focus:bg-card focus:border-primary focus:outline-none" placeholder="e.g. 10" min="0" />
             </div>
           </div>
         </div>
-        <div class="flex items-center justify-end mt-4 pt-3 border-t border-border">
-          <button type="button" id="applyFiltersBtn" class="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20">Apply Filters</button>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Condition</label>
+            <div class="flex flex-wrap gap-1.5" id="conditionChips">
+              {["Any", "New", "Like New", "Good", "Fair", "Poor"].map((cond, i) => (
+                <button type="button" class={`cond-chip px-2.5 py-1 rounded-full border text-xs font-semibold transition-all ${i === 0 ? "bg-primary/10 border-primary/30 text-primary" : "bg-muted border-border text-muted-foreground hover:border-primary/30 hover:text-primary"}`} data-condition={cond}>{cond}</button>
+              ))}
+            </div>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Seller Rating</label>
+            <div class="flex flex-wrap gap-1.5" id="ratingFilter">
+              {[{ value: "any", label: "Any" }, { value: "4", label: "4★+" }, { value: "3", label: "3★+" }, { value: "2", label: "2★+" }].map((opt, i) => (
+                <button type="button" class={`rating-chip px-2.5 py-1 rounded-full border text-xs font-semibold transition-all ${i === 0 ? "bg-primary/10 border-primary/30 text-primary" : "bg-muted border-border text-muted-foreground hover:border-primary/30 hover:text-primary"}`} data-rating={opt.value}>{opt.label}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-3 pt-3 border-t border-border gap-4">
+          <div class="flex items-center gap-4 flex-wrap">
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <div class="relative shrink-0">
+                <input type="checkbox" id="hideOwnListings" class="sr-only peer" />
+                <div class="w-9 h-5 rounded-full bg-muted border border-border peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
+                <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></div>
+              </div>
+              <span class="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors whitespace-nowrap">Hide mine</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <div class="relative shrink-0">
+                <input type="checkbox" id="showOnlyOwn" class="sr-only peer" />
+                <div class="w-9 h-5 rounded-full bg-muted border border-border peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
+                <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></div>
+              </div>
+              <span class="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors whitespace-nowrap">Only mine</span>
+            </label>
+          </div>
+          <button type="button" id="applyFiltersBtn" class="shrink-0 px-5 py-2 bg-primary text-primary-foreground rounded-full text-sm font-bold hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20">Apply Filters</button>
         </div>
       </div>
     </div>
     
-    <div id="trendingSection" class="hidden mx-auto max-w-7xl px-6 lg:px-8 pt-6">
+    <div id="trendingSection" class="hidden mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
           <span class="text-xl">🔥</span>
@@ -168,7 +175,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       <div class="border-b border-border mt-6"></div>
     </div>
 
-    <div class="mx-auto max-w-7xl px-6 lg:px-8 pt-6">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 class="text-lg text-muted-foreground font-medium">
           <strong class="font-extrabold text-primary" id="resultsCount">0</strong> Results Found
@@ -225,7 +232,8 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   const emptyState = document.getElementById("emptyState")!;
   const resultsCount = document.getElementById("resultsCount")!;
   const catChips = document.querySelectorAll(".cat-chip");
-  const sortSelect = document.getElementById("sortSelect") as HTMLSelectElement;
+  const sortChips = document.querySelectorAll<HTMLElement>(".sort-chip");
+  const dateChips = document.querySelectorAll<HTMLElement>(".date-chip");
   const priceMin = document.getElementById("priceMin") as HTMLInputElement;
   const priceMax = document.getElementById("priceMax") as HTMLInputElement;
   const advancedSearchToggle = document.getElementById("advancedSearchToggle")!;
@@ -236,8 +244,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   const activeFilterCount = document.getElementById("activeFilterCount")!;
   const activeFiltersBar = document.getElementById("activeFiltersBar")!;
   const condChips = document.querySelectorAll(".cond-chip");
-  const datePostedSelect = document.getElementById("datePostedSelect") as HTMLSelectElement;
-  const ratingRadios = document.querySelectorAll<HTMLInputElement>('input[name="minRating"]');
+  const ratingChips = document.querySelectorAll<HTMLElement>(".rating-chip");
   const hideOwnListings = document.getElementById("hideOwnListings") as HTMLInputElement;
   const showOnlyOwn = document.getElementById("showOnlyOwn") as HTMLInputElement;
   const minViews = document.getElementById("minViews") as HTMLInputElement;
@@ -246,6 +253,9 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   let currentListingType = "";
   let allListings: Listing[] = [];
   let selectedCondition = "Any";
+  let selectedRating = "any";
+  let selectedSort = "newest";
+  let selectedDate = "any";
   let sellerRatingsCache: Record<string, { average: number; count: number }> = {};
 
   const initParams = new URLSearchParams(window.location.search);
@@ -283,17 +293,43 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     });
   });
 
+  function activateChip(chips: NodeListOf<HTMLElement>, active: HTMLElement) {
+    chips.forEach((c) => { c.classList.remove("bg-primary/10", "border-primary/30", "text-primary"); c.classList.add("bg-muted", "border-border", "text-muted-foreground"); });
+    active.classList.add("bg-primary/10", "border-primary/30", "text-primary");
+    active.classList.remove("bg-muted", "border-border", "text-muted-foreground");
+  }
+
+  sortChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      activateChip(sortChips, chip);
+      selectedSort = chip.getAttribute("data-sort") || "newest";
+    });
+  });
+
+  dateChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      activateChip(dateChips, chip);
+      selectedDate = chip.getAttribute("data-date") || "any";
+    });
+  });
+
+  ratingChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      activateChip(ratingChips, chip);
+      selectedRating = chip.getAttribute("data-rating") || "any";
+    });
+  });
+
   hideOwnListings.addEventListener("change", () => { if (hideOwnListings.checked) showOnlyOwn.checked = false; });
   showOnlyOwn.addEventListener("change", () => { if (showOnlyOwn.checked) hideOwnListings.checked = false; });
 
   function countActiveFilters(): number {
     let count = 0;
-    if (sortSelect.value !== "newest") count++;
+    if (selectedSort !== "newest") count++;
     if (priceMin.value && parseFloat(priceMin.value) > 0) count++;
     if (priceMax.value && parseFloat(priceMax.value) > 0) count++;
     if (selectedCondition !== "Any") count++;
-    if (datePostedSelect.value !== "any") count++;
-    const selectedRating = document.querySelector<HTMLInputElement>('input[name="minRating"]:checked')?.value || "any";
+    if (selectedDate !== "any") count++;
     if (selectedRating !== "any") count++;
     if (hideOwnListings.checked) count++;
     if (showOnlyOwn.checked) count++;
@@ -302,29 +338,46 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     return count;
   }
 
+  const activeFilterCountDesktop = document.getElementById("activeFilterCountDesktop")!;
+
   function updateFilterBadge() {
     const count = countActiveFilters();
-    if (count > 0) { activeFilterCount.classList.remove("hidden"); activeFilterCount.classList.add("flex"); activeFilterCount.textContent = count.toString(); advancedSearchToggle.classList.add("border-primary", "text-primary", "bg-primary/5"); advancedSearchToggle.classList.remove("border-border", "text-muted-foreground", "bg-card"); }
-    else { activeFilterCount.classList.add("hidden"); activeFilterCount.classList.remove("flex"); if (advancedSearchPanel.classList.contains("hidden")) { advancedSearchToggle.classList.remove("border-primary", "text-primary", "bg-primary/5"); advancedSearchToggle.classList.add("border-border", "text-muted-foreground", "bg-card"); } }
+    const isMobile = window.innerWidth < 768;
+    if (count > 0) {
+      const badge = isMobile ? activeFilterCount : activeFilterCountDesktop;
+      const other = isMobile ? activeFilterCountDesktop : activeFilterCount;
+      badge.classList.remove("hidden"); badge.classList.add("flex"); badge.textContent = count.toString();
+      other.classList.add("hidden"); other.classList.remove("flex");
+      advancedSearchToggle.classList.add("border-primary", "text-primary", "bg-primary/5");
+      advancedSearchToggle.classList.remove("border-border", "text-muted-foreground", "bg-card");
+    } else {
+      activeFilterCount.classList.add("hidden"); activeFilterCount.classList.remove("flex");
+      activeFilterCountDesktop.classList.add("hidden"); activeFilterCountDesktop.classList.remove("flex");
+      if (advancedSearchPanel.classList.contains("hidden")) {
+        advancedSearchToggle.classList.remove("border-primary", "text-primary", "bg-primary/5");
+        advancedSearchToggle.classList.add("border-border", "text-muted-foreground", "bg-card");
+      }
+    }
   }
 
   function renderActiveFilterPills() {
     const pills: string[] = [];
     if (selectedCondition !== "Any") pills.push(makeFilterPill("Condition: " + selectedCondition, "condition"));
-    if (datePostedSelect.value !== "any") pills.push(makeFilterPill(datePostedSelect.options[datePostedSelect.selectedIndex].text, "date"));
+    const dateLabels: Record<string, string> = { today: "Today", "3days": "3 Days", week: "Week", month: "Month", "3months": "3 Months" };
+    if (selectedDate !== "any") pills.push(makeFilterPill(dateLabels[selectedDate] || selectedDate, "date"));
     const minVal = priceMin.value ? parseFloat(priceMin.value) : 0;
     const maxVal = priceMax.value ? parseFloat(priceMax.value) : 0;
     if (minVal > 0 || maxVal > 0) {
       const priceLabel = minVal > 0 && maxVal > 0 ? `$${minVal} - $${maxVal}` : minVal > 0 ? `$${minVal}+` : `Up to $${maxVal}`;
       pills.push(makeFilterPill(priceLabel, "price"));
     }
-    const selectedRating = document.querySelector<HTMLInputElement>('input[name="minRating"]:checked')?.value || "any";
     if (selectedRating !== "any") pills.push(makeFilterPill(selectedRating + "★ & Up", "rating"));
     if (currentListingType) pills.push(makeFilterPill(currentListingType, "listingType"));
     if (minViews.value && parseInt(minViews.value) > 0) pills.push(makeFilterPill(`${minViews.value}+ views`, "minViews"));
     if (hideOwnListings.checked) pills.push(makeFilterPill("Hiding my listings", "hideOwn"));
     if (showOnlyOwn.checked) pills.push(makeFilterPill("Only my listings", "showOwn"));
-    if (sortSelect.value !== "newest") pills.push(makeFilterPill("Sort: " + sortSelect.options[sortSelect.selectedIndex].text, "sort"));
+    const sortLabels: Record<string, string> = { price_asc: "$ Low→High", price_desc: "$ High→Low", rating_desc: "Top Rated", views_desc: "Most Viewed" };
+    if (selectedSort !== "newest") pills.push(makeFilterPill("Sort: " + (sortLabels[selectedSort] || selectedSort), "sort"));
     activeFiltersBar.innerHTML = pills.join("");
     activeFiltersBar.querySelectorAll("[data-remove-filter]").forEach((btn) => {
       btn.addEventListener("click", (e) => { removeFilter((e.currentTarget as HTMLElement).getAttribute("data-remove-filter")!); });
@@ -338,23 +391,23 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
   function removeFilter(key: string) {
     switch (key) {
       case "condition": selectedCondition = "Any"; condChips.forEach((c, i) => { if (i === 0) { c.classList.add("bg-primary/10", "border-primary/30", "text-primary"); c.classList.remove("bg-muted", "border-border", "text-muted-foreground"); } else { c.classList.remove("bg-primary/10", "border-primary/30", "text-primary"); c.classList.add("bg-muted", "border-border", "text-muted-foreground"); } }); break;
-      case "date": datePostedSelect.value = "any"; break;
+      case "date": selectedDate = "any"; activateChip(dateChips, dateChips[0]); break;
       case "price": priceMin.value = ""; priceMax.value = ""; break;
-      case "rating": ratingRadios.forEach((r, i) => { r.checked = i === 0; }); break;
+      case "rating": selectedRating = "any"; ratingChips.forEach((c, i) => { if (i === 0) { c.classList.add("bg-primary/10", "border-primary/30", "text-primary"); c.classList.remove("bg-muted", "border-border", "text-muted-foreground"); } else { c.classList.remove("bg-primary/10", "border-primary/30", "text-primary"); c.classList.add("bg-muted", "border-border", "text-muted-foreground"); } }); break;
       case "listingType": currentListingType = ""; document.querySelectorAll<HTMLElement>(".listing-type-chip").forEach(c => deactivateTypeChip(c)); break;
       case "minViews": minViews.value = ""; break;
       case "hideOwn": hideOwnListings.checked = false; break;
       case "showOwn": showOnlyOwn.checked = false; break;
-      case "sort": sortSelect.value = "newest"; break;
+      case "sort": selectedSort = "newest"; activateChip(sortChips, sortChips[0]); break;
     }
     applyClientFilters();
   }
 
   clearAllFilters.addEventListener("click", () => {
-    sortSelect.value = "newest"; priceMin.value = ""; priceMax.value = ""; selectedCondition = "Any";
+    selectedSort = "newest"; activateChip(sortChips, sortChips[0]); priceMin.value = ""; priceMax.value = ""; selectedCondition = "Any";
     condChips.forEach((c, i) => { if (i === 0) { c.classList.add("bg-primary/10", "border-primary/30", "text-primary"); c.classList.remove("bg-muted", "border-border", "text-muted-foreground"); } else { c.classList.remove("bg-primary/10", "border-primary/30", "text-primary"); c.classList.add("bg-muted", "border-border", "text-muted-foreground"); } });
-    datePostedSelect.value = "any";
-    ratingRadios.forEach((r, i) => { r.checked = i === 0; });
+    selectedDate = "any"; activateChip(dateChips, dateChips[0]);
+    selectedRating = "any"; ratingChips.forEach((c, i) => { if (i === 0) { c.classList.add("bg-primary/10", "border-primary/30", "text-primary"); c.classList.remove("bg-muted", "border-border", "text-muted-foreground"); } else { c.classList.remove("bg-primary/10", "border-primary/30", "text-primary"); c.classList.add("bg-muted", "border-border", "text-muted-foreground"); } });
     hideOwnListings.checked = false; showOnlyOwn.checked = false; minViews.value = "";
     currentListingType = "";
     document.querySelectorAll<HTMLElement>(".listing-type-chip").forEach(c => deactivateTypeChip(c));
@@ -487,7 +540,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     if (savedOnly) filtered = filtered.filter((l) => savedIds.has(l.id.toString()));
     if (selectedCondition !== "Any") filtered = filtered.filter((l) => l.condition === selectedCondition);
 
-    const dateCutoff = getDateCutoff(datePostedSelect.value);
+    const dateCutoff = getDateCutoff(selectedDate);
     if (dateCutoff) filtered = filtered.filter((l) => new Date(l.created_at) >= dateCutoff);
 
     const minViewsVal = parseInt(minViews.value || "0");
@@ -498,7 +551,6 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       if (showOnlyOwn.checked) filtered = filtered.filter((l) => l.user_id === user.id);
     }
 
-    const selectedRating = document.querySelector<HTMLInputElement>('input[name="minRating"]:checked')?.value || "any";
     if (selectedRating !== "any") {
       const minRating = parseFloat(selectedRating);
       const sellerIds = [...new Set(filtered.map((l) => l.user_id))];
@@ -507,11 +559,10 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
       filtered = filtered.filter((l) => { const r = sellerRatingsCache[l.user_id]; return r && r.count > 0 && r.average >= minRating; });
     }
 
-    const sort = sortSelect.value;
-    if (sort === "price_asc") filtered = [...filtered].sort((a, b) => a.price - b.price);
-    else if (sort === "price_desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
-    else if (sort === "rating_desc") filtered = [...filtered].sort((a, b) => (sellerRatingsCache[b.user_id]?.average || 0) - (sellerRatingsCache[a.user_id]?.average || 0));
-    else if (sort === "views_desc") filtered = [...filtered].sort((a, b) => (b.view_count ?? 0) - (a.view_count ?? 0));
+    if (selectedSort === "price_asc") filtered = [...filtered].sort((a, b) => a.price - b.price);
+    else if (selectedSort === "price_desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
+    else if (selectedSort === "rating_desc") filtered = [...filtered].sort((a, b) => (sellerRatingsCache[b.user_id]?.average || 0) - (sellerRatingsCache[a.user_id]?.average || 0));
+    else if (selectedSort === "views_desc") filtered = [...filtered].sort((a, b) => (b.view_count ?? 0) - (a.view_count ?? 0));
 
     renderListings(filtered);
     updateFilterBadge();
@@ -611,7 +662,6 @@ import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-s
     });
   });
 
-  sortSelect.addEventListener("change", () => { applyClientFilters(); });
   window.addEventListener("saved-changed", applyClientFilters);
   loadListings();
 </script>

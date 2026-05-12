@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
     <!-- Hero -->
     <div class="bg-card border-b border-border py-8 md:py-12 relative overflow-hidden">
       <div class="absolute -top-1/2 -right-[10%] w-3/5 h-[200%] bg-radial-[circle] from-primary/5 to-transparent z-0"></div>
-      <div class="mx-auto max-w-7xl px-6 lg:px-8 relative z-1">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-1">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -31,26 +31,26 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
     <!-- Stats Bar -->
     <div class="bg-card border-b border-border">
-      <div class="mx-auto max-w-7xl px-6 lg:px-8 py-4">
-        <div class="grid grid-cols-3 gap-4">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+        <div class="grid grid-cols-3 gap-2 sm:gap-4">
           <div class="text-center">
-            <p class="text-2xl font-extrabold text-foreground" id="statPending">-</p>
-            <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pending Reports</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-foreground" id="statPending">-</p>
+            <p class="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pending Reports</p>
           </div>
           <div class="text-center">
-            <p class="text-2xl font-extrabold text-foreground" id="statListings">-</p>
-            <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Total Listings</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-foreground" id="statListings">-</p>
+            <p class="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wide">Total Listings</p>
           </div>
           <div class="text-center">
-            <p class="text-2xl font-extrabold text-foreground" id="statUsers">-</p>
-            <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Registered Users</p>
+            <p class="text-xl sm:text-2xl font-extrabold text-foreground" id="statUsers">-</p>
+            <p class="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wide">Registered Users</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div id="modLoading" class="mx-auto max-w-7xl px-6 lg:px-8 mt-8">
+    <div id="modLoading" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
       <div class="animate-pulse space-y-4">
         <div class="h-10 bg-muted rounded w-1/3"></div>
         <div class="h-64 bg-muted rounded-xl"></div>
@@ -58,7 +58,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
     </div>
 
     <!-- Access Denied State -->
-    <div id="modDenied" class="hidden mx-auto max-w-7xl px-6 lg:px-8 mt-16 text-center">
+    <div id="modDenied" class="hidden mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-16 text-center">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-muted-foreground mb-4">
         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -69,7 +69,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
     </div>
 
     <!-- Main Content (hidden until loaded) -->
-    <div id="modContent" class="hidden mx-auto max-w-7xl px-6 lg:px-8 mt-8">
+    <div id="modContent" class="hidden mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
       <Tabs defaultValue="reports">
         <TabsList class="w-full justify-start bg-transparent border-b-2 border-border rounded-none mb-8 p-0">
           <TabsTrigger value="reports" class="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none">

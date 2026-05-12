@@ -32,6 +32,8 @@ const {
     <style>
       html, body {
         font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+        overflow-x: hidden;
+        max-width: 100vw;
       }
     </style>
     <script is:inline>
@@ -207,11 +209,11 @@ const {
 
     {
       showFooter && (
-        <footer class="bg-card text-foreground pt-16 pb-8 px-6 mt-24 border-t border-border">
-          <div class="max-w-300 mx-auto grid grid-cols-[2fr_1fr_1fr_1fr] gap-12 max-md:grid-cols-1 max-md:gap-10 max-md:text-center">
-            <div>
-              <div class="flex items-center gap-4 mb-5 max-md:justify-center">
-                <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center font-extrabold text-white text-base">FSC</div>
+        <footer class="bg-card text-foreground pt-12 pb-8 px-4 sm:px-6 mt-24 border-t border-border">
+          <div class="max-w-300 mx-auto grid grid-cols-[1fr_auto] md:grid-cols-[2fr_1fr_1fr_1fr] gap-8 md:gap-12">
+            <div class="col-span-2 md:col-span-1">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-xl flex items-center justify-center font-extrabold text-white text-sm md:text-base">FSC</div>
                 <div>
                   <div class="font-bold text-[0.92rem]">Farmingdale State College</div>
                   <div class="text-xs text-muted-foreground">Student Marketplace</div>
@@ -223,28 +225,27 @@ const {
               </p>
             </div>
             <div>
-              <p class="text-sm font-bold text-foreground mb-6 uppercase tracking-widest">Community</p>
+              <p class="text-xs font-bold text-foreground mb-4 uppercase tracking-widest">Community</p>
               <ul class="list-none flex flex-col gap-3">
-                <li><a href="#" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">FAQ</a></li>
-                <li><a href="#" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Contact Forms</a></li>
-                <li><a href="#" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Safety Tips</a></li>
-                <li><a href="#" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">About Us</a></li>
+                <li><a href="/faq" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">FAQ</a></li>
+                <li><a href="/contact" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Contact Forms</a></li>
+                <li><a href="/safety" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Safety Tips</a></li>
+                <li><a href="/about" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">About Us</a></li>
               </ul>
             </div>
             <div>
-              <p class="text-sm font-bold text-foreground mb-6 uppercase tracking-widest">Sitemap</p>
+              <p class="text-xs font-bold text-foreground mb-4 uppercase tracking-widest">Sitemap</p>
               <ul class="list-none flex flex-col gap-3">
                 <li><a href="/marketplace" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Marketplace</a></li>
                 <li><a href="/profile" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">My Profile</a></li>
-                <li><a href="#" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Privacy Policy</a></li>
-                <li><a href="#" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Terms of Service</a></li>
+                <li><a href="/privacy" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Privacy Policy</a></li>
+                <li><a href="/terms" class="text-sm text-muted-foreground no-underline transition-colors hover:text-primary">Terms of Service</a></li>
               </ul>
             </div>
           </div>
-          <hr class="max-w-300 mx-auto mt-12 mb-8 border-0 border-t border-border/50" />
+          <hr class="max-w-300 mx-auto mt-10 mb-8 border-0 border-t border-border/50" />
           <p class="max-w-300 mx-auto text-sm text-muted-foreground text-center">
-            &copy; 2026 Farmingdale State College Student Marketplace. All rights
-            reserved.
+            &copy; 2026 Farmingdale State College Student Marketplace. All rights reserved.
           </p>
         </footer>
       )

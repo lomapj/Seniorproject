@@ -4,7 +4,7 @@ import Layout from "../layouts/Layout.astro";
 
 <Layout title="Seller Dashboard">
   <div class="bg-muted min-h-screen pb-16">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8 pt-8">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
 
       <div class="mb-8">
         <h1 class="text-3xl font-extrabold text-foreground tracking-tight">Seller Dashboard</h1>
@@ -12,20 +12,20 @@ import Layout from "../layouts/Layout.astro";
       </div>
 
       <!-- Overview stat cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10" id="statCards">
-        <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1 animate-pulse">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10" id="statCards">
+        <div class="bg-card rounded-xl border border-border p-4 sm:p-5 flex flex-col gap-1 animate-pulse">
           <div class="h-3 w-20 bg-muted rounded"></div>
           <div class="h-8 w-12 bg-muted rounded mt-1"></div>
         </div>
-        <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1 animate-pulse">
+        <div class="bg-card rounded-xl border border-border p-4 sm:p-5 flex flex-col gap-1 animate-pulse">
           <div class="h-3 w-20 bg-muted rounded"></div>
           <div class="h-8 w-12 bg-muted rounded mt-1"></div>
         </div>
-        <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1 animate-pulse">
+        <div class="bg-card rounded-xl border border-border p-4 sm:p-5 flex flex-col gap-1 animate-pulse">
           <div class="h-3 w-20 bg-muted rounded"></div>
           <div class="h-8 w-12 bg-muted rounded mt-1"></div>
         </div>
-        <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1 animate-pulse">
+        <div class="bg-card rounded-xl border border-border p-4 sm:p-5 flex flex-col gap-1 animate-pulse">
           <div class="h-3 w-20 bg-muted rounded"></div>
           <div class="h-8 w-12 bg-muted rounded mt-1"></div>
         </div>
@@ -33,7 +33,7 @@ import Layout from "../layouts/Layout.astro";
 
       <!-- Listings table -->
       <div class="bg-card rounded-xl border border-border overflow-hidden" id="listingsTable">
-        <div class="px-6 py-4 border-b border-border flex items-center justify-between">
+        <div class="px-4 sm:px-6 py-4 border-b border-border flex items-center justify-between">
           <h2 class="text-base font-extrabold text-foreground">Listing Insights</h2>
           <a href="/post" class="text-sm font-bold text-primary hover:underline">+ New Listing</a>
         </div>
@@ -91,7 +91,7 @@ import Layout from "../layouts/Layout.astro";
 
   function renderStat(label: string, value: string | number, icon: string, color: string) {
     return `
-      <div class="bg-card rounded-xl border border-border p-5 flex flex-col gap-1">
+      <div class="bg-card rounded-xl border border-border p-4 sm:p-5 flex flex-col gap-1">
         <div class="flex items-center gap-2 text-muted-foreground text-xs font-bold uppercase tracking-wide">
           <span class="${color}">${icon}</span>${label}
         </div>
@@ -121,7 +121,7 @@ import Layout from "../layouts/Layout.astro";
     const daysLabel = l.days_active === 0 ? "Today" : l.days_active === 1 ? "1 day" : `${l.days_active} days`;
 
     return `
-      <div class="px-6 py-4 flex items-center gap-4 hover:bg-muted/40 transition-colors">
+      <div class="px-4 sm:px-6 py-4 flex items-center gap-4 hover:bg-muted/40 transition-colors">
         <a href="/item?id=${l.id}" class="shrink-0">${thumb}</a>
         <div class="flex-1 min-w-0">
           <a href="/item?id=${l.id}" class="text-sm font-bold text-foreground hover:text-primary transition-colors no-underline block truncate">${escHtml(l.title)}</a>
@@ -134,7 +134,7 @@ import Layout from "../layouts/Layout.astro";
           </div>
           <div class="mt-1">${renderSuggestionChip(l.suggestion, l.status)}</div>
         </div>
-        <div class="hidden sm:flex items-center gap-1 text-sm font-bold text-foreground min-w-16 justify-center flex-col">
+        <div class="flex items-center gap-1 text-sm font-bold text-foreground min-w-12 sm:min-w-16 justify-center flex-col">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           <span>${l.view_count ?? 0}</span>
           <span class="text-[10px] font-semibold text-muted-foreground">views</span>

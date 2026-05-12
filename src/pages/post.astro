@@ -11,7 +11,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
 
 <Layout title="Post an Item">
   <div class="bg-muted min-h-screen pt-8 pb-16">
-    <div class="mx-auto max-w-250 px-6 lg:px-8">
+    <div class="mx-auto max-w-250 px-4 sm:px-6 lg:px-8">
       <div class="mb-8">
         <h1 class="text-3xl font-extrabold text-foreground tracking-tight">Create New Listing</h1>
         <p class="text-base text-muted-foreground mt-1">Share your item with the Farmingdale community. Fill out the details below to get started.</p>
@@ -25,7 +25,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                 <h2 class="text-lg font-extrabold text-foreground">Item Photos</h2>
                 <span class="text-sm text-muted-foreground">Up to 5 high-quality photos</span>
               </div>
-              <div class="grid grid-cols-5 gap-2 mb-4" id="existingPreviews"></div>
+              <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4" id="existingPreviews"></div>
               <div class="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary hover:bg-primary/5" id="uploadZone">
                 <input type="file" id="fileInput" multiple accept="image/*" hidden />
                 <div class="w-15 h-15 bg-card border border-border rounded-full mx-auto mb-4 flex items-center justify-center text-primary shadow-sm">
@@ -34,7 +34,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert
                 <p class="text-base text-muted-foreground"><strong class="text-primary font-bold">Click to upload</strong> or drag and drop</p>
                 <p class="text-sm text-muted-foreground mt-1">PNG, JPG or WEBP (max. 10MB each)</p>
               </div>
-              <div class="grid grid-cols-5 gap-2 mt-4" id="uploadPreviews"></div>
+              <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-4" id="uploadPreviews"></div>
             </CardContent>
           </Card>
 
