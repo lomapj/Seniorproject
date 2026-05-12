@@ -190,7 +190,10 @@ import Badge from "@/components/starwind/badge/Badge.astro";
               <div class="flex items-center gap-2 mt-1.5">
                 <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary">${otherInitials}</div>
                 <span class="text-xs text-muted-foreground">
-                  ${otherLabel}: <a href="/user?id=${role === "buyer" ? transaction.seller_id : (transaction.buyer_id || "")}" class="font-semibold text-foreground hover:text-primary no-underline">${escapeHtml(otherName)}</a>
+                  ${otherLabel}: ${role === "seller" && !transaction.buyer_id
+                    ? `<span class="font-semibold text-muted-foreground">—</span>`
+                    : `<a href="/user?id=${role === "buyer" ? transaction.seller_id : transaction.buyer_id}" class="font-semibold text-foreground hover:text-primary no-underline">${escapeHtml(otherName)}</a>`
+                  }
                 </span>
               </div>
             </div>

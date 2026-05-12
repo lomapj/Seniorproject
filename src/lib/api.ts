@@ -316,13 +316,18 @@ export async function markMessagesRead(conversationId: string, userId: string): 
 export async function getUnreadCount(userId: string): Promise<number> {
   const { data: convos, error: convoError } = await supabase
     .from("conversations")
-    .select("id")
+    .select("id, buyer_id, deleted_by_buyer, deleted_by_seller")
     .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
 
   if (convoError) throw convoError;
   if (!convos || convos.length === 0) return 0;
 
-  const convoIds = convos.map((c: any) => c.id);
+  const visibleConvos = convos.filter((c: any) =>
+    c.buyer_id === userId ? !c.deleted_by_buyer : !c.deleted_by_seller
+  );
+  if (visibleConvos.length === 0) return 0;
+
+  const convoIds = visibleConvos.map((c: any) => c.id);
 
   const { count, error } = await supabase
     .from("messages")
